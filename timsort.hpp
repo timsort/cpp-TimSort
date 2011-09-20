@@ -1,3 +1,13 @@
+/*
+ * C++ implementation of timsort
+ *
+ * ported from http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
+ *
+ * Copyright 2010 Fuji, Goro <gfuji@cpan.org>. All rights reserved.
+ *
+ * You can use and/or redistribute in the same term of the original license.
+ */
+
 #include <vector>
 #include <cassert>
 #include <iterator>
