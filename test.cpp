@@ -18,6 +18,8 @@ int compare(T x, T y) {
 }
 
 int main() {
+    std::cout << "# C++ version: " << __cplusplus << std::endl;
+
     std::vector<int> a;
     a.push_back(6);
     a.push_back(5);
