@@ -328,8 +328,8 @@ class TimSort {
     gallopRight(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t c) {
         assert( len > 0 && hint >= 0 && hint < len );
 
-        int lastOfs = 0;
         int ofs = 1;
+        int lastOfs = 0;
 
         if(c(key, *(base + hint)) < 0) {
             const int maxOfs = hint + 1;
@@ -372,11 +372,11 @@ class TimSort {
         while(lastOfs < ofs) {
             const diff_t m = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(c(key, *(base + m)) > 0) {
-                lastOfs = m + 1;
+            if(c(key, *(base + m)) < 0) {
+                ofs = m;
             }
             else {
-                ofs = m;
+                lastOfs = m + 1;
             }
         }
         assert( lastOfs == ofs );
@@ -477,7 +477,7 @@ class TimSort {
                     break;
                 }
 
-                minGallop--;
+                --minGallop;
             } while( (count1 >= MIN_GALLOP) | (count2 >= MIN_GALLOP) );
             if(break_outer) {
                 break;
@@ -489,7 +489,7 @@ class TimSort {
             minGallop += 2;
         } // end of "outer" loop
 
-        minGallop_ = std::max(minGallop, 1);
+        minGallop_ = std::min(minGallop, 1);
 
         if(len1 == 1) {
             assert( len2 > 0 );
@@ -516,8 +516,8 @@ class TimSort {
         std::copy(base2, base2 + len2, tmp_.begin());
 
         iter_t cursor1 = base1 + (len1 - 1);
-        iter_t cursor2 = tmp_.begin() + (len2 = 1);
-        iter_t dest    = base2 + len2 - 1;
+        iter_t cursor2 = tmp_.begin() + (len2 - 1);
+        iter_t dest    = base2 + (len2 - 1);
 
         *(dest--) = *(cursor1--);
         if(--len1 == 0) {
@@ -583,7 +583,7 @@ class TimSort {
                     }
                 }
                 *(dest--) = *(cursor2--);
-                if(--len2 == 0) {
+                if(--len2 == 1) {
                     break_outer = true;
                     break;
                 }
@@ -600,7 +600,7 @@ class TimSort {
                     }
                 }
                 *(dest--) = *(cursor1--);
-                if(--len1 == 1) {
+                if(--len1 == 0) {
                     break_outer = true;
                     break;
                 }
@@ -617,7 +617,7 @@ class TimSort {
             minGallop += 2;
         } // end of "outer" loop
 
-        minGallop_ = std::max(minGallop, 1);
+        minGallop_ = std::min(minGallop, 1);
 
         if(len2 == 1) {
             assert( len1 > 0 );
@@ -626,7 +626,7 @@ class TimSort {
             std::copy(cursor1 + 1, cursor1 + (1 + len1), dest + 1);
             *dest = *cursor2;
         }
-        else if(len1 == 0) {
+        else if(len2 == 0) {
             // throw IllegalArgumentException(
             //     "Comparison method violates its general contract!");
             assert(0);
@@ -636,8 +636,6 @@ class TimSort {
             assert( len2 > 1 );
             std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
-
-
     }
 };
 
