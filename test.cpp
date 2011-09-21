@@ -13,7 +13,7 @@ int compare(T x, T y) {
     if(x == y) {
         return 0;
     }
-    else if(x < 0) {
+    else if(x < y) {
         return -1;
     }
     else {
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE( test_timsort_simple ) {
     std::vector<int> a;
     a.push_back(6);
     a.push_back(5);
-    a.push_back(10);
+    a.push_back(0);
     a.push_back(4);
     a.push_back(8);
     a.push_back(2);
@@ -36,6 +36,7 @@ BOOST_AUTO_TEST_CASE( test_timsort_simple ) {
 
     timsort(a.begin(), a.end(), &compare<int>);
 
+    BOOST_CHECK_EQUAL( a[0], 0 );
     BOOST_CHECK_EQUAL( a[0], 1 );
     BOOST_CHECK_EQUAL( a[0], 2 );
     BOOST_CHECK_EQUAL( a[0], 3 );
