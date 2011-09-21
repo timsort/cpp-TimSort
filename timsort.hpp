@@ -43,8 +43,6 @@ class TimSort {
 
     static const int MIN_MERGE = 32;
 
-    iter_t    first_;
-    iter_t    last_;
     compare_t comp_;
 
     static const int MIN_GALLOP = 7;
@@ -59,7 +57,7 @@ class TimSort {
     std::vector<diff_t> runLen_;
 
     TimSort(iter_t const lo, iter_t const hi, compare_t c)
-            : first_(lo), last_(hi),
+            :
               comp_(c), minGallop_(MIN_GALLOP) {
         assert( lo <= hi );
         diff_t const len = (hi - lo);
@@ -67,7 +65,7 @@ class TimSort {
                 len < 2 * INITIAL_TMP_STORAGE_LENGTH
                     ? len >> 1
                     : INITIAL_TMP_STORAGE_LENGTH );
-        
+
         runBase_.reserve(40);
         runLen_.reserve(40);
     }
@@ -121,7 +119,7 @@ class TimSort {
         }
         for( ; start < hi; ++start ) {
             const value_t pivot = std::move(*start);
- 
+
             iter_t left  = lo;
             iter_t right = start;
             assert( left <= right );
@@ -149,7 +147,7 @@ class TimSort {
         if( runHi == hi ) {
             return 1;
         }
-        
+
         if(c(*(runHi++), *lo) < 0) { // descending
             LOG("descending");
             while(runHi < hi && c(*runHi, *(runHi - 1)) < 0) {
@@ -296,7 +294,7 @@ class TimSort {
             while(ofs < maxOfs && c(key, *(base + (hint - ofs))) <= 0) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
-                
+
                 if(ofs <= 0) {
                     ofs = maxOfs;
                 }
@@ -325,7 +323,7 @@ class TimSort {
         assert( lastOfs == ofs );
         return ofs;
     }
-    
+
     int
     gallopRight(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t c) {
         assert( len > 0 && hint >= 0 && hint < len );
@@ -338,7 +336,7 @@ class TimSort {
             while(ofs < maxOfs && c(key, *(base + (hint - ofs))) < 0) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
-                
+
                 if(ofs <= 0) {
                     ofs = maxOfs;
                 }
@@ -500,7 +498,7 @@ class TimSort {
         }
         else if(len1 == 0) {
             // throw IllegalArgumentException(
-            //     "Comparison method violates its general contract!"); 
+            //     "Comparison method violates its general contract!");
             assert(0);
         }
         else {
@@ -630,7 +628,7 @@ class TimSort {
         }
         else if(len1 == 0) {
             // throw IllegalArgumentException(
-            //     "Comparison method violates its general contract!"); 
+            //     "Comparison method violates its general contract!");
             assert(0);
         }
         else {
