@@ -14,6 +14,13 @@
 #include <algorithm>
 #include <utility>
 
+#ifndef NDEBUG
+#include <iostream>
+#define LOG(expr) (std::clog << __func__ << ": " << (expr) << std::endl)
+#else
+#define LOG(expr) ((void)0)
+#endif
+
 #if __cplusplus <= 199711L // not a C++11
 namespace std {
     template <typename T>
@@ -140,12 +147,14 @@ class TimSort {
         }
         
         if(c(*(runHi++), *lo) < 0) { // descending
+            LOG("descending");
             while(runHi < hi && c(*runHi, *(runHi - 1)) < 0) {
                 ++runHi;
             }
             std::reverse(lo, runHi);
         }
         else { // ascending
+            LOG("ascending");
             while(runHi < hi && c(*runHi, *(runHi - 1)) >= 0) {
                 ++runHi;
             }
