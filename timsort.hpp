@@ -14,6 +14,15 @@
 #include <algorithm>
 #include <utility>
 
+#if __cplusplus <= 199711L // not a C++11
+namespace std {
+    template <typename T>
+    inline const T move(const T& rvalue) {
+        return rvalue;
+    }
+}
+#endif
+
 template <typename RandomAccessIterator, typename Compare>
 class TimSort {
     typedef RandomAccessIterator iter_t;
@@ -63,17 +72,17 @@ class TimSort {
         }
 
         if(nRemaining < MIN_MERGE) {
-            const int initRunLen = countRunAndMakeAscending(lo, hi, c);
+            const diff_t initRunLen = countRunAndMakeAscending(lo, hi, c);
             binarySort(lo, hi, lo + initRunLen, c);
         }
 
         TimSort ts(lo, hi, c);
-        const int minRun = minRunLength(nRemaining);
+        const diff_t minRun = minRunLength(nRemaining);
         do {
-            int runLen = countRunAndMakeAscending(lo, hi, c);
+            diff_t runLen = countRunAndMakeAscending(lo, hi, c);
 
             if(runLen < minRun) {
-                const int force  = std::min(nRemaining, minRun);
+                const diff_t force  = std::min(nRemaining, minRun);
                 binarySort(lo, lo + force, lo + runLen, c);
                 runLen = force;
             }
