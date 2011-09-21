@@ -83,7 +83,9 @@ class TimSort {
 
         if(nRemaining < MIN_MERGE) {
             const diff_t initRunLen = countRunAndMakeAscending(lo, hi, c);
+            LOG("initRunLen: " << initRunLen);
             binarySort(lo, hi, lo + initRunLen, c);
+            return;
         }
 
         TimSort ts(lo, hi, c);
@@ -114,12 +116,11 @@ class TimSort {
     static void
     binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t const c) {
         assert( lo <= start && start <= hi );
-        std::cout << "!!" << (hi - start) << std::endl;
         if(start == lo) {
             ++start;
         }
         for( ; start < hi; ++start ) {
-            value_t pivot = std::move(*start);
+            const value_t pivot = std::move(*start);
  
             iter_t left  = lo;
             iter_t right = start;
