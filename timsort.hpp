@@ -8,6 +8,9 @@
  * You can use and/or redistribute in the same term of the original license.
  */
 
+#ifndef GFX_TIMSORT_HPP
+#define GFX_TIMSORT_HPP
+
 #include <vector>
 #include <cassert>
 #include <iterator>
@@ -16,7 +19,7 @@
 
 #ifndef NDEBUG
 #include <iostream>
-#define LOG(expr) (std::clog << __func__ << ": " << (expr) << std::endl)
+#define LOG(expr) (std::clog << "# " << __func__ << ": " << expr << std::endl)
 #else
 #define LOG(expr) ((void)0)
 #endif
@@ -643,3 +646,7 @@ template<typename Iter, typename Compare>
 static inline void timsort(Iter first, Iter last, Compare c) {
     TimSort<Iter, Compare>::sort(first, last, c);
 }
+
+#undef LOG
+#endif // GFX_TIMSORT_HPP
+
