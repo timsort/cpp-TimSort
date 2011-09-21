@@ -1,6 +1,10 @@
 #include <iostream>
 #include <vector>
 
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE TimSortTest
+#include <boost/test/unit_test.hpp>
+
 #include "timsort.hpp"
 
 
@@ -17,9 +21,7 @@ int compare(T x, T y) {
     }
 }
 
-int main() {
-    std::cout << "# C++ version: " << __cplusplus << std::endl;
-
+BOOST_AUTO_TEST_CASE( test_timsort_simple ) {
     std::vector<int> a;
     a.push_back(6);
     a.push_back(5);
@@ -34,11 +36,14 @@ int main() {
 
     timsort(a.begin(), a.end(), &compare<int>);
 
-    for(std::vector<int>::const_iterator i = a.begin();
-            i != a.end();
-            ++i ) {
-        std::cout << *i << std::endl;
-    }
-    return 0;
+    BOOST_CHECK_EQUAL( a[0], 1 );
+    BOOST_CHECK_EQUAL( a[0], 2 );
+    BOOST_CHECK_EQUAL( a[0], 3 );
+    BOOST_CHECK_EQUAL( a[0], 4 );
+    BOOST_CHECK_EQUAL( a[0], 5 );
+    BOOST_CHECK_EQUAL( a[0], 6 );
+    BOOST_CHECK_EQUAL( a[0], 7 );
+    BOOST_CHECK_EQUAL( a[0], 8 );
+    BOOST_CHECK_EQUAL( a[0], 9 );
 }
 
