@@ -24,14 +24,6 @@
 #define LOG(expr) ((void)0)
 #endif
 
-#if __cplusplus <= 199711L // not a C++11
-namespace std {
-    template <typename T>
-    inline const T move(const T& rvalue) {
-        return rvalue;
-    }
-}
-#endif
 
 template <typename RandomAccessIterator, typename Compare>
 class TimSort {
@@ -55,6 +47,12 @@ class TimSort {
 
     std::vector<iter_t> runBase_;
     std::vector<diff_t> runLen_;
+
+#if HAS_MOVE || __cplusplus > 199711L // C++11
+#define MOVE(x) std::move(x)
+#else
+#define MOVE(x) (x)
+#endif
 
     TimSort(iter_t const lo, iter_t const hi, compare_t c)
             :
@@ -117,7 +115,7 @@ class TimSort {
             ++start;
         }
         for( ; start < hi; ++start ) {
-            const value_t pivot = std::move(*start);
+            const value_t pivot = MOVE(*start);
 
             iter_t left  = lo;
             iter_t right = start;
@@ -133,11 +131,10 @@ class TimSort {
                 }
             }
             assert( left == right );
-            // TODO: use std::copy_backward()
             for(iter_t p = start; p > left; --p) {
-                *p = *(p - 1);
+                *p = MOVE(*(p - 1));
             }
-            *left = std::move(pivot);
+            *left = MOVE(pivot);
         }
     }
 
@@ -651,5 +648,6 @@ static inline void timsort(Iter first, Iter last, Compare c) {
 }
 
 #undef LOG
+#undef MOVE
 #endif // GFX_TIMSORT_HPP
 
