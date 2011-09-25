@@ -133,10 +133,10 @@ class TimSort {
                 }
             }
             assert( left == right );
+            // TODO: use std::copy_backward()
             for(iter_t p = start; p > left; --p) {
                 *p = *(p - 1);
             }
-            //std::copy( left, left + (start - left), left + 1 );
             *left = std::move(pivot);
         }
     }
