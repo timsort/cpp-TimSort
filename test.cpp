@@ -21,7 +21,7 @@ int compare(T x, T y) {
     }
 }
 
-BOOST_AUTO_TEST_CASE( test01_simple10 ) {
+BOOST_AUTO_TEST_CASE( t01_simple10 ) {
     std::vector<int> a;
     a.push_back(60);
     a.push_back(50);
@@ -48,17 +48,32 @@ BOOST_AUTO_TEST_CASE( test01_simple10 ) {
     BOOST_CHECK_EQUAL( a[9], 90 );
 }
 
-BOOST_AUTO_TEST_CASE( test02_shuffle32 ) {
+BOOST_AUTO_TEST_CASE( t02_shuffle32 ) {
     std::vector<int> a;
-    for(int i = 1; i <= 32; ++i) {
+    const int size = 32;
+    for(int i = 1; i <= size; ++i) {
         a.push_back(i * 10);
     }
     std::random_shuffle(a.begin(), a.end());
 
     timsort(a.begin(), a.end(), &compare<int>);
 
-    for(int i = 1; i <= 32; ++i) {
+    for(int i = 1; i <= size; ++i) {
         BOOST_CHECK_EQUAL( a[i], i * 10 );
     }
 }
 
+BOOST_AUTO_TEST_CASE( t03_shuffle33 ) {
+    std::vector<int> a;
+    const int size = 33;
+    for(int i = 1; i <= size; ++i) {
+        a.push_back(i * 10);
+    }
+    std::random_shuffle(a.begin(), a.end());
+
+    timsort(a.begin(), a.end(), &compare<int>);
+
+    for(int i = 1; i <= size; ++i) {
+        BOOST_CHECK_EQUAL( a[i], i * 10 );
+    }
+}
