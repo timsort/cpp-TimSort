@@ -111,7 +111,7 @@ class TimSort {
 
     private:
     static void
-    binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t const c) {
+    binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t const compare) {
         assert( lo <= start && start <= hi );
         if(start == lo) {
             ++start;
@@ -125,7 +125,7 @@ class TimSort {
 
             while( left < right ) {
                 const iter_t mid = left + ( (right - left) >> 1);
-                if(c(pivot, *mid) < 0) {
+                if(compare(pivot, *mid) < 0) {
                     right = mid;
                 }
                 else {
@@ -133,13 +133,16 @@ class TimSort {
                 }
             }
             assert( left == right );
-            std::copy( left, start, left + 1 );
+            for(iter_t p = start; p > left; --p) {
+                *p = *(p - 1);
+            }
+            //std::copy( left, left + (start - left), left + 1 );
             *left = std::move(pivot);
         }
     }
 
     static diff_t
-    countRunAndMakeAscending(iter_t lo, iter_t hi, compare_t c) {
+    countRunAndMakeAscending(iter_t lo, iter_t hi, compare_t compare) {
         assert( lo < hi );
 
         iter_t runHi = lo + 1;
@@ -147,16 +150,16 @@ class TimSort {
             return 1;
         }
 
-        if(c(*(runHi++), *lo) < 0) { // descending
+        if(compare(*(runHi++), *lo) < 0) { // descending
             LOG("descending");
-            while(runHi < hi && c(*runHi, *(runHi - 1)) < 0) {
+            while(runHi < hi && compare(*runHi, *(runHi - 1)) < 0) {
                 ++runHi;
             }
             std::reverse(lo, runHi);
         }
         else { // ascending
             LOG("ascending");
-            while(runHi < hi && c(*runHi, *(runHi - 1)) >= 0) {
+            while(runHi < hi && compare(*runHi, *(runHi - 1)) >= 0) {
                 ++runHi;
             }
         }
@@ -265,15 +268,15 @@ class TimSort {
     }
 
     int
-    gallopLeft(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t c) {
+    gallopLeft(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
         int lastOfs = 0;
         int ofs = 1;
 
-        if(c(key, *(base + hint)) > 0) {
+        if(compare(key, *(base + hint)) > 0) {
             const int maxOfs =  len - hint;
-            while(ofs < maxOfs && c(key, *(base + (hint + ofs))) > 0) {
+            while(ofs < maxOfs && compare(key, *(base + (hint + ofs))) > 0) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -290,7 +293,7 @@ class TimSort {
         }
         else {
             const int maxOfs = hint + 1;
-            while(ofs < maxOfs && c(key, *(base + (hint - ofs))) <= 0) {
+            while(ofs < maxOfs && compare(key, *(base + (hint - ofs))) <= 0) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -312,7 +315,7 @@ class TimSort {
         while(lastOfs < ofs) {
             const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(c(key, *(base + mid)) > 0) {
+            if(compare(key, *(base + mid)) > 0) {
                 lastOfs = mid + 1;
             }
             else {
@@ -324,15 +327,15 @@ class TimSort {
     }
 
     int
-    gallopRight(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t c) {
+    gallopRight(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
         int ofs = 1;
         int lastOfs = 0;
 
-        if(c(key, *(base + hint)) < 0) {
+        if(compare(key, *(base + hint)) < 0) {
             const int maxOfs = hint + 1;
-            while(ofs < maxOfs && c(key, *(base + (hint - ofs))) < 0) {
+            while(ofs < maxOfs && compare(key, *(base + (hint - ofs))) < 0) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -350,7 +353,7 @@ class TimSort {
         }
         else {
             const int maxOfs =  len - hint;
-            while(ofs < maxOfs && c(key, *(base + (hint + ofs))) >= 0) {
+            while(ofs < maxOfs && compare(key, *(base + (hint + ofs))) >= 0) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -371,7 +374,7 @@ class TimSort {
         while(lastOfs < ofs) {
             const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(c(key, *(base + mid)) < 0) {
+            if(compare(key, *(base + mid)) < 0) {
                 ofs = mid;
             }
             else {
@@ -403,8 +406,8 @@ class TimSort {
             return;
         }
 
-        compare_t c   = comp_;
-        int minGallop = minGallop_;
+        compare_t compare = comp_;
+        int minGallop     = minGallop_;
 
         // outer:
         while(true) {
@@ -415,7 +418,7 @@ class TimSort {
             do {
                 assert( len1 > 1 && len2 > 0 );
 
-                if(c(*cursor2, *cursor1) < 0) {
+                if(compare(*cursor2, *cursor1) < 0) {
                     *(dest++) = *(cursor2++);
                     ++count2;
                     count1 = 0;
@@ -441,7 +444,7 @@ class TimSort {
             do {
                 assert( len1 > 1 && len2 > 0 );
 
-                count1 = gallopRight(*cursor2, cursor1, len1, 0, c);
+                count1 = gallopRight(*cursor2, cursor1, len1, 0, compare);
                 if(count1 != 0) {
                     std::copy(cursor1, cursor1 + count1, dest);
                     dest    += count1;
@@ -459,7 +462,7 @@ class TimSort {
                     break;
                 }
 
-                count2 = gallopLeft(*cursor1, cursor2, len2, 0, c);
+                count2 = gallopLeft(*cursor1, cursor2, len2, 0, compare);
                 if(count2 != 0) {
                     std::copy(cursor2, cursor2 + count2, dest);
                     dest    += count2;
@@ -531,8 +534,8 @@ class TimSort {
             return;
         }
 
-        compare_t c   = comp_;
-        int minGallop = minGallop_;
+        compare_t compare = comp_;
+        int minGallop     = minGallop_;
 
         // outer:
         while(true) {
@@ -543,7 +546,7 @@ class TimSort {
             do {
                 assert( len1 > 0 && len2 > 1 );
 
-                if(c(*cursor2, *cursor1) < 0) {
+                if(compare(*cursor2, *cursor1) < 0) {
                     *(dest--) = *(cursor1--);
                     ++count1;
                     count2 = 0;
@@ -569,7 +572,7 @@ class TimSort {
             do {
                 assert( len1 > 1 && len2 > 0 );
 
-                count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1, c);
+                count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1, compare);
                 if(count1 != 0) {
                     dest    -= count1;
                     cursor1 -= count1;
@@ -587,7 +590,7 @@ class TimSort {
                     break;
                 }
 
-                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1, c);
+                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1, compare);
                 if(count2 != 0) {
                     dest    -= count2;
                     cursor2 -= count2;
