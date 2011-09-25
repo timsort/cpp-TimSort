@@ -310,13 +310,13 @@ class TimSort {
 
         ++lastOfs;
         while(lastOfs < ofs) {
-            const diff_t m = lastOfs + ((ofs - lastOfs) >> 1);
+            const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(c(key, *(base + m)) > 0) {
-                lastOfs = m + 1;
+            if(c(key, *(base + mid)) > 0) {
+                lastOfs = mid + 1;
             }
             else {
-                ofs = m;
+                ofs = mid;
             }
         }
         assert( lastOfs == ofs );
@@ -369,13 +369,13 @@ class TimSort {
 
         ++lastOfs;
         while(lastOfs < ofs) {
-            const diff_t m = lastOfs + ((ofs - lastOfs) >> 1);
+            const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(c(key, *(base + m)) < 0) {
-                ofs = m;
+            if(c(key, *(base + mid)) < 0) {
+                ofs = mid;
             }
             else {
-                lastOfs = m + 1;
+                lastOfs = mid + 1;
             }
         }
         assert( lastOfs == ofs );
