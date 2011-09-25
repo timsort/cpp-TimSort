@@ -70,7 +70,6 @@ class TimSort {
         runLen_.reserve(40);
     }
 
-    public:
     static void sort(iter_t lo, iter_t hi, compare_t c) {
         assert( lo <= hi );
 
@@ -637,6 +636,10 @@ class TimSort {
             std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
     }
+
+    // the only interface is the friend timsort() function
+    template <typename IterT, typename CompT>
+    friend void timsort(IterT first, IterT last, CompT c);
 };
 
 template<typename Iter, typename Compare>
