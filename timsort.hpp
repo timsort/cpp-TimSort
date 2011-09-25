@@ -267,7 +267,7 @@ class TimSort {
         }
     }
 
-    int
+    static int
     gallopLeft(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
@@ -326,7 +326,7 @@ class TimSort {
         return ofs;
     }
 
-    int
+    static int
     gallopRight(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
