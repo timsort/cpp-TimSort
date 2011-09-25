@@ -385,7 +385,7 @@ class TimSort {
     void mergeLo(iter_t base1, diff_t len1, iter_t base2, diff_t len2) {
         assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
-        tmp_.reserve(len1);
+        tmp_.resize(len1);
         std::copy(base1, base1 + len1, tmp_.begin());
 
         iter_t cursor1 = tmp_.begin();
@@ -511,7 +511,7 @@ class TimSort {
     void mergeHi(iter_t base1, diff_t len1, iter_t base2, diff_t len2) {
         assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
-        tmp_.reserve(len2);
+        tmp_.resize(len2);
         std::copy(base2, base2 + len2, tmp_.begin());
 
         iter_t cursor1 = base1 + (len1 - 1);
