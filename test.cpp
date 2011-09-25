@@ -129,3 +129,21 @@ BOOST_AUTO_TEST_CASE( shuffle128 ) {
     }
 }
 
+BOOST_AUTO_TEST_CASE( shuffle1024 ) {
+    const int size = 1024;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin(), a.end());
+
+        timsort(a.begin(), a.end(), &compare<int>);
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+}
