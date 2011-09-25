@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <utility>
 
-#ifndef NDEBUG
+#ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
 #define LOG(expr) (std::clog << "# " << __func__ << ": " << expr << std::endl)
 #else
