@@ -570,7 +570,7 @@ class TimSort {
             }
 
             do {
-                assert( len1 > 1 && len2 > 0 );
+                assert( len1 > 0 && len2 > 1 );
 
                 count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1, compare);
                 if(count1 != 0) {
