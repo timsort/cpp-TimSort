@@ -44,6 +44,7 @@ class TimSort {
     static const int INITIAL_TMP_STORAGE_LENGTH = 256;
 
     std::vector<value_t> tmp_; // temp storage for merges
+    typedef typename std::vector<value_t>::iterator tmp_iter_t;
 
     std::vector<iter_t> runBase_;
     std::vector<diff_t> runLen_;
@@ -264,8 +265,9 @@ class TimSort {
         }
     }
 
+    template <typename Iter>
     static int
-    gallopLeft(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t compare) {
+    gallopLeft(ref_t key, Iter base, diff_t len, diff_t hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
         int lastOfs = 0;
@@ -323,8 +325,9 @@ class TimSort {
         return ofs;
     }
 
+    template <typename Iter>
     static int
-    gallopRight(ref_t key, iter_t base, diff_t len, diff_t hint, compare_t compare) {
+    gallopRight(ref_t key, Iter base, diff_t len, diff_t hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
         int ofs = 1;
@@ -388,9 +391,9 @@ class TimSort {
         tmp_.resize(len1);
         std::copy(base1, base1 + len1, tmp_.begin());
 
-        iter_t cursor1 = tmp_.begin();
-        iter_t cursor2 = base2;
-        iter_t dest    = base1;
+        tmp_iter_t cursor1 = tmp_.begin();
+        iter_t cursor2     = base2;
+        iter_t dest        = base1;
 
         *(dest++) = *(cursor2++);
         if(--len2 == 0) {
@@ -514,9 +517,9 @@ class TimSort {
         tmp_.resize(len2);
         std::copy(base2, base2 + len2, tmp_.begin());
 
-        iter_t cursor1 = base1 + (len1 - 1);
-        iter_t cursor2 = tmp_.begin() + (len2 - 1);
-        iter_t dest    = base2 + (len2 - 1);
+        iter_t cursor1     = base1 + (len1 - 1);
+        tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
+        iter_t dest        = base2 + (len2 - 1);
 
         *(dest--) = *(cursor1--);
         if(--len1 == 0) {
