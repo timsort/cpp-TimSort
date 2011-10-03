@@ -147,3 +147,15 @@ BOOST_AUTO_TEST_CASE( shuffle1024 ) {
         }
     }
 }
+
+BOOST_AUTO_TEST_CASE( c_array ) {
+    int a[] = { 7, 1, 5, 3, 9 };
+
+    timsort(a, a + sizeof(a) / sizeof(int), &compare<int>);
+
+    BOOST_CHECK_EQUAL(a[0], 1);
+    BOOST_CHECK_EQUAL(a[1], 3);
+    BOOST_CHECK_EQUAL(a[2], 5);
+    BOOST_CHECK_EQUAL(a[3], 7);
+    BOOST_CHECK_EQUAL(a[4], 9);
+}
