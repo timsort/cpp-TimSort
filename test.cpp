@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <utility>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TimSortTest
@@ -145,4 +146,50 @@ BOOST_AUTO_TEST_CASE( c_array ) {
     BOOST_CHECK_EQUAL(a[2], 5);
     BOOST_CHECK_EQUAL(a[3], 7);
     BOOST_CHECK_EQUAL(a[4], 9);
+}
+
+enum id { foo, bar, baz };
+typedef std::pair<int, id> pair_t;
+bool less_in_first(pair_t x, pair_t y) {
+    return x.first < y.first;
+}
+
+BOOST_AUTO_TEST_CASE( stability ) {
+    std::vector< pair_t > a;
+
+    for(int i = 100; i >= 0; --i) {
+        a.push_back( std::make_pair(i, foo) );
+        a.push_back( std::make_pair(i, bar) );
+        a.push_back( std::make_pair(i, baz) );
+    }
+
+    timsort(a.begin(), a.end(), &less_in_first);
+
+    BOOST_CHECK_EQUAL(a[0].first,  0);
+    BOOST_CHECK_EQUAL(a[0].second, foo);
+    BOOST_CHECK_EQUAL(a[1].first,  0);
+    BOOST_CHECK_EQUAL(a[1].second, bar);
+    BOOST_CHECK_EQUAL(a[2].first,  0);
+    BOOST_CHECK_EQUAL(a[2].second, baz);
+
+    BOOST_CHECK_EQUAL(a[3].first,  1);
+    BOOST_CHECK_EQUAL(a[3].second, foo);
+    BOOST_CHECK_EQUAL(a[4].first,  1);
+    BOOST_CHECK_EQUAL(a[4].second, bar);
+    BOOST_CHECK_EQUAL(a[5].first,  1);
+    BOOST_CHECK_EQUAL(a[5].second, baz);
+
+    BOOST_CHECK_EQUAL(a[6].first,  2);
+    BOOST_CHECK_EQUAL(a[6].second, foo);
+    BOOST_CHECK_EQUAL(a[7].first,  2);
+    BOOST_CHECK_EQUAL(a[7].second, bar);
+    BOOST_CHECK_EQUAL(a[8].first,  2);
+    BOOST_CHECK_EQUAL(a[8].second, baz);
+
+    BOOST_CHECK_EQUAL(a[9].first,   3);
+    BOOST_CHECK_EQUAL(a[9].second, foo);
+    BOOST_CHECK_EQUAL(a[10].first,  3);
+    BOOST_CHECK_EQUAL(a[10].second, bar);
+    BOOST_CHECK_EQUAL(a[11].first,  3);
+    BOOST_CHECK_EQUAL(a[11].second, baz);
 }
