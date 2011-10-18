@@ -3,7 +3,7 @@
  *
  * ported from http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
  *
- * Copyright 2010 Fuji, Goro <gfuji@cpan.org>. All rights reserved.
+ * Copyright 2011 Fuji, Goro <gfuji@cpan.org>. All rights reserved.
  *
  * You can use and/or redistribute in the same term of the original license.
  */
@@ -24,6 +24,11 @@
 #define LOG(expr) ((void)0)
 #endif
 
+#if HAS_MOVE || __cplusplus > 199711L // C++11
+#define MOVE(x) std::move(x)
+#else
+#define MOVE(x) (x)
+#endif
 
 template <typename RandomAccessIterator, typename Compare>
 class TimSort {
@@ -48,12 +53,6 @@ class TimSort {
 
     std::vector<iter_t> runBase_;
     std::vector<diff_t> runLen_;
-
-#if HAS_MOVE || __cplusplus > 199711L // C++11
-#define MOVE(x) std::move(x)
-#else
-#define MOVE(x) (x)
-#endif
 
     TimSort(iter_t const lo, iter_t const hi, compare_t c)
             :
