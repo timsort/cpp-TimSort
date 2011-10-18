@@ -30,6 +30,27 @@
 #define MOVE(x) (x)
 #endif
 
+template <typename Value, typename LessFunction> class Compare {
+    public:
+        typedef Value        value_type;
+        typedef LessFunction func_type;
+
+        bool lt(value_type x, value_type y) {
+            return less_(x, y);
+        }
+        bool le(value_type x, value_type y) {
+            return less_(x, y) || !less_(y, x);
+        }
+        bool gt(value_type x, value_type y) {
+            return !less_(x, y) && less_(y, x);
+        }
+        bool ge(value_type x, value_type y) {
+            return !less_(y, x);
+        }
+    private:
+        func_type less_;
+}
+
 template <typename RandomAccessIterator, typename Compare>
 class TimSort {
     typedef RandomAccessIterator iter_t;
