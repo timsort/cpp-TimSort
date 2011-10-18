@@ -35,6 +35,11 @@ template <typename Value, typename LessFunction> class Compare {
         typedef Value        value_type;
         typedef LessFunction func_type;
 
+        Compare(LessFunction f)
+            : less_(f) { }
+        Compare(const Compare<value_type, func_type>& other)
+            : less_(other.less_) { }
+
         bool lt(value_type x, value_type y) {
             return less_(x, y);
         }
@@ -47,17 +52,29 @@ template <typename Value, typename LessFunction> class Compare {
         bool ge(value_type x, value_type y) {
             return !less_(y, x);
         }
+
+        int operator()(value_type x, value_type y) {
+            if( less_(x, y) ) {
+                return -1;
+            }
+            else if( less_(y, x) ) {
+                return +1;
+            }
+            else {
+                return 0;
+            }
+        }
     private:
         func_type less_;
-}
+};
 
-template <typename RandomAccessIterator, typename Compare>
+template <typename RandomAccessIterator, typename LessFunction>
 class TimSort {
     typedef RandomAccessIterator iter_t;
     typedef typename std::iterator_traits<iter_t>::value_type value_t;
     typedef typename std::iterator_traits<iter_t>::reference ref_t;
     typedef typename std::iterator_traits<iter_t>::difference_type diff_t;
-    typedef Compare compare_t;
+    typedef Compare<const value_t&, LessFunction> compare_t;
 
     static const int MIN_MERGE = 32;
 
@@ -130,7 +147,7 @@ class TimSort {
 
     private:
     static void
-    binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t const compare) {
+    binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t compare) {
         assert( lo <= start && start <= hi );
         if(start == lo) {
             ++start;
@@ -426,8 +443,8 @@ class TimSort {
             return;
         }
 
-        compare_t compare = comp_;
-        int minGallop     = minGallop_;
+        compare_t compare(comp_);
+        int minGallop(minGallop_);
 
         // outer:
         while(true) {
@@ -554,8 +571,8 @@ class TimSort {
             return;
         }
 
-        compare_t compare = comp_;
-        int minGallop     = minGallop_;
+        compare_t compare( comp_ );
+        int minGallop( minGallop_ );
 
         // outer:
         while(true) {
@@ -665,9 +682,9 @@ class TimSort {
     friend void timsort(IterT first, IterT last, CompT c);
 };
 
-template<typename Iter, typename Compare>
-static inline void timsort(Iter first, Iter last, Compare c) {
-    TimSort<Iter, Compare>::sort(first, last, c);
+template<typename Iter, typename Less>
+static inline void timsort(Iter first, Iter last, Less c) {
+    TimSort<Iter, Less>::sort(first, last, c);
 }
 
 #undef LOG
