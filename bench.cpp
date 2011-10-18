@@ -71,5 +71,5 @@ int main() {
     bench<double>(100 * 1000);
 
     std::cerr << "boost::rational" << std::endl;
-    bench< boost::rational<int> >(100 * 1000);
+    bench< boost::rational<long long> >(100 * 1000);
 }

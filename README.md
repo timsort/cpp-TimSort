@@ -10,17 +10,19 @@ bench.cpp, invoked by `make bench`, is a simple benchmark.
 An example output is (scale: sec.):
 
     int
-    size                100000
-    std::sort           0.39
-    std::stable_sort    0.82
-    timsort             0.12
+    size	100000
+    std::sort        0.12273
+    std::stable_sort 0.182555
+    timsort          0.021382
     double
-    size                100000
-    std::sort           0.67
-    std::stable_sort    2.13
-    timsort             0.19
+    size	100000
+    std::sort        0.121308
+    std::stable_sort 0.221106
+    timsort          0.026283
     boost::rational
-    size                100000
-    std::sort           13.66
-    std::stable_sort    10.52
-    timsort             1.01
+    size	100000
+    std::sort        3.60624
+    std::stable_sort 2.60706
+    timsort          0.319079
+
+Looks great.
