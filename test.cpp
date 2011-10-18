@@ -8,19 +8,6 @@
 
 #include "timsort.hpp"
 
-template<typename T>
-int compare(T x, T y) {
-    if(x == y) {
-        return 0;
-    }
-    else if(x < y) {
-        return -1;
-    }
-    else {
-        return 1;
-    }
-}
-
 BOOST_AUTO_TEST_CASE( simple10 ) {
     std::vector<int> a;
     a.push_back(60);
@@ -34,7 +21,7 @@ BOOST_AUTO_TEST_CASE( simple10 ) {
     a.push_back(10);
     a.push_back(90);
 
-    timsort(a.begin(), a.end(), &compare<int>);
+    timsort(a.begin(), a.end(), std::less<int>());
 
     BOOST_CHECK_EQUAL( a[0],  1 );
     BOOST_CHECK_EQUAL( a[1], 10 );
@@ -49,7 +36,7 @@ BOOST_AUTO_TEST_CASE( simple10 ) {
 
     std::reverse(a.begin(), a.end());
 
-    timsort(a.begin(), a.end(), &compare<int>);
+    timsort(a.begin(), a.end(), std::less<int>());
 
     BOOST_CHECK_EQUAL( a[0],  1 );
     BOOST_CHECK_EQUAL( a[1], 10 );
@@ -73,7 +60,7 @@ BOOST_AUTO_TEST_CASE( shuffle30 ) {
     }
     std::random_shuffle(a.begin(), a.end());
 
-    timsort(a.begin(), a.end(), &compare<int>);
+    timsort(a.begin(), a.end(), std::less<int>());
 
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
@@ -90,7 +77,7 @@ BOOST_AUTO_TEST_CASE( shuffle31 ) {
     }
     std::random_shuffle(a.begin(), a.end());
 
-    timsort(a.begin(), a.end(), &compare<int>);
+    timsort(a.begin(), a.end(), std::less<int>());
 
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
@@ -106,7 +93,7 @@ BOOST_AUTO_TEST_CASE( shuffle32 ) {
     }
     std::random_shuffle(a.begin(), a.end());
 
-    timsort(a.begin(), a.end(), &compare<int>);
+    timsort(a.begin(), a.end(), std::less<int>());
 
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
@@ -122,7 +109,7 @@ BOOST_AUTO_TEST_CASE( shuffle128 ) {
     }
     std::random_shuffle(a.begin(), a.end());
 
-    timsort(a.begin(), a.end(), &compare<int>);
+    timsort(a.begin(), a.end(), std::less<int>());
 
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
@@ -140,7 +127,7 @@ BOOST_AUTO_TEST_CASE( shuffle1024 ) {
     for(int n = 0; n < 100; ++n) {
         std::random_shuffle(a.begin(), a.end());
 
-        timsort(a.begin(), a.end(), &compare<int>);
+        timsort(a.begin(), a.end(), std::less<int>());
 
         for(int i = 0; i < size; ++i) {
             BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
@@ -151,7 +138,7 @@ BOOST_AUTO_TEST_CASE( shuffle1024 ) {
 BOOST_AUTO_TEST_CASE( c_array ) {
     int a[] = { 7, 1, 5, 3, 9 };
 
-    timsort(a, a + sizeof(a) / sizeof(int), &compare<int>);
+    timsort(a, a + sizeof(a) / sizeof(int), std::less<int>());
 
     BOOST_CHECK_EQUAL(a[0], 1);
     BOOST_CHECK_EQUAL(a[1], 3);

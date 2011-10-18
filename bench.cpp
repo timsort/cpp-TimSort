@@ -9,28 +9,12 @@
 
 #include "timsort.hpp"
 
-template<typename T>
-int compare(T x, T y) {
-    if(x == y) {
-        return 0;
-    }
-    else if(x < y) {
-        return -1;
-    }
-    else {
-        return 1;
-    }
-}
-
-template<typename T>
-bool std_compare(T x, T y) {
-    return x < y;
-}
-
 
 template <typename value_t>
 void bench(int const size) {
     std::cerr << "size\t" << size << std::endl;
+
+    std::less<value_t> lt;
 
     std::vector<value_t> a;
     for(int i = 0; i < size; ++i) {
@@ -44,10 +28,10 @@ void bench(int const size) {
         boost::timer t;
 
         for(int i = 0; i < 100; ++i) {
-            std::sort(b.begin(), b.end(), &std_compare<value_t>);
+            std::sort(b.begin(), b.end(), lt);
         }
 
-        std::cerr << "std::sort\t" << t.elapsed() << std::endl;
+        std::cerr << "std::sort        " << t.elapsed() << std::endl;
     }
 
 
@@ -56,10 +40,10 @@ void bench(int const size) {
         boost::timer t;
 
         for(int i = 0; i < 100; ++i) {
-            std::stable_sort(b.begin(), b.end(), &std_compare<value_t>);
+            std::stable_sort(b.begin(), b.end(), lt);
         }
 
-        std::cerr << "std::stable_sort\t" << t.elapsed() << std::endl;
+        std::cerr << "std::stable_sort " << t.elapsed() << std::endl;
     }
 
 
@@ -68,10 +52,10 @@ void bench(int const size) {
         boost::timer t;
 
         for(int i = 0; i < 100; ++i) {
-            timsort(b.begin(), b.end(), &compare<value_t>);
+            timsort(b.begin(), b.end(), lt);
         }
 
-        std::cerr << "timsort\t" << t.elapsed() << std::endl;
+        std::cerr << "timsort          " << t.elapsed() << std::endl;
     }
 }
 
