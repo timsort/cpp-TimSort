@@ -50,19 +50,7 @@ template <typename Value, typename LessFunction> class Compare {
             return !less_(x, y) && less_(y, x);
         }
         bool ge(value_type x, value_type y) {
-            return !less_(y, x);
-        }
-
-        int operator()(value_type x, value_type y) {
-            if( less_(x, y) ) {
-                return -1;
-            }
-            else if( less_(y, x) ) {
-                return +1;
-            }
-            else {
-                return 0;
-            }
+            return !less_(x, y);
         }
     private:
         func_type less_;
@@ -161,7 +149,7 @@ class TimSort {
 
             while( left < right ) {
                 const iter_t mid = left + ( (right - left) >> 1);
-                if(compare(pivot, *mid) < 0) {
+                if(compare.lt(pivot, *mid)) {
                     right = mid;
                 }
                 else {
@@ -185,16 +173,16 @@ class TimSort {
             return 1;
         }
 
-        if(compare(*(runHi++), *lo) < 0) { // descending
+        if(compare.lt(*(runHi++), *lo)) { // descending
             LOG("descending");
-            while(runHi < hi && compare(*runHi, *(runHi - 1)) < 0) {
+            while(runHi < hi && compare.lt(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
             std::reverse(lo, runHi);
         }
         else { // ascending
             LOG("ascending");
-            while(runHi < hi && compare(*runHi, *(runHi - 1)) >= 0) {
+            while(runHi < hi && compare.ge(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
         }
@@ -310,9 +298,9 @@ class TimSort {
         int lastOfs = 0;
         int ofs = 1;
 
-        if(compare(key, *(base + hint)) > 0) {
+        if(compare.gt(key, *(base + hint))) {
             const int maxOfs =  len - hint;
-            while(ofs < maxOfs && compare(key, *(base + (hint + ofs))) > 0) {
+            while(ofs < maxOfs && compare.gt(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -329,7 +317,7 @@ class TimSort {
         }
         else {
             const int maxOfs = hint + 1;
-            while(ofs < maxOfs && compare(key, *(base + (hint - ofs))) <= 0) {
+            while(ofs < maxOfs && compare.le(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -351,7 +339,7 @@ class TimSort {
         while(lastOfs < ofs) {
             const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(compare(key, *(base + mid)) > 0) {
+            if(compare.gt(key, *(base + mid))) {
                 lastOfs = mid + 1;
             }
             else {
@@ -370,9 +358,9 @@ class TimSort {
         int ofs = 1;
         int lastOfs = 0;
 
-        if(compare(key, *(base + hint)) < 0) {
+        if(compare.lt(key, *(base + hint))) {
             const int maxOfs = hint + 1;
-            while(ofs < maxOfs && compare(key, *(base + (hint - ofs))) < 0) {
+            while(ofs < maxOfs && compare.lt(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -390,7 +378,7 @@ class TimSort {
         }
         else {
             const int maxOfs =  len - hint;
-            while(ofs < maxOfs && compare(key, *(base + (hint + ofs))) >= 0) {
+            while(ofs < maxOfs && compare.ge(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -411,7 +399,7 @@ class TimSort {
         while(lastOfs < ofs) {
             const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
 
-            if(compare(key, *(base + mid)) < 0) {
+            if(compare.lt(key, *(base + mid))) {
                 ofs = mid;
             }
             else {
@@ -455,7 +443,7 @@ class TimSort {
             do {
                 assert( len1 > 1 && len2 > 0 );
 
-                if(compare(*cursor2, *cursor1) < 0) {
+                if(compare.lt(*cursor2, *cursor1)) {
                     *(dest++) = *(cursor2++);
                     ++count2;
                     count1 = 0;
@@ -583,7 +571,7 @@ class TimSort {
             do {
                 assert( len1 > 0 && len2 > 1 );
 
-                if(compare(*cursor2, *cursor1) < 0) {
+                if(compare.lt(*cursor2, *cursor1)) {
                     *(dest--) = *(cursor1--);
                     ++count1;
                     count2 = 0;
