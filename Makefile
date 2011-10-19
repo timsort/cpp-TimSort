@@ -5,5 +5,5 @@ test: timsort.hpp test.cpp
 	./test
 
 bench: timsort.hpp bench.cpp
-	$(CXX) $(LIB_BOOST_TEST) $(CXXFLAGS) -DNDEBUG -O2 -Wall -Wextra bench.cpp -o $@
+	$(CXX) $(CXXFLAGS) -DNDEBUG -O2 -Wall -Wextra bench.cpp -o $@
 	./bench
