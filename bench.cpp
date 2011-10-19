@@ -9,9 +9,12 @@
 
 #include "timsort.hpp"
 
+enum state_t {
+    sorted, randomized, reversed
+};
 
 template <typename value_t>
-void bench(int const size) {
+static void bench(int const size, state_t const state) {
     std::cerr << "size\t" << size << std::endl;
 
     std::less<value_t> lt;
@@ -21,7 +24,20 @@ void bench(int const size) {
         a.push_back((i+1) * 10);
     }
 
-    std::random_shuffle(a.begin(), a.end());
+    switch(state) {
+    case randomized:
+        std::random_shuffle(a.begin(), a.end());
+        break;
+    case reversed:
+        std::stable_sort(a.begin(), a.end(), lt);
+        std::reverse(a.begin(), a.end());
+        break;
+    case sorted:
+        std::stable_sort(a.begin(), a.end(), lt);
+        break;
+    default:
+        assert(!"not reached");
+    }
 
     {
         std::vector<value_t> b(a);
@@ -62,17 +78,28 @@ void bench(int const size) {
     }
 }
 
+static void doit(int const n, state_t const state) {
+    std::cerr << "int" << std::endl;
+    bench<int>(n, state);
+
+    std::cerr << "double" << std::endl;
+    bench<double>(n, state);
+
+    std::cerr << "boost::rational" << std::endl;
+    bench< boost::rational<long long> >(n, state);
+}
+
 int main() {
-    typedef boost::rational<int> value_t;
+    const int N =  100 * 1000;
 
     std::srand(std::time(NULL));
 
-    std::cerr << "int" << std::endl;
-    bench<int>(100 * 1000);
+    std::cerr << "RANDOMIZED SEQUENCE" << std::endl;
+    doit(N, randomized);
 
-    std::cerr << "double" << std::endl;
-    bench<double>(100 * 1000);
+    std::cerr << "REVERSED SEQUENCE" << std::endl;
+    doit(N, reversed);
 
-    std::cerr << "boost::rational" << std::endl;
-    bench< boost::rational<long long> >(100 * 1000);
+    std::cerr << "SORTED SEQUENCE" << std::endl;
+    doit(N, sorted);
 }
