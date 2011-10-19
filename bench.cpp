@@ -24,10 +24,11 @@ void bench(int const size) {
     std::random_shuffle(a.begin(), a.end());
 
     {
+        std::vector<value_t> b(a);
         boost::timer t;
 
         for(int i = 0; i < 100; ++i) {
-            std::vector<value_t> b(a);
+            std::copy(a.begin(), a.end(), b.begin());
             std::sort(b.begin(), b.end(), lt);
         }
 
@@ -36,10 +37,11 @@ void bench(int const size) {
 
 
     {
+        std::vector<value_t> b(a);
         boost::timer t;
 
         for(int i = 0; i < 100; ++i) {
-            std::vector<value_t> b(a);
+            std::copy(a.begin(), a.end(), b.begin());
             std::stable_sort(b.begin(), b.end(), lt);
         }
 
@@ -48,10 +50,11 @@ void bench(int const size) {
 
 
     {
+        std::vector<value_t> b(a);
         boost::timer t;
 
         for(int i = 0; i < 100; ++i) {
-            std::vector<value_t> b(a);
+            std::copy(a.begin(), a.end(), b.begin());
             timsort(b.begin(), b.end(), lt);
         }
 
