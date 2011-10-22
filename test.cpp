@@ -148,6 +148,31 @@ BOOST_AUTO_TEST_CASE( c_array ) {
     BOOST_CHECK_EQUAL(a[4], 9);
 }
 
+struct NonDefaultConstructible
+{
+    int i;
+    
+    NonDefaultConstructible( int i_ )
+        : i( i_ ) {}
+    
+    friend bool operator<( NonDefaultConstructible const& x, NonDefaultConstructible const& y ) {
+        return x.i < y.i;
+    }
+    
+};
+
+BOOST_AUTO_TEST_CASE( non_default_constructible ) {
+    NonDefaultConstructible a[] = { 7, 1, 5, 3, 9 };
+
+    timsort(a, a + sizeof(a) / sizeof(a[0]), std::less<NonDefaultConstructible>());
+
+    BOOST_CHECK_EQUAL(a[0].i, 1);
+    BOOST_CHECK_EQUAL(a[1].i, 3);
+    BOOST_CHECK_EQUAL(a[2].i, 5);
+    BOOST_CHECK_EQUAL(a[3].i, 7);
+    BOOST_CHECK_EQUAL(a[4].i, 9);
+}
+
 enum id { foo, bar, baz };
 typedef std::pair<int, id> pair_t;
 bool less_in_first(pair_t x, pair_t y) {
