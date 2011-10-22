@@ -141,7 +141,7 @@ class TimSort {
             ++start;
         }
         for( ; start < hi; ++start ) {
-            const value_t pivot = MOVE(*start);
+            /*const*/ value_t pivot = MOVE(*start);
 
             iter_t left  = lo;
             iter_t right = start;
