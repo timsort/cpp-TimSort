@@ -1,6 +1,6 @@
 TimSort
 ==================
-A C++ implementation of TimSort, O(n^2) and stable sort algorithm
+A C++ implementation of TimSort, O(n log n) in worst case and stable sort algorithm
 
 * http://en.wikipedia.org/wiki/Timsort
 
