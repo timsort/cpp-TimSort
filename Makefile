@@ -12,6 +12,7 @@ test: test/test.cpp timsort.hpp .bin
 
 bench: example/bench.cpp timsort.hpp .bin
 	$(CXX) -I. $(CXXFLAGS) -DNDEBUG -O2 -Wall -Wextra $< -o .bin/$@
+	$(CXX) -v
 	./.bin/bench
 
 .PHONY: test bench
