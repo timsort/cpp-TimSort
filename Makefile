@@ -10,6 +10,10 @@ test: test/test.cpp timsort.hpp .bin
 	$(CXX) -I. $(LIB_BOOST_TEST) $(CXXFLAGS) -Wall -Wextra $< -o .bin/$@
 	./.bin/test
 
+test-with-std-move: test/test.cpp timsort.hpp .bin
+	$(CXX) -I. $(LIB_BOOST_TEST) $(CXXFLAGS) -std=c++11 -Wall -Wextra $< -o .bin/$@
+	./.bin/test
+
 bench: example/bench.cpp timsort.hpp .bin
 	$(CXX) -I. $(CXXFLAGS) -DNDEBUG -O2 -Wall -Wextra $< -o .bin/$@
 	$(CXX) -v

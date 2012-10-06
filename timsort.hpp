@@ -24,7 +24,7 @@
 #define LOG(expr) ((void)0)
 #endif
 
-#if HAS_MOVE || __cplusplus > 199711L // C++11
+#if ENABLE_STD_MOVE && __cplusplus >= 201103L
 #define MOVE(x) std::move(x)
 #else
 #define MOVE(x) (x)
