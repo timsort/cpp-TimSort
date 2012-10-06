@@ -1,5 +1,4 @@
-test
-bench
+ench
 *~
 *.swp
-
+.bin
