@@ -2,7 +2,24 @@ TimSort
 ==================
 A C++ port of Java timsort implementation
 
-The original is http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
+The original will be found in OpenJDK source tree:
+
+* `http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java`
+
+And the description of Wikipedia is also useful:
+
+* http://en.wikipedia.org/wiki/Timsort
+
+SYNOPSIS
+==================
+
+    #include "timsort.hpp"
+
+    std::vector<string> a;
+
+    // initialize a
+
+    gfx::timsort(a.begin(), a.end(), std::less<string>());
 
 BENCHMARK
 ==================
@@ -57,3 +74,4 @@ An example output is (scale: sec.):
     std::sort        3.87167
     std::stable_sort 2.78654
     timsort          0.302464
+
