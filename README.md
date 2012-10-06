@@ -1,12 +1,6 @@
 TimSort
 ==================
-A C++ port of Java timsort implementation
-
-The original will be found in OpenJDK source tree:
-
-* `http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java`
-
-And the description of Wikipedia is also useful:
+A C++ implementation of TimSort, O(n^2) and stable sort algorithm
 
 * http://en.wikipedia.org/wiki/Timsort
 
