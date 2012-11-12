@@ -80,6 +80,10 @@ template <typename Value, typename LessFunction> class Compare {
         bool ge(value_type x, value_type y) {
             return !less_(x, y);
         }
+
+        func_type& less_function() {
+            return less_;
+        }
     private:
         func_type less_;
 };
@@ -169,26 +173,14 @@ class TimSort {
             ++start;
         }
         for( ; start < hi; ++start ) {
+            assert(lo <= start);
             /*const*/ value_t pivot = MOVE(*start);
 
-            iter_t left  = lo;
-            iter_t right = start;
-            assert( left <= right );
-
-            while( left < right ) {
-                const iter_t mid = left + ( (right - left) >> 1);
-                if(compare.lt(pivot, *mid)) {
-                    right = mid;
-                }
-                else {
-                    left = mid + 1;
-                }
-            }
-            assert( left == right );
-            for(iter_t p = start; p > left; --p) {
+            iter_t pos = std::upper_bound(lo, start, pivot, compare.less_function());
+            for(iter_t p = start; p > pos; --p) {
                 *p = MOVE(*(p - 1));
             }
-            *left = MOVE(pivot);
+            *pos = MOVE(pivot);
         }
     }
 
@@ -363,19 +355,8 @@ class TimSort {
         }
         assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
-        ++lastOfs;
-        while(lastOfs < ofs) {
-            const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
-
-            if(compare.gt(key, *(base + mid))) {
-                lastOfs = mid + 1;
-            }
-            else {
-                ofs = mid;
-            }
-        }
-        assert( lastOfs == ofs );
-        return ofs;
+        Iter pos = std::lower_bound(base+(lastOfs+1), base+ofs, key, compare.less_function());
+        return pos - base;
     }
 
     template <typename Iter>
@@ -423,19 +404,8 @@ class TimSort {
         }
         assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
-        ++lastOfs;
-        while(lastOfs < ofs) {
-            const diff_t mid = lastOfs + ((ofs - lastOfs) >> 1);
-
-            if(compare.lt(key, *(base + mid))) {
-                ofs = mid;
-            }
-            else {
-                lastOfs = mid + 1;
-            }
-        }
-        assert( lastOfs == ofs );
-        return ofs;
+        Iter pos = std::upper_bound(base+(lastOfs+1), base+ofs, key, compare.less_function());
+        return pos - base;
     }
 
     void mergeLo(iter_t base1, diff_t len1, iter_t base2, diff_t len2) {
