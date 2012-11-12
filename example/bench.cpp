@@ -92,7 +92,7 @@ static void doit(int const n, state_t const state) {
 int main() {
     const int N =  100 * 1000;
 
-    std::srand(std::time(NULL));
+    std::srand(0);
 
     std::cerr << "RANDOMIZED SEQUENCE" << std::endl;
     doit(N, randomized);
