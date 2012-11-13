@@ -136,6 +136,26 @@ BOOST_AUTO_TEST_CASE( shuffle1024 ) {
     }
 }
 
+BOOST_AUTO_TEST_CASE( shuffle1024r ) {
+    const int size = 1024;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin(), a.end());
+
+        timsort(a.begin(), a.end(), std::greater<int>());
+
+        int j = size;
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (--j+1) * 10 );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE( c_array ) {
     int a[] = { 7, 1, 5, 3, 9 };
 
@@ -146,6 +166,18 @@ BOOST_AUTO_TEST_CASE( c_array ) {
     BOOST_CHECK_EQUAL(a[2], 5);
     BOOST_CHECK_EQUAL(a[3], 7);
     BOOST_CHECK_EQUAL(a[4], 9);
+}
+
+BOOST_AUTO_TEST_CASE( string_array ) {
+    std::string a[] = { "7", "1", "5", "3", "9" };
+
+    timsort(a, a + sizeof(a) / sizeof(std::string), std::less<std::string>());
+
+    BOOST_CHECK_EQUAL(a[0], "1");
+    BOOST_CHECK_EQUAL(a[1], "3");
+    BOOST_CHECK_EQUAL(a[2], "5");
+    BOOST_CHECK_EQUAL(a[3], "7");
+    BOOST_CHECK_EQUAL(a[4], "9");
 }
 
 struct NonDefaultConstructible
