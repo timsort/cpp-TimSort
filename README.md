@@ -1,8 +1,10 @@
 TimSort
 ==================
-A C++ implementation of TimSort, O(n log n) in worst case and stable sort algorithm
 
-* http://en.wikipedia.org/wiki/Timsort
+A C++ implementation of TimSort, O(n log n) in worst case and stable sort algorithm, ported from OpenJDK's.
+
+This is a bit slower than `std::sort()` on randomized sequences, and much
+faster on reversed or sorted sequences.
 
 SYNOPSIS
 ==================
@@ -15,6 +17,8 @@ SYNOPSIS
 
     gfx::timsort(a.begin(), a.end(), std::less<string>());
 
+Run `make test` to test this program on your environment.
+
 SEE ALSO
 ==================
 
@@ -23,6 +27,7 @@ SEE ALSO
 
 BENCHMARK
 ==================
+
 bench.cpp, invoked by `make bench`, is a simple benchmark.
 An example output is as follows (timing scale: sec.):
 
