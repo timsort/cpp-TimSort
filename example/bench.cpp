@@ -51,7 +51,6 @@ static void bench(int const size, state_t const state) {
         std::cerr << "std::sort        " << t.elapsed() << std::endl;
     }
 
-
     {
         std::vector<value_t> b(a);
         boost::timer t;
@@ -63,7 +62,6 @@ static void bench(int const size, state_t const state) {
 
         std::cerr << "std::stable_sort " << t.elapsed() << std::endl;
     }
-
 
     {
         std::vector<value_t> b(a);
@@ -81,9 +79,6 @@ static void bench(int const size, state_t const state) {
 static void doit(int const n, state_t const state) {
     std::cerr << "[int]" << std::endl;
     bench<int>(n, state);
-
-    std::cerr << "[double]" << std::endl;
-    bench<double>(n, state);
 
     std::cerr << "[boost::rational]" << std::endl;
     bench< boost::rational<long long> >(n, state);

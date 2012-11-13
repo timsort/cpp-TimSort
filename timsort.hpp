@@ -112,21 +112,8 @@ class TimSort {
     std::vector<iter_t> runBase_;
     std::vector<diff_t> runLen_;
 
-    TimSort(iter_t const lo, iter_t const hi, compare_t c)
-            :
-              comp_(c), minGallop_(MIN_GALLOP) {
-        assert( lo <= hi );
-        diff_t const len = (hi - lo);
-        tmp_.reserve(
-                len < 2 * INITIAL_TMP_STORAGE_LENGTH
-                    ? len >> 1
-                    : INITIAL_TMP_STORAGE_LENGTH );
-
-        runBase_.reserve(40);
-        runLen_.reserve(40);
-    }
-
-    static void sort(iter_t lo, iter_t hi, compare_t c) {
+    static
+    void sort(iter_t const lo, iter_t const hi, compare_t c) {
         assert( lo <= hi );
 
         diff_t nRemaining = (hi - lo);
@@ -135,39 +122,39 @@ class TimSort {
         }
 
         if(nRemaining < MIN_MERGE) {
-            const diff_t initRunLen = countRunAndMakeAscending(lo, hi, c);
+            diff_t const initRunLen = countRunAndMakeAscending(lo, hi, c);
             LOG("initRunLen: " << initRunLen);
             binarySort(lo, hi, lo + initRunLen, c);
             return;
         }
 
         TimSort ts(lo, hi, c);
-        const diff_t minRun = minRunLength(nRemaining);
+        diff_t const minRun = minRunLength(nRemaining);
+        iter_t cur          = lo;
         do {
-            diff_t runLen = countRunAndMakeAscending(lo, hi, c);
+            diff_t runLen = countRunAndMakeAscending(cur, hi, c);
 
             if(runLen < minRun) {
-                const diff_t force  = std::min(nRemaining, minRun);
-                binarySort(lo, lo + force, lo + runLen, c);
+                diff_t const force  = std::min(nRemaining, minRun);
+                binarySort(cur, cur + force, cur + runLen, c);
                 runLen = force;
             }
 
-            ts.pushRun(lo, runLen);
+            ts.pushRun(cur, runLen);
             ts.mergeCollapse();
 
-            lo         += runLen;
+            cur        += runLen;
             nRemaining -= runLen;
         } while(nRemaining != 0);
 
-        assert( lo == hi );
+        assert( cur == hi );
         ts.mergeForceCollapse();
         assert( ts.runBase_.size() == 1 );
         assert( ts.runLen_.size()  == 1 );
-    }
+    } // sort()
 
-    private:
-    static void
-    binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t compare) {
+    static
+    void binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t compare) {
         assert( lo <= start && start <= hi );
         if(start == lo) {
             ++start;
@@ -176,7 +163,7 @@ class TimSort {
             assert(lo <= start);
             /*const*/ value_t pivot = MOVE(*start);
 
-            iter_t pos = std::upper_bound(lo, start, pivot, compare.less_function());
+            iter_t const pos = std::upper_bound(lo, start, pivot, compare.less_function());
             for(iter_t p = start; p > pos; --p) {
                 *p = MOVE(*(p - 1));
             }
@@ -184,8 +171,8 @@ class TimSort {
         }
     }
 
-    static diff_t
-    countRunAndMakeAscending(iter_t lo, iter_t hi, compare_t compare) {
+    static
+    diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi, compare_t compare) {
         assert( lo < hi );
 
         iter_t runHi = lo + 1;
@@ -210,8 +197,8 @@ class TimSort {
         return runHi - lo;
     }
 
-    static diff_t
-    minRunLength(diff_t n) {
+    static
+    diff_t minRunLength(diff_t n) {
         assert( n >= 0 );
 
         diff_t r = 0;
@@ -222,14 +209,25 @@ class TimSort {
         return n + r;
     }
 
-    void
-    pushRun(iter_t const runBase, diff_t const runLen) {
+    TimSort(iter_t const lo, iter_t const hi, compare_t c)
+            : comp_(c), minGallop_(MIN_GALLOP) {
+        assert( lo <= hi );
+        diff_t const len = (hi - lo);
+        tmp_.reserve(
+                len < 2 * INITIAL_TMP_STORAGE_LENGTH
+                    ? len >> 1
+                    : INITIAL_TMP_STORAGE_LENGTH );
+
+        runBase_.reserve(40);
+        runLen_.reserve(40);
+    }
+
+    void pushRun(iter_t const runBase, diff_t const runLen) {
         runBase_.push_back(runBase);
         runLen_.push_back(runLen);
     }
 
-    void
-    mergeCollapse() {
+    void mergeCollapse() {
         while( runBase_.size() > 1 ) {
             diff_t n = runBase_.size() - 2;
 
@@ -248,8 +246,7 @@ class TimSort {
         }
     }
 
-    void
-    mergeForceCollapse() {
+    void mergeForceCollapse() {
         while( runBase_.size() > 1 ) {
             diff_t n = runBase_.size() - 2;
 
@@ -261,9 +258,8 @@ class TimSort {
 
     }
 
-    void
-    mergeAt(const diff_t i) {
-        const diff_t stackSize = runBase_.size();
+    void mergeAt(diff_t const i) {
+        diff_t const stackSize = runBase_.size();
         assert( stackSize >= 2 );
         assert( i >= 0 );
         assert( i == stackSize - 2 || i == stackSize - 3 );
@@ -286,7 +282,7 @@ class TimSort {
         runBase_.pop_back();
         runLen_.pop_back();
 
-        diff_t k = gallopRight(*base2, base1, len1, 0, comp_);
+        diff_t const k = gallopRight(*base2, base1, len1, 0, comp_);
         assert( k >= 0 );
 
         base1 += k;
@@ -311,15 +307,15 @@ class TimSort {
     }
 
     template <typename Iter>
-    static int
-    gallopLeft(ref_t key, Iter base, diff_t len, diff_t hint, compare_t compare) {
+    static
+    diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
-        int lastOfs = 0;
-        int ofs = 1;
+        diff_t lastOfs = 0;
+        diff_t ofs = 1;
 
         if(compare.gt(key, *(base + hint))) {
-            const int maxOfs =  len - hint;
+            diff_t const maxOfs = len - hint;
             while(ofs < maxOfs && compare.gt(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
@@ -336,7 +332,7 @@ class TimSort {
             ofs     += hint;
         }
         else {
-            const int maxOfs = hint + 1;
+            diff_t const maxOfs = hint + 1;
             while(ofs < maxOfs && compare.le(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
@@ -349,26 +345,25 @@ class TimSort {
                 ofs = maxOfs;
             }
 
-            const diff_t tmp = lastOfs;
-            lastOfs = hint - ofs;
-            ofs     = hint - tmp;
+            diff_t const tmp = lastOfs;
+            lastOfs          = hint - ofs;
+            ofs              = hint - tmp;
         }
         assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
-        Iter pos = std::lower_bound(base+(lastOfs+1), base+ofs, key, compare.less_function());
-        return pos - base;
+        return std::lower_bound(base+(lastOfs+1), base+ofs, key, compare.less_function()) - base;
     }
 
     template <typename Iter>
-    static int
-    gallopRight(ref_t key, Iter base, diff_t len, diff_t hint, compare_t compare) {
+    static
+    diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint, compare_t compare) {
         assert( len > 0 && hint >= 0 && hint < len );
 
-        int ofs = 1;
-        int lastOfs = 0;
+        diff_t ofs = 1;
+        diff_t lastOfs = 0;
 
         if(compare.lt(key, *(base + hint))) {
-            const int maxOfs = hint + 1;
+            diff_t const maxOfs = hint + 1;
             while(ofs < maxOfs && compare.lt(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
@@ -381,12 +376,12 @@ class TimSort {
                 ofs = maxOfs;
             }
 
-            const diff_t tmp = lastOfs;
-            lastOfs = hint - ofs;
-            ofs     = hint - tmp;
+            diff_t const tmp = lastOfs;
+            lastOfs          = hint - ofs;
+            ofs              = hint - tmp;
         }
         else {
-            const int maxOfs =  len - hint;
+            diff_t const maxOfs = len - hint;
             while(ofs < maxOfs && compare.ge(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
@@ -404,14 +399,14 @@ class TimSort {
         }
         assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
-        Iter pos = std::upper_bound(base+(lastOfs+1), base+ofs, key, compare.less_function());
-        return pos - base;
+        return std::upper_bound(base+(lastOfs+1), base+ofs, key, compare.less_function()) - base;
     }
 
-    void mergeLo(iter_t base1, diff_t len1, iter_t base2, diff_t len2) {
+    void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
         assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
-        tmp_.clear(); tmp_.reserve(len1);
+        tmp_.clear();
+        tmp_.reserve(len1);
         std::copy(base1, base1 + len1, std::back_inserter(tmp_));
 
         tmp_iter_t cursor1 = tmp_.begin();
@@ -533,11 +528,11 @@ class TimSort {
         }
     }
 
-
-    void mergeHi(iter_t base1, diff_t len1, iter_t base2, diff_t len2) {
+    void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
         assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
-        tmp_.clear(); tmp_.reserve(len2);
+        tmp_.clear();
+        tmp_.reserve(len2);
         std::copy(base2, base2 + len2, std::back_inserter(tmp_));
 
         iter_t cursor1     = base1 + (len1 - 1);
@@ -669,7 +664,7 @@ class TimSort {
 };
 
 template<typename Iter, typename Less>
-static inline void timsort(Iter first, Iter last, Less c) {
+static inline void timsort(Iter const first, Iter const last, Less c) {
     TimSort<Iter, Less>::sort(first, last, c);
 }
 
