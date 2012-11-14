@@ -44,6 +44,7 @@
 #include <iterator>
 #include <algorithm>
 #include <utility>
+#include <stdexcept>
 
 #ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
@@ -517,9 +518,7 @@ class TimSort {
             *(dest + len2) = *cursor1;
         }
         else if(len1 == 0) {
-            // throw IllegalArgumentException(
-            //     "Comparison method violates its general contract!");
-            assert(0);
+            throw std::invalid_argument("Comparision method violates its general contract");
         }
         else {
             assert( len2 == 0 );
@@ -647,9 +646,7 @@ class TimSort {
             *dest = *cursor2;
         }
         else if(len2 == 0) {
-            // throw IllegalArgumentException(
-            //     "Comparison method violates its general contract!");
-            assert(0);
+            throw std::invalid_argument("Comparision method violates its general contract");
         }
         else {
             assert( len1 == 0 );
