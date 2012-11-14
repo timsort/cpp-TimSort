@@ -29,8 +29,11 @@ bench: example/bench.cpp timsort.hpp .bin
 
 coverage:
 	make test CXXFLAGS="-coverage -O0"
-	gcov test.gcda > /dev/null
+	gcov test.gcda | grep -A 1 "File './timsort.hpp'"
 	mv timsort.hpp.gcov coverage.txt
 	rm -rf *.gc*
 
-.PHONY: test bench
+clean:
+	rm -rf *~ .bin coverage.txt
+
+.PHONY: test bench coverage clean
