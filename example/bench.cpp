@@ -9,6 +9,8 @@
 
 #include "timsort.hpp"
 
+using namespace gfx;
+
 enum state_t {
     sorted, randomized, reversed
 };

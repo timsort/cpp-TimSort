@@ -9,6 +9,8 @@
 
 #include "timsort.hpp"
 
+using namespace gfx;
+
 BOOST_AUTO_TEST_CASE( simple10 ) {
     std::vector<int> a;
     a.push_back(60);

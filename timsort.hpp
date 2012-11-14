@@ -59,6 +59,8 @@
 #define MOVE(x) (x)
 #endif
 
+namespace gfx {
+
 template <typename Value, typename LessFunction> class Compare {
     public:
         typedef Value        value_type;
@@ -656,14 +658,16 @@ class TimSort {
     }
 
     // the only interface is the friend timsort() function
-    template <typename IterT, typename CompT>
-    friend void timsort(IterT first, IterT last, CompT c);
+    template <typename IterT, typename LessT>
+    friend void timsort(IterT first, IterT last, LessT c);
 };
 
-template<typename Iter, typename Less>
-static inline void timsort(Iter const first, Iter const last, Less c) {
-    TimSort<Iter, Less>::sort(first, last, c);
+template<typename IterT, typename LessT>
+inline void timsort(IterT const first, IterT const last, LessT c) {
+    TimSort<IterT, LessT>::sort(first, last, c);
 }
+
+} // namespace gfx
 
 #undef LOG
 #undef MOVE
