@@ -519,10 +519,8 @@ class TimSort {
             std::copy(cursor2, cursor2 + len2, dest);
             *(dest + len2) = *cursor1;
         }
-        else if(len1 == 0) {
-            throw std::invalid_argument("Comparision method violates its general contract");
-        }
         else {
+            assert( len1 != 0 && "Comparision function violates its general contract");
             assert( len2 == 0 );
             assert( len1 > 1 );
             std::copy(cursor1, cursor1 + len1, dest);
@@ -647,10 +645,8 @@ class TimSort {
             std::copy(cursor1 + 1, cursor1 + (1 + len1), dest + 1);
             *dest = *cursor2;
         }
-        else if(len2 == 0) {
-            throw std::invalid_argument("Comparision method violates its general contract");
-        }
         else {
+            assert( len2 != 0 && "Comparision function violates its general contract");
             assert( len1 == 0 );
             assert( len2 > 1 );
             std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
