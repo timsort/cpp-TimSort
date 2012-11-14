@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( simple10 ) {
     std::vector<int> a;
     a.push_back(60);
     a.push_back(50);
-    a.push_back( 1);
+    a.push_back(10);
     a.push_back(40);
     a.push_back(80);
     a.push_back(20);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( simple10 ) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL( a[0],  1 );
+    BOOST_CHECK_EQUAL( a[0], 10 );
     BOOST_CHECK_EQUAL( a[1], 10 );
     BOOST_CHECK_EQUAL( a[2], 20 );
     BOOST_CHECK_EQUAL( a[3], 30 );
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( simple10 ) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL( a[0],  1 );
+    BOOST_CHECK_EQUAL( a[0], 10 );
     BOOST_CHECK_EQUAL( a[1], 10 );
     BOOST_CHECK_EQUAL( a[2], 20 );
     BOOST_CHECK_EQUAL( a[3], 30 );
