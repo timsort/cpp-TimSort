@@ -4,7 +4,7 @@ TimSort
 A C++ implementation of TimSort, O(n log n) in worst case and stable sort algorithm, ported from OpenJDK's.
 
 This is a bit slower than `std::sort()` on randomized sequences, and much
-faster on reversed or sorted sequences.
+faster on partially-sorted sequences.
 
 SYNOPSIS
 ==================
