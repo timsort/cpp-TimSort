@@ -11,6 +11,48 @@
 
 using namespace gfx;
 
+BOOST_AUTO_TEST_CASE( simple0 ) {
+    std::vector<int> a;
+
+    timsort(a.begin(), a.end(), std::less<int>());
+
+    BOOST_CHECK_EQUAL( a.size(), 0 );
+}
+
+BOOST_AUTO_TEST_CASE( simple1 ) {
+    std::vector<int> a;
+
+    a.push_back(42);
+
+    timsort(a.begin(), a.end(), std::less<int>());
+
+    BOOST_CHECK_EQUAL( a.size(), 1 );
+    BOOST_CHECK_EQUAL( a[0],  42 );
+}
+
+BOOST_AUTO_TEST_CASE( simple2 ) {
+    std::vector<int> a;
+
+    a.push_back(10);
+    a.push_back(20);
+
+    timsort(a.begin(), a.end(), std::less<int>());
+
+    BOOST_CHECK_EQUAL( a.size(), 2 );
+    BOOST_CHECK_EQUAL( a[0],  10);
+    BOOST_CHECK_EQUAL( a[1],  20 );
+
+    a.clear();
+    a.push_back(20);
+    a.push_back(10);
+
+    timsort(a.begin(), a.end(), std::less<int>());
+
+    BOOST_CHECK_EQUAL( a.size(), 2 );
+    BOOST_CHECK_EQUAL( a[0],  10);
+    BOOST_CHECK_EQUAL( a[1],  20 );
+}
+
 BOOST_AUTO_TEST_CASE( simple10 ) {
     std::vector<int> a;
     a.push_back(60);
@@ -65,6 +107,7 @@ BOOST_AUTO_TEST_CASE( shuffle30 ) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
+    BOOST_CHECK_EQUAL(a.size(), size);
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
     }
@@ -82,6 +125,7 @@ BOOST_AUTO_TEST_CASE( shuffle31 ) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
+    BOOST_CHECK_EQUAL(a.size(), size);
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
     }
@@ -98,6 +142,7 @@ BOOST_AUTO_TEST_CASE( shuffle32 ) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
+    BOOST_CHECK_EQUAL(a.size(), size);
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
     }
@@ -114,13 +159,14 @@ BOOST_AUTO_TEST_CASE( shuffle128 ) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
+    BOOST_CHECK_EQUAL(a.size(), size);
     for(int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
     }
 }
 
-BOOST_AUTO_TEST_CASE( shuffle1024 ) {
-    const int size = 1024;
+BOOST_AUTO_TEST_CASE( shuffle1023 ) {
+    const int size = 1023; // odd number of elements
 
     std::vector<int> a;
     for(int i = 0; i < size; ++i) {
@@ -129,6 +175,63 @@ BOOST_AUTO_TEST_CASE( shuffle1024 ) {
 
     for(int n = 0; n < 100; ++n) {
         std::random_shuffle(a.begin(), a.end());
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( shuffle1024 ) {
+    const int size = 1024; // even number of elements
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin(), a.end());
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( partial_shuffle1023 ) {
+    const int size = 1023;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin(), a.begin() + (size / 2));
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( partial_shuffle1024 ) {
+    const int size = 1024;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin(), a.begin() + (size / 2));
 
         timsort(a.begin(), a.end(), std::less<int>());
 
@@ -154,6 +257,44 @@ BOOST_AUTO_TEST_CASE( shuffle1024r ) {
         int j = size;
         for(int i = 0; i < size; ++i) {
             BOOST_CHECK_EQUAL( a[i], (--j+1) * 10 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( partial_reversed1023 ) {
+    const int size = 1023;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::reverse(a.begin(), a.begin() + (size / 2)); // partial reversed
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( partial_reversed1024 ) {
+    const int size = 1024;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+
+    for(int n = 0; n < 100; ++n) {
+        std::reverse(a.begin(), a.begin() + (size / 2)); // partial reversed
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
         }
     }
 }
