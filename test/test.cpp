@@ -211,8 +211,21 @@ BOOST_AUTO_TEST_CASE( partial_shuffle1023 ) {
         a.push_back((i+1) * 10);
     }
 
+    // sorted-shuffled-sorted pattern
     for(int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.begin() + (size / 2));
+        std::random_shuffle(a.begin() + (size/3 * 1), a.begin() + (size/3 * 2));
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+
+    // shuffled-sorted-shuffled pattern
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin()               , a.begin() + (size/3 * 1));
+        std::random_shuffle(a.begin() + (size/3 * 2), a.end());
 
         timsort(a.begin(), a.end(), std::less<int>());
 
@@ -230,8 +243,21 @@ BOOST_AUTO_TEST_CASE( partial_shuffle1024 ) {
         a.push_back((i+1) * 10);
     }
 
+    // sorted-shuffled-sorted pattern
     for(int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.begin() + (size / 2));
+        std::random_shuffle(a.begin() + (size/3 * 1), a.begin() + (size/3 * 2));
+
+        timsort(a.begin(), a.end(), std::less<int>());
+
+        for(int i = 0; i < size; ++i) {
+            BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+        }
+    }
+
+    // shuffled-sorted-shuffled pattern
+    for(int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin()               , a.begin() + (size/3 * 1));
+        std::random_shuffle(a.begin() + (size/3 * 2), a.end());
 
         timsort(a.begin(), a.end(), std::less<int>());
 
@@ -326,14 +352,14 @@ BOOST_AUTO_TEST_CASE( string_array ) {
 struct NonDefaultConstructible
 {
     int i;
-    
+
     NonDefaultConstructible( int i_ )
         : i( i_ ) {}
-    
+
     friend bool operator<( NonDefaultConstructible const& x, NonDefaultConstructible const& y ) {
         return x.i < y.i;
     }
-    
+
 };
 
 BOOST_AUTO_TEST_CASE( non_default_constructible ) {
