@@ -27,4 +27,10 @@ bench: example/bench.cpp timsort.hpp .bin
 	$(CXX) -v
 	./.bin/$@
 
+coverage:
+	make test CXXFLAGS="-coverage -O0"
+	gcov test.gcda > /dev/null
+	mv timsort.hpp.gcov coverage.txt
+	rm -rf *.gc*
+
 .PHONY: test bench
