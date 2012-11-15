@@ -284,7 +284,7 @@ class TimSort {
 
         pending_.pop_back();
 
-        diff_t const k = gallopRight(*base2, base1, len1, 0, comp_);
+        diff_t const k = gallopRight(*base2, base1, len1, 0);
         assert( k >= 0 );
 
         base1 += k;
@@ -294,7 +294,7 @@ class TimSort {
             return;
         }
 
-        len2 = gallopLeft(*(base1 + (len1 - 1)), base2, len2, len2 - 1, comp_);
+        len2 = gallopLeft(*(base1 + (len1 - 1)), base2, len2, len2 - 1);
         assert( len2 >= 0 );
         if(len2 == 0) {
             return;
@@ -309,16 +309,15 @@ class TimSort {
     }
 
     template <typename Iter>
-    static
-    diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint, compare_t compare) {
+    diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint) {
         assert( len > 0 && hint >= 0 && hint < len );
 
         diff_t lastOfs = 0;
         diff_t ofs = 1;
 
-        if(compare.gt(key, *(base + hint))) {
+        if(comp_.gt(key, *(base + hint))) {
             diff_t const maxOfs = len - hint;
-            while(ofs < maxOfs && compare.gt(key, *(base + (hint + ofs)))) {
+            while(ofs < maxOfs && comp_.gt(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -335,7 +334,7 @@ class TimSort {
         }
         else {
             diff_t const maxOfs = hint + 1;
-            while(ofs < maxOfs && compare.le(key, *(base + (hint - ofs)))) {
+            while(ofs < maxOfs && comp_.le(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -353,20 +352,19 @@ class TimSort {
         }
         assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
-        return std::lower_bound(base+(lastOfs+1), base+ofs, key, compare.less_function()) - base;
+        return std::lower_bound(base+(lastOfs+1), base+ofs, key, comp_.less_function()) - base;
     }
 
     template <typename Iter>
-    static
-    diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint, compare_t compare) {
+    diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint) {
         assert( len > 0 && hint >= 0 && hint < len );
 
         diff_t ofs = 1;
         diff_t lastOfs = 0;
 
-        if(compare.lt(key, *(base + hint))) {
+        if(comp_.lt(key, *(base + hint))) {
             diff_t const maxOfs = hint + 1;
-            while(ofs < maxOfs && compare.lt(key, *(base + (hint - ofs)))) {
+            while(ofs < maxOfs && comp_.lt(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -384,7 +382,7 @@ class TimSort {
         }
         else {
             diff_t const maxOfs = len - hint;
-            while(ofs < maxOfs && compare.ge(key, *(base + (hint + ofs)))) {
+            while(ofs < maxOfs && comp_.ge(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs     = (ofs << 1) + 1;
 
@@ -401,7 +399,7 @@ class TimSort {
         }
         assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
-        return std::upper_bound(base+(lastOfs+1), base+ofs, key, compare.less_function()) - base;
+        return std::upper_bound(base+(lastOfs+1), base+ofs, key, comp_.less_function()) - base;
     }
 
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
@@ -426,7 +424,6 @@ class TimSort {
             return;
         }
 
-        compare_t compare(comp_);
         int minGallop(minGallop_);
 
         // outer:
@@ -438,7 +435,7 @@ class TimSort {
             do {
                 assert( len1 > 1 && len2 > 0 );
 
-                if(compare.lt(*cursor2, *cursor1)) {
+                if(comp_.lt(*cursor2, *cursor1)) {
                     *(dest++) = *(cursor2++);
                     ++count2;
                     count1 = 0;
@@ -464,7 +461,7 @@ class TimSort {
             do {
                 assert( len1 > 1 && len2 > 0 );
 
-                count1 = gallopRight(*cursor2, cursor1, len1, 0, compare);
+                count1 = gallopRight(*cursor2, cursor1, len1, 0);
                 if(count1 != 0) {
                     std::copy(cursor1, cursor1 + count1, dest);
                     dest    += count1;
@@ -482,7 +479,7 @@ class TimSort {
                     break;
                 }
 
-                count2 = gallopLeft(*cursor1, cursor2, len2, 0, compare);
+                count2 = gallopLeft(*cursor1, cursor2, len2, 0);
                 if(count2 != 0) {
                     std::copy(cursor2, cursor2 + count2, dest);
                     dest    += count2;
@@ -550,7 +547,6 @@ class TimSort {
             return;
         }
 
-        compare_t compare( comp_ );
         int minGallop( minGallop_ );
 
         // outer:
@@ -562,7 +558,7 @@ class TimSort {
             do {
                 assert( len1 > 0 && len2 > 1 );
 
-                if(compare.lt(*cursor2, *cursor1)) {
+                if(comp_.lt(*cursor2, *cursor1)) {
                     *(dest--) = *(cursor1--);
                     ++count1;
                     count2 = 0;
@@ -588,7 +584,7 @@ class TimSort {
             do {
                 assert( len1 > 0 && len2 > 1 );
 
-                count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1, compare);
+                count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1);
                 if(count1 != 0) {
                     dest    -= count1;
                     cursor1 -= count1;
@@ -606,7 +602,7 @@ class TimSort {
                     break;
                 }
 
-                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1, compare);
+                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1);
                 if(count2 != 0) {
                     dest    -= count2;
                     cursor2 -= count2;
