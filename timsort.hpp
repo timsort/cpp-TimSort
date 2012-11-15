@@ -253,12 +253,11 @@ class TimSort {
         while( runBase_.size() > 1 ) {
             diff_t n = runBase_.size() - 2;
 
-            if(n > 0 && runLen_[n - 1] <= runLen_[n + 1]) {
+            if(n > 0 && runLen_[n - 1] < runLen_[n + 1]) {
                 --n;
             }
             mergeAt(n);
         }
-
     }
 
     void mergeAt(diff_t const i) {
