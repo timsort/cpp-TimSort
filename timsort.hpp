@@ -112,8 +112,13 @@ class TimSort {
     std::vector<value_t> tmp_; // temp storage for merges
     typedef typename std::vector<value_t>::iterator tmp_iter_t;
 
-    std::vector<iter_t> runBase_;
-    std::vector<diff_t> runLen_;
+    struct run {
+        iter_t base;
+        diff_t len;
+
+        run(iter_t const b, diff_t const l) : base(b), len(l) { }
+    };
+    std::vector<run> pending_;
 
     static
     void sort(iter_t const lo, iter_t const hi, compare_t c) {
@@ -152,8 +157,7 @@ class TimSort {
 
         assert( cur == hi );
         ts.mergeForceCollapse();
-        assert( ts.runBase_.size() == 1 );
-        assert( ts.runLen_.size()  == 1 );
+        assert( ts.pending_.size() == 1 );
     } // sort()
 
     static
@@ -221,26 +225,24 @@ class TimSort {
                     ? len >> 1
                     : INITIAL_TMP_STORAGE_LENGTH );
 
-        runBase_.reserve(40);
-        runLen_.reserve(40);
+        pending_.reserve(40);
     }
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
-        runBase_.push_back(runBase);
-        runLen_.push_back(runLen);
+        pending_.push_back(run(runBase, runLen));
     }
 
     void mergeCollapse() {
-        while( runBase_.size() > 1 ) {
-            diff_t n = runBase_.size() - 2;
+        while( pending_.size() > 1 ) {
+            diff_t n = pending_.size() - 2;
 
-            if(n > 0 && runLen_[n - 1] <= runLen_[n] + runLen_[n + 1]) {
-                if(runLen_[n - 1] < runLen_[n + 1]) {
+            if(n > 0 && pending_[n - 1].len <= pending_[n].len + pending_[n + 1].len) {
+                if(pending_[n - 1].len < pending_[n + 1].len) {
                     --n;
                 }
                 mergeAt(n);
             }
-            else if(runLen_[n] <= runLen_[n + 1]) {
+            else if(pending_[n].len <= pending_[n + 1].len) {
                 mergeAt(n);
             }
             else {
@@ -250,10 +252,10 @@ class TimSort {
     }
 
     void mergeForceCollapse() {
-        while( runBase_.size() > 1 ) {
-            diff_t n = runBase_.size() - 2;
+        while( pending_.size() > 1 ) {
+            diff_t n = pending_.size() - 2;
 
-            if(n > 0 && runLen_[n - 1] < runLen_[n + 1]) {
+            if(n > 0 && pending_[n - 1].len < pending_[n + 1].len) {
                 --n;
             }
             mergeAt(n);
@@ -261,28 +263,26 @@ class TimSort {
     }
 
     void mergeAt(diff_t const i) {
-        diff_t const stackSize = runBase_.size();
+        diff_t const stackSize = pending_.size();
         assert( stackSize >= 2 );
         assert( i >= 0 );
         assert( i == stackSize - 2 || i == stackSize - 3 );
 
-        iter_t base1 = runBase_[i];
-        diff_t len1  = runLen_ [i];
-        iter_t base2 = runBase_[i + 1];
-        diff_t len2  = runLen_ [i + 1];
+        iter_t base1 = pending_[i].base;
+        diff_t len1  = pending_[i].len;
+        iter_t base2 = pending_[i + 1].base;
+        diff_t len2  = pending_[i + 1].len;
 
         assert( len1 > 0 && len2 > 0 );
         assert( base1 + len1 == base2 );
 
-        runLen_[i] = len1 + len2;
+        pending_[i].len = len1 + len2;
 
         if(i == stackSize - 3) {
-            runBase_[i + 1] = runBase_[i + 2];
-            runLen_ [i + 1] = runLen_ [i + 2];
+            pending_[i + 1] = pending_[i + 2];
         }
 
-        runBase_.pop_back();
-        runLen_.pop_back();
+        pending_.pop_back();
 
         diff_t const k = gallopRight(*base2, base1, len1, 0, comp_);
         assert( k >= 0 );
