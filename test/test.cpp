@@ -384,6 +384,23 @@ BOOST_AUTO_TEST_CASE( non_default_constructible ) {
     BOOST_CHECK_EQUAL(a[4].i, 9);
 }
 
+BOOST_AUTO_TEST_CASE( default_compare_function ) {
+    const int size = 128;
+
+    std::vector<int> a;
+    for(int i = 0; i < size; ++i) {
+        a.push_back((i+1) * 10);
+    }
+    std::random_shuffle(a.begin(), a.end());
+
+    timsort(a.begin(), a.end());
+
+    BOOST_CHECK_EQUAL(a.size(), size);
+    for(int i = 0; i < size; ++i) {
+        BOOST_CHECK_EQUAL( a[i], (i+1) * 10 );
+    }
+}
+
 enum id { foo, bar, baz };
 typedef std::pair<int, id> pair_t;
 bool less_in_first(pair_t x, pair_t y) {

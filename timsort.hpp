@@ -640,6 +640,12 @@ inline void timsort(IterT const first, IterT const last, LessT c) {
     TimSort<IterT, LessT>::sort(first, last, c);
 }
 
+template<typename IterT>
+inline void timsort(IterT const first, IterT const last) {
+    typedef typename std::iterator_traits<IterT>::value_type value_type;
+    timsort(first, last, std::less<value_type>());
+}
+
 } // namespace gfx
 
 #undef LOG
