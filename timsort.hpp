@@ -107,8 +107,6 @@ class TimSort {
 
     int minGallop_; // default to MIN_GALLOP
 
-    static const int INITIAL_TMP_STORAGE_LENGTH = 256;
-
     std::vector<value_t> tmp_; // temp storage for merges
     typedef typename std::vector<value_t>::iterator tmp_iter_t;
 
@@ -136,7 +134,7 @@ class TimSort {
             return;
         }
 
-        TimSort ts(lo, hi, c);
+        TimSort ts(c);
         diff_t const minRun = minRunLength(nRemaining);
         iter_t cur          = lo;
         do {
@@ -158,6 +156,8 @@ class TimSort {
         assert( cur == hi );
         ts.mergeForceCollapse();
         assert( ts.pending_.size() == 1 );
+
+        LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size() << " pending_.size(): " << ts.pending_.size());
     } // sort()
 
     static
@@ -188,14 +188,12 @@ class TimSort {
         }
 
         if(compare.lt(*(runHi++), *lo)) { // descending
-            LOG("descending");
             while(runHi < hi && compare.lt(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
             std::reverse(lo, runHi);
         }
         else { // ascending
-            LOG("ascending");
             while(runHi < hi && compare.ge(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
@@ -216,16 +214,8 @@ class TimSort {
         return n + r;
     }
 
-    TimSort(iter_t const lo, iter_t const hi, compare_t c)
+    TimSort(compare_t c)
             : comp_(c), minGallop_(MIN_GALLOP) {
-        assert( lo <= hi );
-        diff_t const len = (hi - lo);
-        tmp_.reserve(
-                len < 2 * INITIAL_TMP_STORAGE_LENGTH
-                    ? len >> 1
-                    : INITIAL_TMP_STORAGE_LENGTH );
-
-        pending_.reserve(40);
     }
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
@@ -405,9 +395,7 @@ class TimSort {
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
         assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
-        tmp_.clear();
-        tmp_.reserve(len1);
-        std::copy(base1, base1 + len1, std::back_inserter(tmp_));
+        copy_to_tmp(base1, len1);
 
         tmp_iter_t cursor1 = tmp_.begin();
         iter_t cursor2     = base2;
@@ -526,9 +514,7 @@ class TimSort {
     void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
         assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
-        tmp_.clear();
-        tmp_.reserve(len2);
-        std::copy(base2, base2 + len2, std::back_inserter(tmp_));
+        copy_to_tmp(base2, len2);
 
         iter_t cursor1     = base1 + (len1 - 1);
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
@@ -646,6 +632,12 @@ class TimSort {
             assert( len2 > 1 );
             std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
+    }
+
+    void copy_to_tmp(iter_t const begin, diff_t const len) {
+        tmp_.clear();
+        tmp_.reserve(len);
+        std::copy(begin, begin + len, std::back_inserter(tmp_));
     }
 
     // the only interface is the friend timsort() function

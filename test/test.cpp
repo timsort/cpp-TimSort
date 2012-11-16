@@ -51,6 +51,16 @@ BOOST_AUTO_TEST_CASE( simple2 ) {
     BOOST_CHECK_EQUAL( a.size(), 2 );
     BOOST_CHECK_EQUAL( a[0],  10);
     BOOST_CHECK_EQUAL( a[1],  20 );
+
+    a.clear();
+    a.push_back(10);
+    a.push_back(10);
+
+    timsort(a.begin(), a.end(), std::less<int>());
+
+    BOOST_CHECK_EQUAL( a.size(), 2 );
+    BOOST_CHECK_EQUAL( a[0],  10);
+    BOOST_CHECK_EQUAL( a[1],  10 );
 }
 
 BOOST_AUTO_TEST_CASE( simple10 ) {
