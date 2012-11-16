@@ -635,14 +635,14 @@ class TimSort {
     friend void timsort(IterT first, IterT last, LessT c);
 };
 
-template<typename IterT, typename LessT>
-inline void timsort(IterT const first, IterT const last, LessT c) {
-    TimSort<IterT, LessT>::sort(first, last, c);
+template<typename RandomAccessIterator, typename LessFunction>
+inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last, LessFunction c) {
+    TimSort<RandomAccessIterator, LessFunction>::sort(first, last, c);
 }
 
-template<typename IterT>
-inline void timsort(IterT const first, IterT const last) {
-    typedef typename std::iterator_traits<IterT>::value_type value_type;
+template<typename RandomAccessIterator>
+inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
+    typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
     timsort(first, last, std::less<value_type>());
 }
 
