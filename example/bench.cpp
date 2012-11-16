@@ -1,9 +1,11 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <ctime>
 #include <boost/rational.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <boost/timer.hpp>
 
@@ -86,8 +88,12 @@ static void doit(int const n, state_t const state) {
     bench< boost::rational<long long> >(n, state);
 }
 
-int main() {
-    const int N =  100 * 1000;
+int main(int argc, const char *argv[]) {
+    const int N =  argc > 1
+        ? boost::lexical_cast<int>(argv[1])
+        : 100 * 1000;
+
+    std::cerr << std::setprecision(6) << std::setiosflags(std::ios::fixed);
 
     std::srand(0);
 
