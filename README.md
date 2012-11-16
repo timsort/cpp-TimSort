@@ -17,12 +17,10 @@ SYNOPSIS
 
     gfx::timsort(a.begin(), a.end(), std::less<string>());
 
-Run `make test` to test this program on your environment.
-
 TEST
 ==================
 
-Run `make test` for testing and `make coverage` to measure test coverage.
+Run `make test` for testing and `make coverage` for test coverage.
 
 SEE ALSO
 ==================
