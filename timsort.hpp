@@ -34,7 +34,6 @@
 #include <iterator>
 #include <algorithm>
 #include <utility>
-#include <stdexcept>
 
 #ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
