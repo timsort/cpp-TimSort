@@ -21,8 +21,6 @@ template <typename value_t>
 static void bench(int const size, state_t const state) {
     std::cerr << "size\t" << size << std::endl;
 
-    std::less<value_t> lt;
-
     std::vector<value_t> a;
     for(int i = 0; i < size; ++i) {
         a.push_back((i+1) * 10);
@@ -33,11 +31,11 @@ static void bench(int const size, state_t const state) {
         std::random_shuffle(a.begin(), a.end());
         break;
     case reversed:
-        std::stable_sort(a.begin(), a.end(), lt);
+        std::stable_sort(a.begin(), a.end());
         std::reverse(a.begin(), a.end());
         break;
     case sorted:
-        std::stable_sort(a.begin(), a.end(), lt);
+        std::stable_sort(a.begin(), a.end());
         break;
     default:
         assert(!"not reached");
@@ -49,7 +47,7 @@ static void bench(int const size, state_t const state) {
 
         for(int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
-            std::sort(b.begin(), b.end(), lt);
+            std::sort(b.begin(), b.end());
         }
 
         std::cerr << "std::sort        " << t.elapsed() << std::endl;
@@ -61,7 +59,7 @@ static void bench(int const size, state_t const state) {
 
         for(int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
-            std::stable_sort(b.begin(), b.end(), lt);
+            std::stable_sort(b.begin(), b.end());
         }
 
         std::cerr << "std::stable_sort " << t.elapsed() << std::endl;
@@ -73,7 +71,7 @@ static void bench(int const size, state_t const state) {
 
         for(int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
-            timsort(b.begin(), b.end(), lt);
+            timsort(b.begin(), b.end());
         }
 
         std::cerr << "timsort          " << t.elapsed() << std::endl;
