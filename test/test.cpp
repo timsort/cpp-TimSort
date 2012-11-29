@@ -454,6 +454,28 @@ bool less_in_pair(const std::pair<int, int>& x, const std::pair<int, int>& y) {
     return x.first < y.first;
 }
 
+BOOST_AUTO_TEST_CASE( issue2_compare ) {
+    typedef std::pair<int, int> p;
+    gfx::Compare< p, bool(*)(const p&, const p&) > c(&less_in_pair);
+
+
+    BOOST_CHECK_EQUAL( c.lt(std::make_pair(10, 10), std::make_pair(10,  9)), false);
+    BOOST_CHECK_EQUAL( c.lt(std::make_pair(10, 10), std::make_pair(10, 10)), false);
+    BOOST_CHECK_EQUAL( c.lt(std::make_pair(10, 10), std::make_pair(10, 11)), true);
+
+    BOOST_CHECK_EQUAL( c.le(std::make_pair(10, 10), std::make_pair(10,  9)), false);
+    BOOST_CHECK_EQUAL( c.le(std::make_pair(10, 10), std::make_pair(10, 10)), true);
+    BOOST_CHECK_EQUAL( c.le(std::make_pair(10, 10), std::make_pair(10, 11)), true);
+
+    BOOST_CHECK_EQUAL( c.gt(std::make_pair(10, 10), std::make_pair(10,  9)), true);
+    BOOST_CHECK_EQUAL( c.gt(std::make_pair(10, 10), std::make_pair(10, 10)), false);
+    BOOST_CHECK_EQUAL( c.gt(std::make_pair(10, 10), std::make_pair(10, 11)), false);
+
+    BOOST_CHECK_EQUAL( c.ge(std::make_pair(10, 10), std::make_pair(10,  9)), true);
+    BOOST_CHECK_EQUAL( c.ge(std::make_pair(10, 10), std::make_pair(10, 10)), true);
+    BOOST_CHECK_EQUAL( c.ge(std::make_pair(10, 10), std::make_pair(10, 11)), false);
+}
+
 BOOST_AUTO_TEST_CASE( issue2_duplication ) {
     std::vector< std::pair<int, int> > a;
 
@@ -468,6 +490,17 @@ BOOST_AUTO_TEST_CASE( issue2_duplication ) {
 
     std::sort(expected.begin(), expected.end(), &less_in_pair);
     timsort(a.begin(), a.end(), &less_in_pair);
+
+    if (false) {
+        for (std::size_t i = 0; i < a.size(); ++i) {
+            std::clog << i << " ";
+            std::clog << "(" << a[i].first << ", " << a[i].second << ")";
+            std::clog << " ";
+            std::clog << "(" << expected[i].first << ", " << expected[i].second << ") ";
+            std::clog << "\n";
+        }
+        return;
+    }
 
     BOOST_CHECK_EQUAL(a.size(), expected.size());
 
