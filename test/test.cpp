@@ -446,3 +446,63 @@ BOOST_AUTO_TEST_CASE( stability ) {
     BOOST_CHECK_EQUAL(a[11].first,  3);
     BOOST_CHECK_EQUAL(a[11].second, baz);
 }
+
+bool less_in_pair(const std::pair<int, int>& x, const std::pair<int, int>& y) {
+    if (x.first == y.first) {
+        return x.second < y.second;
+    }
+    return x.first < y.first;
+}
+
+BOOST_AUTO_TEST_CASE( issue2_duplication ) {
+    std::vector< std::pair<int, int> > a;
+
+    for (int i = 0; i < 10000; ++i) {
+        int first  = static_cast<unsigned short>(rand());
+        int second = static_cast<unsigned short>(rand());
+
+        a.push_back( std::make_pair(first, second) );
+    }
+
+    std::vector< std::pair<int, int> > expected(a);
+
+    std::sort(expected.begin(), expected.end(), &less_in_pair);
+    timsort(a.begin(), a.end(), &less_in_pair);
+
+    BOOST_CHECK_EQUAL(a.size(), expected.size());
+
+    // test some points
+
+    BOOST_CHECK_EQUAL(a[0].first,  expected[0].first);
+    BOOST_CHECK_EQUAL(a[0].second, expected[0].second);
+
+    BOOST_CHECK_EQUAL(a[1].first,  expected[1].first);
+    BOOST_CHECK_EQUAL(a[1].second, expected[1].second);
+
+    BOOST_CHECK_EQUAL(a[10].first,  expected[10].first);
+    BOOST_CHECK_EQUAL(a[10].second, expected[10].second);
+
+    BOOST_CHECK_EQUAL(a[11].first,  expected[11].first);
+    BOOST_CHECK_EQUAL(a[11].second, expected[11].second);
+
+    BOOST_CHECK_EQUAL(a[100].first,  expected[100].first);
+    BOOST_CHECK_EQUAL(a[100].second, expected[100].second);
+
+    BOOST_CHECK_EQUAL(a[101].first,  expected[101].first);
+    BOOST_CHECK_EQUAL(a[101].second, expected[101].second);
+
+    BOOST_CHECK_EQUAL(a[111].first,  expected[111].first);
+    BOOST_CHECK_EQUAL(a[111].second, expected[111].second);
+
+    BOOST_CHECK_EQUAL(a[112].first,  expected[112].first);
+    BOOST_CHECK_EQUAL(a[112].second, expected[112].second);
+
+    BOOST_CHECK_EQUAL(a[999].first,  expected[999].first);
+    BOOST_CHECK_EQUAL(a[999].second, expected[999].second);
+
+    BOOST_CHECK_EQUAL(a[1000].first,  expected[1000].first);
+    BOOST_CHECK_EQUAL(a[1000].second, expected[1000].second);
+
+    BOOST_CHECK_EQUAL(a[1001].first,  expected[1001].first);
+    BOOST_CHECK_EQUAL(a[1001].second, expected[1001].second);
+}
