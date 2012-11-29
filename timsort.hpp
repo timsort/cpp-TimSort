@@ -440,7 +440,7 @@ class TimSort {
 
                 count1 = gallopRight(*cursor2, cursor1, len1, 0);
                 if(count1 != 0) {
-                    std::copy(cursor1, cursor1 + count1, dest);
+                    std::copy_backward(cursor1, cursor1 + count1, dest + count1);
                     dest    += count1;
                     cursor1 += count1;
                     len1    -= count1;
@@ -517,7 +517,7 @@ class TimSort {
         if(len2 == 1) {
             dest    -= len1;
             cursor1 -= len1;
-            std::copy(cursor1 + 1, cursor1 + (1 + len1), dest + 1);
+            std::copy_backward(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
             *dest = *cursor2;
             return;
         }
@@ -564,7 +564,7 @@ class TimSort {
                     dest    -= count1;
                     cursor1 -= count1;
                     len1    -= count1;
-                    std::copy(cursor1 + 1, cursor1 + (1 + count1), dest + 1);
+                    std::copy_backward(cursor1 + 1, cursor1 + (1 + count1), dest + (1 + count1));
 
                     if(len1 == 0) {
                         break_outer = true;
@@ -612,7 +612,7 @@ class TimSort {
             assert( len1 > 0 );
             dest    -= len1;
             cursor1 -= len1;
-            std::copy(cursor1 + 1, cursor1 + (1 + len1), dest + 1);
+            std::copy_backward(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
             *dest = *cursor2;
         }
         else {
