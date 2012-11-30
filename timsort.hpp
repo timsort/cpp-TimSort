@@ -37,18 +37,39 @@
 
 #ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
-#define LOG(expr) (std::clog << "# " << __func__ << ": " << expr << std::endl)
+#define GFX_TIMSORT_LOG(expr) (std::clog << "# " << __func__ << ": " << expr << std::endl)
 #else
-#define LOG(expr) ((void)0)
+#define GFX_TIMSORT_LOG(expr) ((void)0)
 #endif
 
 #if ENABLE_STD_MOVE && __cplusplus >= 201103L
-#define MOVE(x) std::move(x)
+#define GFX_TIMSORT_MOVE(x) std::move(x)
 #else
-#define MOVE(x) (x)
+#define GFX_TIMSORT_MOVE(x) (x)
 #endif
 
 namespace gfx {
+
+// ---------------------------------------
+// Declaration
+// ---------------------------------------
+
+/**
+ * Same as std::stable_sort(first, last).
+ */
+template<typename RandomAccessIterator>
+inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
+
+/**
+ * Same as std::stable_sort(first, last, c).
+ */
+template<typename RandomAccessIterator, typename LessFunction>
+inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last, LessFunction compare);
+
+
+// ---------------------------------------
+// Implementation
+// ---------------------------------------
 
 template <typename Value, typename LessFunction> class Compare {
     public:
@@ -118,7 +139,7 @@ class TimSort {
 
         if(nRemaining < MIN_MERGE) {
             diff_t const initRunLen = countRunAndMakeAscending(lo, hi, c);
-            LOG("initRunLen: " << initRunLen);
+            GFX_TIMSORT_LOG("initRunLen: " << initRunLen);
             binarySort(lo, hi, lo + initRunLen, c);
             return;
         }
@@ -146,7 +167,7 @@ class TimSort {
         ts.mergeForceCollapse();
         assert( ts.pending_.size() == 1 );
 
-        LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size() << " pending_.size(): " << ts.pending_.size());
+        GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size() << " pending_.size(): " << ts.pending_.size());
     } // sort()
 
     static
@@ -157,13 +178,13 @@ class TimSort {
         }
         for( ; start < hi; ++start ) {
             assert(lo <= start);
-            /*const*/ value_t pivot = MOVE(*start);
+            /*const*/ value_t pivot = GFX_TIMSORT_MOVE(*start);
 
             iter_t const pos = std::upper_bound(lo, start, pivot, compare.less_function());
             for(iter_t p = start; p > pos; --p) {
-                *p = MOVE(*(p - 1));
+                *p = GFX_TIMSORT_MOVE(*(p - 1));
             }
-            *pos = MOVE(pivot);
+            *pos = GFX_TIMSORT_MOVE(pivot);
         }
     }
 
@@ -634,20 +655,20 @@ class TimSort {
     friend void timsort(IterT first, IterT last, LessT c);
 };
 
-template<typename RandomAccessIterator, typename LessFunction>
-inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last, LessFunction c) {
-    TimSort<RandomAccessIterator, LessFunction>::sort(first, last, c);
-}
-
 template<typename RandomAccessIterator>
 inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
     typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
     timsort(first, last, std::less<value_type>());
 }
 
+template<typename RandomAccessIterator, typename LessFunction>
+inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last, LessFunction compare) {
+    TimSort<RandomAccessIterator, LessFunction>::sort(first, last, compare);
+}
+
 } // namespace gfx
 
-#undef LOG
-#undef MOVE
+#undef GFX_TIMSORT_LOG
+#undef GFX_TIMSORT_MOVE
 #endif // GFX_TIMSORT_HPP
 
