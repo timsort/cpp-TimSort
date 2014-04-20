@@ -4,6 +4,6 @@ compiler:
     - clang
     - gcc
 before_install:
-    - sudo apt-get install boost libboost-dev
+    - sudo apt-get install libboost-dev
 script:
     - make test
