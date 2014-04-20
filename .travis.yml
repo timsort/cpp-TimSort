@@ -3,7 +3,8 @@ language: cpp
 compiler:
     - clang
     - gcc
-before_install:
-    - sudo apt-get install libboost-dev
+install:
+    - sudo apt-get -qq update
+    - sudo apt-get -qq install libboost-all-dev
 script:
     - make test
