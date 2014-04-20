@@ -2,7 +2,7 @@
 COMPILE  := $(CXX) -I. -Wall -Wextra -g $(CXXFLAGS)
 OPTIMIZE := -DNDEBUG -O2
 
-LIB_BOOST_TEST := -lboost_unit_test_framework-mt
+LIB_BOOST_TEST := -lboost_unit_test_framework
 
 all:
 	@echo This library is a C++ header file only.
