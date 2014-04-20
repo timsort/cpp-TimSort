@@ -1,0 +1,7 @@
+# https://github.com/embarkmobile/android-maven-example
+language: cpp
+compiler:
+    - clang
+    - gcc
+script:
+    - make test
