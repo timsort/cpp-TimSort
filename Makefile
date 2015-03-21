@@ -10,7 +10,9 @@ all:
 .bin:
 	mkdir -p .bin
 
-test: test/test.cpp timsort.hpp .bin
+test: test-without-optimization test-with-optimization test-with-std-move
+
+test-without-optimization: test/test.cpp timsort.hpp .bin
 	$(COMPILE) $(LIB_BOOST_TEST) $< -o .bin/$@
 	time ./.bin/$@
 
@@ -19,11 +21,11 @@ test-with-optimization: test/test.cpp timsort.hpp .bin
 	time ./.bin/$@
 
 test-with-std-move: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(LIB_BOOST_TEST) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
+	$(COMPILE) $(OPTIMIZE) $(LIB_BOOST_TEST) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
 	time ./.bin/$@
 
 bench: example/bench.cpp timsort.hpp .bin
-	$(COMPILE) $(OPTIMIZE) $< -o .bin/$@
+	$(COMPILE) $(OPTIMIZE) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
 	$(CXX) -v
 	./.bin/$@
 
