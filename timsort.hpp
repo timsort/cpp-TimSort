@@ -30,10 +30,23 @@
 #define GFX_TIMSORT_HPP
 
 #include <vector>
-#include <cassert>
 #include <iterator>
 #include <algorithm>
 #include <utility>
+
+/**
+ * If you are consuming this library from a product that has its own assertion
+ * policy, make sure you define this macro before including timsort.hpp.
+ *
+ * Example:
+ *
+ * #define GFX_TIMSORT_ASSERT(expr) BOOST_ASSERT(expr)
+ * #include "timsort.hpp"
+ */
+#ifndef GFX_TIMSORT_ASSERT
+#include <cassert>
+#define GFX_TIMSORT_ASSERT(expr) assert(expr)
+#endif
 
 #ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
@@ -130,7 +143,7 @@ class TimSort {
 
     static
     void sort(iter_t const lo, iter_t const hi, compare_t c) {
-        assert( lo <= hi );
+        GFX_TIMSORT_ASSERT( lo <= hi );
 
         diff_t nRemaining = (hi - lo);
         if(nRemaining < 2) {
@@ -163,21 +176,21 @@ class TimSort {
             nRemaining -= runLen;
         } while(nRemaining != 0);
 
-        assert( cur == hi );
+        GFX_TIMSORT_ASSERT( cur == hi );
         ts.mergeForceCollapse();
-        assert( ts.pending_.size() == 1 );
+        GFX_TIMSORT_ASSERT( ts.pending_.size() == 1 );
 
         GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size() << " pending_.size(): " << ts.pending_.size());
     } // sort()
 
     static
     void binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t compare) {
-        assert( lo <= start && start <= hi );
+        GFX_TIMSORT_ASSERT( lo <= start && start <= hi );
         if(start == lo) {
             ++start;
         }
         for( ; start < hi; ++start ) {
-            assert(lo <= start);
+            GFX_TIMSORT_ASSERT(lo <= start);
             /*const*/ value_t pivot = GFX_TIMSORT_MOVE(*start);
 
             iter_t const pos = std::upper_bound(lo, start, pivot, compare.less_function());
@@ -190,7 +203,7 @@ class TimSort {
 
     static
     diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi, compare_t compare) {
-        assert( lo < hi );
+        GFX_TIMSORT_ASSERT( lo < hi );
 
         iter_t runHi = lo + 1;
         if( runHi == hi ) {
@@ -214,7 +227,7 @@ class TimSort {
 
     static
     diff_t minRunLength(diff_t n) {
-        assert( n >= 0 );
+        GFX_TIMSORT_ASSERT( n >= 0 );
 
         diff_t r = 0;
         while(n >= MIN_MERGE) {
@@ -264,17 +277,17 @@ class TimSort {
 
     void mergeAt(diff_t const i) {
         diff_t const stackSize = pending_.size();
-        assert( stackSize >= 2 );
-        assert( i >= 0 );
-        assert( i == stackSize - 2 || i == stackSize - 3 );
+        GFX_TIMSORT_ASSERT( stackSize >= 2 );
+        GFX_TIMSORT_ASSERT( i >= 0 );
+        GFX_TIMSORT_ASSERT( i == stackSize - 2 || i == stackSize - 3 );
 
         iter_t base1 = pending_[i].base;
         diff_t len1  = pending_[i].len;
         iter_t base2 = pending_[i + 1].base;
         diff_t len2  = pending_[i + 1].len;
 
-        assert( len1 > 0 && len2 > 0 );
-        assert( base1 + len1 == base2 );
+        GFX_TIMSORT_ASSERT( len1 > 0 && len2 > 0 );
+        GFX_TIMSORT_ASSERT( base1 + len1 == base2 );
 
         pending_[i].len = len1 + len2;
 
@@ -285,7 +298,7 @@ class TimSort {
         pending_.pop_back();
 
         diff_t const k = gallopRight(*base2, base1, len1, 0);
-        assert( k >= 0 );
+        GFX_TIMSORT_ASSERT( k >= 0 );
 
         base1 += k;
         len1  -= k;
@@ -295,7 +308,7 @@ class TimSort {
         }
 
         len2 = gallopLeft(*(base1 + (len1 - 1)), base2, len2, len2 - 1);
-        assert( len2 >= 0 );
+        GFX_TIMSORT_ASSERT( len2 >= 0 );
         if(len2 == 0) {
             return;
         }
@@ -310,7 +323,7 @@ class TimSort {
 
     template <typename Iter>
     diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint) {
-        assert( len > 0 && hint >= 0 && hint < len );
+        GFX_TIMSORT_ASSERT( len > 0 && hint >= 0 && hint < len );
 
         diff_t lastOfs = 0;
         diff_t ofs = 1;
@@ -350,14 +363,14 @@ class TimSort {
             lastOfs          = hint - ofs;
             ofs              = hint - tmp;
         }
-        assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
+        GFX_TIMSORT_ASSERT( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
         return std::lower_bound(base+(lastOfs+1), base+ofs, key, comp_.less_function()) - base;
     }
 
     template <typename Iter>
     diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint) {
-        assert( len > 0 && hint >= 0 && hint < len );
+        GFX_TIMSORT_ASSERT( len > 0 && hint >= 0 && hint < len );
 
         diff_t ofs = 1;
         diff_t lastOfs = 0;
@@ -397,13 +410,13 @@ class TimSort {
             lastOfs += hint;
             ofs     += hint;
         }
-        assert( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
+        GFX_TIMSORT_ASSERT( -1 <= lastOfs && lastOfs < ofs && ofs <= len );
 
         return std::upper_bound(base+(lastOfs+1), base+ofs, key, comp_.less_function()) - base;
     }
 
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
-        assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
+        GFX_TIMSORT_ASSERT( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
         copy_to_tmp(base1, len1);
 
@@ -431,7 +444,7 @@ class TimSort {
 
             bool break_outer = false;
             do {
-                assert( len1 > 1 && len2 > 0 );
+                GFX_TIMSORT_ASSERT( len1 > 1 && len2 > 0 );
 
                 if(comp_.lt(*cursor2, *cursor1)) {
                     *(dest++) = *(cursor2++);
@@ -457,7 +470,7 @@ class TimSort {
             }
 
             do {
-                assert( len1 > 1 && len2 > 0 );
+                GFX_TIMSORT_ASSERT( len1 > 1 && len2 > 0 );
 
                 count1 = gallopRight(*cursor2, cursor1, len1, 0);
                 if(count1 != 0) {
@@ -509,20 +522,20 @@ class TimSort {
         minGallop_ = std::min(minGallop, 1);
 
         if(len1 == 1) {
-            assert( len2 > 0 );
+            GFX_TIMSORT_ASSERT( len2 > 0 );
             std::copy(cursor2, cursor2 + len2, dest);
             *(dest + len2) = *cursor1;
         }
         else {
-            assert( len1 != 0 && "Comparision function violates its general contract");
-            assert( len2 == 0 );
-            assert( len1 > 1 );
+            GFX_TIMSORT_ASSERT( len1 != 0 && "Comparision function violates its general contract");
+            GFX_TIMSORT_ASSERT( len2 == 0 );
+            GFX_TIMSORT_ASSERT( len1 > 1 );
             std::copy(cursor1, cursor1 + len1, dest);
         }
     }
 
     void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
-        assert( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
+        GFX_TIMSORT_ASSERT( len1 > 0 && len2 > 0 && base1 + len1 == base2 );
 
         copy_to_tmp(base2, len2);
 
@@ -552,7 +565,7 @@ class TimSort {
 
             bool break_outer = false;
             do {
-                assert( len1 > 0 && len2 > 1 );
+                GFX_TIMSORT_ASSERT( len1 > 0 && len2 > 1 );
 
                 if(comp_.lt(*cursor2, *cursor1)) {
                     *(dest--) = *(cursor1--);
@@ -578,7 +591,7 @@ class TimSort {
             }
 
             do {
-                assert( len1 > 0 && len2 > 1 );
+                GFX_TIMSORT_ASSERT( len1 > 0 && len2 > 1 );
 
                 count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1);
                 if(count1 != 0) {
@@ -630,16 +643,16 @@ class TimSort {
         minGallop_ = std::min(minGallop, 1);
 
         if(len2 == 1) {
-            assert( len1 > 0 );
+            GFX_TIMSORT_ASSERT( len1 > 0 );
             dest    -= len1;
             cursor1 -= len1;
             std::copy_backward(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
             *dest = *cursor2;
         }
         else {
-            assert( len2 != 0 && "Comparision function violates its general contract");
-            assert( len1 == 0 );
-            assert( len2 > 1 );
+            GFX_TIMSORT_ASSERT( len2 != 0 && "Comparision function violates its general contract");
+            GFX_TIMSORT_ASSERT( len1 == 0 );
+            GFX_TIMSORT_ASSERT( len2 > 1 );
             std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
     }
