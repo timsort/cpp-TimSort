@@ -34,6 +34,15 @@
 #include <algorithm>
 #include <utility>
 
+/**
+ * If you are consuming this library from a product that has its own assertion
+ * policy, make sure you define this macro before including timsort.hpp.
+ *
+ * Example:
+ *
+ * #define GFX_TIMSORT_ASSERT(expr) BOOST_ASSERT(expr)
+ * #include "timsort.hpp"
+ */
 #ifndef GFX_TIMSORT_ASSERT
 #include <cassert>
 #define GFX_TIMSORT_ASSERT(expr) assert(expr)
