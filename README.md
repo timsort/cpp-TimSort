@@ -34,42 +34,42 @@ BENCHMARK
 bench.cpp, invoked by `make bench`, is a simple benchmark.
 An example output is as follows (timing scale: sec.):
 
-    c++ -I. -Wall -Wextra -g  -DNDEBUG -O2 example/bench.cpp -o .bin/bench
+    c++ -I. -Wall -Wextra -g  -DNDEBUG -O2 -std=c++11 -DENABLE_STD_MOVE example/bench.cpp -o .bin/bench
     c++ -v
-    Apple clang version 4.1 (tags/Apple/clang-421.11.66) (based on LLVM 3.1svn)
-    Target: x86_64-apple-darwin12.2.0
+    Apple LLVM version 7.0.0 (clang-700.0.72)
+    Target: x86_64-apple-darwin14.5.0
     Thread model: posix
     ./.bin/bench
     RANDOMIZED SEQUENCE
     [int]
     size	100000
-    std::sort        0.667322
-    std::stable_sort 0.895223
-    timsort          1.274456
+    std::sort        0.531996
+    std::stable_sort 0.645782
+    timsort          1.012254
     [boost::rational]
     size	100000
-    std::sort        4.152952
-    std::stable_sort 5.136133
-    timsort          5.781330
+    std::sort        3.466250
+    std::stable_sort 5.943234
+    timsort          4.456835
     REVERSED SEQUENCE
     [int]
     size	100000
-    std::sort        0.087842
-    std::stable_sort 0.234953
-    timsort          0.017438
+    std::sort        0.023546
+    std::stable_sort 0.399995
+    timsort          0.014056
     [boost::rational]
     size	100000
-    std::sort        2.114911
-    std::stable_sort 2.247124
-    timsort          0.281315
+    std::sort        0.626102
+    std::stable_sort 7.463993
+    timsort          0.218232
     SORTED SEQUENCE
     [int]
     size	100000
-    std::sort        0.086000
-    std::stable_sort 0.151913
-    timsort          0.010536
+    std::sort        0.015051
+    std::stable_sort 0.074084
+    timsort          0.007797
     [boost::rational]
     size	100000
-    std::sort        2.102378
-    std::stable_sort 2.408591
-    timsort          0.258270
+    std::sort        0.371826
+    std::stable_sort 1.290227
+    timsort          0.216113
