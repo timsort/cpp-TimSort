@@ -44,8 +44,12 @@
 
 #if ENABLE_STD_MOVE && __cplusplus >= 201103L
 #define GFX_TIMSORT_MOVE(x) std::move(x)
+#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::move((in1), (in2), (out))
+#define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::move_backward((in1), (in2), (out))
 #else
 #define GFX_TIMSORT_MOVE(x) (x)
+#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::copy((in1), (in2), (out))
+#define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::copy_backward((in1), (in2), (out))
 #endif
 
 namespace gfx {
@@ -412,14 +416,14 @@ class TimSort {
         iter_t cursor2     = base2;
         iter_t dest        = base1;
 
-        *(dest++) = *(cursor2++);
+        *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
         if(--len2 == 0) {
-            std::copy(cursor1, cursor1 + len1, dest);
+            GFX_TIMSORT_MOVE_RANGE(cursor1, cursor1 + len1, dest);
             return;
         }
         if(len1 == 1) {
-            std::copy(cursor2, cursor2 + len2, dest);
-            *(dest + len2) = *cursor1;
+            GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + len2, dest);
+            *(dest + len2) = GFX_TIMSORT_MOVE(*cursor1);
             return;
         }
 
@@ -435,7 +439,7 @@ class TimSort {
                 assert( len1 > 1 && len2 > 0 );
 
                 if(comp_.lt(*cursor2, *cursor1)) {
-                    *(dest++) = *(cursor2++);
+                    *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
                     ++count2;
                     count1 = 0;
                     if(--len2 == 0) {
@@ -444,7 +448,7 @@ class TimSort {
                     }
                 }
                 else {
-                    *(dest++) = *(cursor1++);
+                    *(dest++) = GFX_TIMSORT_MOVE(*(cursor1++));
                     ++count1;
                     count2 = 0;
                     if(--len1 == 1) {
@@ -462,7 +466,7 @@ class TimSort {
 
                 count1 = gallopRight(*cursor2, cursor1, len1, 0);
                 if(count1 != 0) {
-                    std::copy_backward(cursor1, cursor1 + count1, dest + count1);
+                    GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + count1, dest + count1);
                     dest    += count1;
                     cursor1 += count1;
                     len1    -= count1;
@@ -472,7 +476,7 @@ class TimSort {
                         break;
                     }
                 }
-                *(dest++) = *(cursor2++);
+                *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
                 if(--len2 == 0) {
                     break_outer = true;
                     break;
@@ -480,7 +484,7 @@ class TimSort {
 
                 count2 = gallopLeft(*cursor1, cursor2, len2, 0);
                 if(count2 != 0) {
-                    std::copy(cursor2, cursor2 + count2, dest);
+                    GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + count2, dest);
                     dest    += count2;
                     cursor2 += count2;
                     len2    -= count2;
@@ -489,7 +493,7 @@ class TimSort {
                         break;
                     }
                 }
-                *(dest++) = *(cursor1++);
+                *(dest++) = GFX_TIMSORT_MOVE(*(cursor1++));
                 if(--len1 == 1) {
                     break_outer = true;
                     break;
@@ -511,14 +515,14 @@ class TimSort {
 
         if(len1 == 1) {
             assert( len2 > 0 );
-            std::copy(cursor2, cursor2 + len2, dest);
-            *(dest + len2) = *cursor1;
+            GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + len2, dest);
+            *(dest + len2) = GFX_TIMSORT_MOVE(*cursor1);
         }
         else {
-            assert( len1 != 0 && "Comparision function violates its general contract");
+            assert( len1 != 0 && "Comparison function violates its general contract" );
             assert( len2 == 0 );
             assert( len1 > 1 );
-            std::copy(cursor1, cursor1 + len1, dest);
+            GFX_TIMSORT_MOVE_RANGE(cursor1, cursor1 + len1, dest);
         }
     }
 
@@ -531,16 +535,16 @@ class TimSort {
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
         iter_t dest        = base2 + (len2 - 1);
 
-        *(dest--) = *(cursor1--);
+        *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
         if(--len1 == 0) {
-            std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
+            GFX_TIMSORT_MOVE_RANGE(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
             return;
         }
         if(len2 == 1) {
             dest    -= len1;
             cursor1 -= len1;
-            std::copy_backward(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
-            *dest = *cursor2;
+            GFX_TIMSORT_MOVE_BACKWARD(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
+            *dest = GFX_TIMSORT_MOVE(*cursor2);
             return;
         }
 
@@ -556,7 +560,7 @@ class TimSort {
                 assert( len1 > 0 && len2 > 1 );
 
                 if(comp_.lt(*cursor2, *cursor1)) {
-                    *(dest--) = *(cursor1--);
+                    *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
                     ++count1;
                     count2 = 0;
                     if(--len1 == 0) {
@@ -565,7 +569,7 @@ class TimSort {
                     }
                 }
                 else {
-                    *(dest--) = *(cursor2--);
+                    *(dest--) = GFX_TIMSORT_MOVE(*(cursor2--));
                     ++count2;
                     count1 = 0;
                     if(--len2 == 1) {
@@ -586,14 +590,14 @@ class TimSort {
                     dest    -= count1;
                     cursor1 -= count1;
                     len1    -= count1;
-                    std::copy_backward(cursor1 + 1, cursor1 + (1 + count1), dest + (1 + count1));
+                    GFX_TIMSORT_MOVE_BACKWARD(cursor1 + 1, cursor1 + (1 + count1), dest + (1 + count1));
 
                     if(len1 == 0) {
                         break_outer = true;
                         break;
                     }
                 }
-                *(dest--) = *(cursor2--);
+                *(dest--) = GFX_TIMSORT_MOVE(*(cursor2--));
                 if(--len2 == 1) {
                     break_outer = true;
                     break;
@@ -604,13 +608,13 @@ class TimSort {
                     dest    -= count2;
                     cursor2 -= count2;
                     len2    -= count2;
-                    std::copy(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
+                    GFX_TIMSORT_MOVE_RANGE(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
                     if(len2 <= 1) {
                         break_outer = true;
                         break;
                     }
                 }
-                *(dest--) = *(cursor1--);
+                *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
                 if(--len1 == 0) {
                     break_outer = true;
                     break;
@@ -634,21 +638,21 @@ class TimSort {
             assert( len1 > 0 );
             dest    -= len1;
             cursor1 -= len1;
-            std::copy_backward(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
-            *dest = *cursor2;
+            GFX_TIMSORT_MOVE_BACKWARD(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
+            *dest = GFX_TIMSORT_MOVE(*cursor2);
         }
         else {
-            assert( len2 != 0 && "Comparision function violates its general contract");
+            assert( len2 != 0 && "Comparison function violates its general contract" );
             assert( len1 == 0 );
             assert( len2 > 1 );
-            std::copy(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
+            GFX_TIMSORT_MOVE_RANGE(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
     }
 
     void copy_to_tmp(iter_t const begin, diff_t const len) {
         tmp_.clear();
         tmp_.reserve(len);
-        std::copy(begin, begin + len, std::back_inserter(tmp_));
+        GFX_TIMSORT_MOVE_RANGE(begin, begin + len, std::back_inserter(tmp_));
     }
 
     // the only interface is the friend timsort() function
@@ -671,5 +675,7 @@ inline void timsort(RandomAccessIterator const first, RandomAccessIterator const
 
 #undef GFX_TIMSORT_LOG
 #undef GFX_TIMSORT_MOVE
+#undef GFX_TIMSORT_MOVE_RANGE
+#undef GFX_TIMSORT_MOVE_BACKWARD
 #endif // GFX_TIMSORT_HPP
 
