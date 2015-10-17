@@ -24,7 +24,7 @@ Run `make test` for testing and `make coverage` for test coverage.
 COMPATIBILITY
 ==================
 
-This library is compatible with C++03, but if you give the `-DENABLE_STD_MOVE=1` flag to the compiler, you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
+This library is compatible with C++03, but if you give the `-DENABLE_STD_MOVE` flag to the compiler, you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
 
 SEE ALSO
 ==================
@@ -38,42 +38,42 @@ BENCHMARK
 bench.cpp, invoked by `make bench`, is a simple benchmark.
 An example output is as follows (timing scale: sec.):
 
-    c++ -I. -Wall -Wextra -g  -DNDEBUG -O2 -std=c++11 -DENABLE_STD_MOVE example/bench.cpp -o .bin/bench
     c++ -v
     Apple LLVM version 7.0.0 (clang-700.0.72)
     Target: x86_64-apple-darwin14.5.0
     Thread model: posix
+    c++ -I. -Wall -Wextra -g  -DNDEBUG -O2 -std=c++11 -DENABLE_STD_MOVE example/bench.cpp -o .bin/bench
     ./.bin/bench
     RANDOMIZED SEQUENCE
     [int]
     size	100000
-    std::sort        0.531996
-    std::stable_sort 0.645782
-    timsort          1.012254
-    [boost::rational]
+    std::sort        0.695253
+    std::stable_sort 0.868916
+    timsort          1.255825
+    [std::string]
     size	100000
-    std::sort        3.466250
-    std::stable_sort 5.943234
-    timsort          4.456835
+    std::sort        3.438217
+    std::stable_sort 4.122629
+    timsort          5.791845
     REVERSED SEQUENCE
     [int]
     size	100000
-    std::sort        0.023546
-    std::stable_sort 0.399995
-    timsort          0.014056
-    [boost::rational]
+    std::sort        0.045461
+    std::stable_sort 0.575431
+    timsort          0.019139
+    [std::string]
     size	100000
-    std::sort        0.626102
-    std::stable_sort 7.463993
-    timsort          0.218232
+    std::sort        0.586707
+    std::stable_sort 2.715778
+    timsort          0.345099
     SORTED SEQUENCE
     [int]
     size	100000
-    std::sort        0.015051
-    std::stable_sort 0.074084
-    timsort          0.007797
-    [boost::rational]
+    std::sort        0.021876
+    std::stable_sort 0.087993
+    timsort          0.008042
+    [std::string]
     size	100000
-    std::sort        0.371826
-    std::stable_sort 1.290227
-    timsort          0.216113
+    std::sort        0.402458
+    std::stable_sort 2.436326
+    timsort          0.298639

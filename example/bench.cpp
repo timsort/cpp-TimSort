@@ -23,7 +23,7 @@ static void bench(int const size, state_t const state) {
 
     std::vector<value_t> a;
     for(int i = 0; i < size; ++i) {
-        a.push_back((i+1) * 10);
+        a.push_back(boost::lexical_cast<value_t>((i+1) * 10));
     }
 
     switch(state) {
@@ -82,8 +82,8 @@ static void doit(int const n, state_t const state) {
     std::cerr << "[int]" << std::endl;
     bench<int>(n, state);
 
-    std::cerr << "[boost::rational]" << std::endl;
-    bench< boost::rational<long long> >(n, state);
+    std::cerr << "[std::string]" << std::endl;
+    bench<std::string>(n, state);
 }
 
 int main(int argc, const char *argv[]) {

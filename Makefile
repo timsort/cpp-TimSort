@@ -25,8 +25,8 @@ test-with-std-move: test/test.cpp timsort.hpp .bin
 	time ./.bin/$@
 
 bench: example/bench.cpp timsort.hpp .bin
-	$(COMPILE) $(OPTIMIZE) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
 	$(CXX) -v
+	$(COMPILE) $(OPTIMIZE) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
 	./.bin/$@
 
 coverage:
