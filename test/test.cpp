@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(issue2_compare) {
 }
 
 BOOST_AUTO_TEST_CASE(issue2_duplication) {
-    std::vector<std::pair<int, int>> a;
+    std::vector<std::pair<int, int> > a;
 
     for (int i = 0; i < 10000; ++i) {
         int first = static_cast<unsigned short>(rand());
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE(issue2_duplication) {
         a.push_back(std::make_pair(first, second));
     }
 
-    std::vector<std::pair<int, int>> expected(a);
+    std::vector<std::pair<int, int> > expected(a);
 
     std::sort(expected.begin(), expected.end(), &less_in_pair);
     timsort(a.begin(), a.end(), &less_in_pair);
@@ -585,7 +585,7 @@ template <typename T> struct move_only {
 BOOST_AUTO_TEST_CASE(shuffle10k_for_move_only_types) {
     const int size = 1024 * 10; // should be even number of elements
 
-    std::vector<move_only<int>> a;
+    std::vector<move_only<int> > a;
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
