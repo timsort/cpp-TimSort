@@ -1,0 +1,6 @@
+# http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: LLVM
+ColumnLimit: 120
+IndentWidth: 4
+AllowShortFunctionsOnASingleLine: false
+Standard: Cpp03
