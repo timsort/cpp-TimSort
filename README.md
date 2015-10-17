@@ -3,8 +3,7 @@ TimSort [![Build Status](https://travis-ci.org/gfx/cpp-TimSort.svg?branch=master
 
 A C++ implementation of TimSort, O(n log n) in worst case and stable sort algorithm, ported from Python's and OpenJDK's.
 
-This is a bit slower than `std::sort()` on randomized sequences, and much
-faster on partially-sorted sequences.
+According to benchmark, this is a bit slower than `std::sort()` on randomized sequences, but much faster on partially-sorted sequences.
 
 SYNOPSIS
 ==================
@@ -21,6 +20,11 @@ TEST
 ==================
 
 Run `make test` for testing and `make coverage` for test coverage.
+
+COMPATIBILITY
+==================
+
+This library is compatible with C++03, but if you give the `-DENABLE_STD_MOVE=1` flag to the compiler, you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
 
 SEE ALSO
 ==================
