@@ -13,20 +13,17 @@
 
 using namespace gfx;
 
-enum state_t {
-    sorted, randomized, reversed
-};
+enum state_t { sorted, randomized, reversed };
 
-template <typename value_t>
-static void bench(int const size, state_t const state) {
+template <typename value_t> static void bench(int const size, state_t const state) {
     std::cerr << "size\t" << size << std::endl;
 
     std::vector<value_t> a;
-    for(int i = 0; i < size; ++i) {
-        a.push_back(boost::lexical_cast<value_t>((i+1) * 10));
+    for (int i = 0; i < size; ++i) {
+        a.push_back(boost::lexical_cast<value_t>((i + 1) * 10));
     }
 
-    switch(state) {
+    switch (state) {
     case randomized:
         std::random_shuffle(a.begin(), a.end());
         break;
@@ -45,7 +42,7 @@ static void bench(int const size, state_t const state) {
         std::vector<value_t> b(a);
         boost::timer t;
 
-        for(int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
             std::sort(b.begin(), b.end());
         }
@@ -57,7 +54,7 @@ static void bench(int const size, state_t const state) {
         std::vector<value_t> b(a);
         boost::timer t;
 
-        for(int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
             std::stable_sort(b.begin(), b.end());
         }
@@ -69,7 +66,7 @@ static void bench(int const size, state_t const state) {
         std::vector<value_t> b(a);
         boost::timer t;
 
-        for(int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
             timsort(b.begin(), b.end());
         }
@@ -87,9 +84,7 @@ static void doit(int const n, state_t const state) {
 }
 
 int main(int argc, const char *argv[]) {
-    const int N =  argc > 1
-        ? boost::lexical_cast<int>(argv[1])
-        : 100 * 1000;
+    const int N = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 100 * 1000;
 
     std::cerr << std::setprecision(6) << std::setiosflags(std::ios::fixed);
 
