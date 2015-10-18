@@ -42,7 +42,11 @@
 #define GFX_TIMSORT_LOG(expr) ((void)0)
 #endif
 
-#if ENABLE_STD_MOVE && __cplusplus >= 201103L
+#if __cplusplus >= 201103L && !DISABLE_STD_MOVE
+#define ENABLE_STD_MOVE 1
+#endif
+
+#if ENABLE_STD_MOVE
 #define GFX_TIMSORT_MOVE(x) std::move(x)
 #define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::move((in1), (in2), (out))
 #define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::move_backward((in1), (in2), (out))

@@ -9,6 +9,12 @@
 
 #include "timsort.hpp"
 
+#if ENABLE_STD_MOVE
+#warning std::move() enabled
+#else
+#warning std::move() disabled
+#endif
+
 using namespace gfx;
 
 BOOST_AUTO_TEST_CASE(simple0) {

@@ -10,27 +10,31 @@ all:
 .bin:
 	mkdir -p .bin
 
-test: test-without-optimization test-with-optimization test-with-std-move
+test: test-without-optimization test-with-optimization test-with-cpp98 test-with-cpp11
 
 test-without-optimization: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(LIB_BOOST_TEST) $< -o .bin/$@
+	$(COMPILE) $< $(LIB_BOOST_TEST) -o .bin/$@
 	time ./.bin/$@
 
 test-with-optimization: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(OPTIMIZE) $(LIB_BOOST_TEST) $< -o .bin/$@
+	$(COMPILE) $(OPTIMIZE) $< $(LIB_BOOST_TEST)  -o .bin/$@
 	time ./.bin/$@
 
-test-with-std-move: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(OPTIMIZE) $(LIB_BOOST_TEST) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
+test-with-cpp98: test/test.cpp timsort.hpp .bin
+	$(COMPILE) -std=c++98 $< $(LIB_BOOST_TEST) -o .bin/$@
+	time ./.bin/$@
+
+test-with-cpp11: test/test.cpp timsort.hpp .bin
+	$(COMPILE) -std=c++11 $< $(LIB_BOOST_TEST) -o .bin/$@
 	time ./.bin/$@
 
 bench: example/bench.cpp timsort.hpp .bin
 	$(CXX) -v
-	$(COMPILE) $(OPTIMIZE) -std=c++11 -DENABLE_STD_MOVE $< -o .bin/$@
+	$(COMPILE) $(OPTIMIZE) -std=c++11 $< -o .bin/$@
 	./.bin/$@
 
 coverage:
-	make test CXXFLAGS="-coverage -O0"
+	make test-with-cpp11 CXXFLAGS="-coverage -O0"
 	gcov test.gcda | grep -A 1 "File './timsort.hpp'"
 	mv timsort.hpp.gcov coverage.txt
 	rm -rf *.gc*

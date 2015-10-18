@@ -24,7 +24,9 @@ Run `make test` for testing and `make coverage` for test coverage.
 COMPATIBILITY
 ==================
 
-This library is compatible with C++03, but if you give the `-DENABLE_STD_MOVE` flag to the compiler, you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
+This library is compatible with C++98, but if you give compile it with C++11 or later, this library uses `std::move()` instead of value copy and thus you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
+
+You can disable use of `std::move()` by passing the macro '-DDISABLE_STD_MOVE'.
 
 SEE ALSO
 ==================
@@ -42,7 +44,7 @@ An example output is as follows (timing scale: sec.):
     Apple LLVM version 7.0.0 (clang-700.0.72)
     Target: x86_64-apple-darwin14.5.0
     Thread model: posix
-    c++ -I. -Wall -Wextra -g  -DNDEBUG -O2 -std=c++11 -DENABLE_STD_MOVE example/bench.cpp -o .bin/bench
+    c++ -I. -Wall -Wextra -g  -DNDEBUG -O2 -std=c++11 example/bench.cpp -o .bin/bench
     ./.bin/bench
     RANDOMIZED SEQUENCE
     [int]
