@@ -13,19 +13,19 @@ all:
 test: test-without-optimization test-with-optimization test-with-cpp98 test-with-cpp11
 
 test-without-optimization: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(LIB_BOOST_TEST) $< -o .bin/$@
+	$(COMPILE) $< $(LIB_BOOST_TEST) -o .bin/$@
 	time ./.bin/$@
 
 test-with-optimization: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(OPTIMIZE) $(LIB_BOOST_TEST) $< -o .bin/$@
+	$(COMPILE) $(OPTIMIZE) $< $(LIB_BOOST_TEST)  -o .bin/$@
 	time ./.bin/$@
 
 test-with-cpp98: test/test.cpp timsort.hpp .bin
-	$(COMPILE)  $(LIB_BOOST_TEST) -std=c++98 $< -o .bin/$@
+	$(COMPILE) -std=c++98 $< $(LIB_BOOST_TEST) -o .bin/$@
 	time ./.bin/$@
 
 test-with-cpp11: test/test.cpp timsort.hpp .bin
-	$(COMPILE) $(LIB_BOOST_TEST) -std=c++11 $< -o .bin/$@
+	$(COMPILE) -std=c++11 $< $(LIB_BOOST_TEST) -o .bin/$@
 	time ./.bin/$@
 
 bench: example/bench.cpp timsort.hpp .bin
