@@ -28,6 +28,10 @@ test-with-cpp11: test/test.cpp timsort.hpp .bin
 	$(COMPILE) -std=c++11 $< $(LIB_BOOST_TEST) -o .bin/$@
 	time ./.bin/$@
 
+test-issue14: valgrind/issue14.cpp
+	$(COMPILE) -std=c++11 $< -o .bin/$@
+	valgrind ./.bin/$@
+
 bench: example/bench.cpp timsort.hpp .bin
 	$(CXX) -v
 	$(COMPILE) $(OPTIMIZE) -std=c++11 $< -o .bin/$@
