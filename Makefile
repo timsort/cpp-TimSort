@@ -29,8 +29,8 @@ test-with-cpp11: test/test.cpp timsort.hpp .bin
 	time ./.bin/$@
 
 test-issue14: valgrind/issue14.cpp
-	$(COMPILE) -std=c++11 $< -o .bin/$@
-	valgrind ./.bin/$@
+	$(COMPILE) -DENABLE_TIMSORT_LOG -std=c++11 -fsanitize=address $< -o .bin/$@
+	./.bin/$@
 
 bench: example/bench.cpp timsort.hpp .bin
 	$(CXX) -v

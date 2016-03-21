@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <deque>
 #include <algorithm>
 #include <utility>
 
@@ -605,6 +606,15 @@ BOOST_AUTO_TEST_CASE(shuffle10k_for_move_only_types) {
             BOOST_CHECK_EQUAL(a[i].value, (i + 1) * 10);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(issue14) {
+    int a[] = {15, 7,  16, 20, 25, 28, 13, 27, 34, 24, 19, 1, 6,  30, 32, 29, 10, 9,
+               3,  31, 21, 26, 8,  2,  22, 14, 4,  12, 5,  0, 23, 33, 11, 17, 18};
+    std::deque<int> c(std::begin(a), std::end(a));
+
+    gfx::timsort(std::begin(c), std::end(c));
+    BOOST_CHECK(std::is_sorted(std::begin(c), std::end(c)));
 }
 
 #endif // if std::move available
