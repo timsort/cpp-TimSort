@@ -626,8 +626,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         if (len2 == 1) {
             assert(len1 > 0);
             dest -= len1;
-            cursor1 -= len1;
-            GFX_TIMSORT_MOVE_BACKWARD(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
+            GFX_TIMSORT_MOVE_BACKWARD(cursor1 + (1 - len1), cursor1 + 1, dest + (1 + len1));
             *dest = GFX_TIMSORT_MOVE(*cursor2);
         } else {
             assert(len2 != 0 && "Comparison function violates its general contract");
