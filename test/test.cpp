@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(simple0) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), 0);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(0));
 }
 
 BOOST_AUTO_TEST_CASE(simple1) {
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(simple1) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), 1);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(1));
     BOOST_CHECK_EQUAL(a[0], 42);
 }
 
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(simple2) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), 2);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(2));
     BOOST_CHECK_EQUAL(a[0], 10);
     BOOST_CHECK_EQUAL(a[1], 20);
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(simple2) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), 2);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(2));
     BOOST_CHECK_EQUAL(a[0], 10);
     BOOST_CHECK_EQUAL(a[1], 20);
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(simple2) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), 2);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(2));
     BOOST_CHECK_EQUAL(a[0], 10);
     BOOST_CHECK_EQUAL(a[1], 10);
 }
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(shuffle30) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), size);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(size));
     for (int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL(a[i], (i + 1) * 10);
     }
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(shuffle31) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), size);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(size));
     for (int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL(a[i], (i + 1) * 10);
     }
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(shuffle32) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), size);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(size));
     for (int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL(a[i], (i + 1) * 10);
     }
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(shuffle128) {
 
     timsort(a.begin(), a.end(), std::less<int>());
 
-    BOOST_CHECK_EQUAL(a.size(), size);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(size));
     for (int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL(a[i], (i + 1) * 10);
     }
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(default_compare_function) {
 
     timsort(a.begin(), a.end());
 
-    BOOST_CHECK_EQUAL(a.size(), size);
+    BOOST_CHECK_EQUAL(a.size(), std::size_t(size));
     for (int i = 0; i < size; ++i) {
         BOOST_CHECK_EQUAL(a[i], (i + 1) * 10);
     }

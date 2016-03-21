@@ -1,5 +1,5 @@
 
-COMPILE  := $(CXX) -I. -Wall -Wextra -g $(CXXFLAGS)
+COMPILE  := $(CXX) -I. -I/opt/brew/include -L/opt/brew/lib -Wall -Wextra -g $(CXXFLAGS)
 OPTIMIZE := -DNDEBUG -O2
 
 LIB_BOOST_TEST := -lboost_unit_test_framework
