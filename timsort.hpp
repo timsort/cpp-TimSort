@@ -33,6 +33,12 @@
 #include <cassert>
 #include <algorithm> // std::copy
 
+#ifdef ENABLE_TIMSORT_LOG
+#include <iostream>
+#define GFX_TIMSORT_LOG(expr) (std::clog << "# " << __func__ << ": " << expr << std::endl)
+#else
+#define GFX_TIMSORT_LOG(expr) ((void)0)
+#endif
 
 // If compiler supports both type traits and move semantics - will cover most but not all compilers/std libraries:
 #if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L) && !defined(__GNUC__)) || ((defined(__cplusplus) && __cplusplus >= 201103L) && (defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 5)))
