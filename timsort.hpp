@@ -5,7 +5,7 @@
  * - http://svn.python.org/projects/python/trunk/Objects/listobject.c
  * - http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
  *
- * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
+ * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>. C++03/move-compliance modifications by Matt Bentley 2017 (plflib.org, mattreecebentley@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -41,7 +41,7 @@
 #endif
 
 // If compiler supports both type traits and move semantics - will cover most but not all compilers/std libraries:
-#if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L) && !defined(__GNUC__)) || ((defined(__cplusplus) && __cplusplus >= 201103L) && (defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 5)))
+#if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L) && (!defined(__GNUC__) || ((defined(__clang__) || __GNUC__ >= 5) && (!defined(__GLIBCXX__) || __GLIBCXX__ >= 20150422)))
 	#include <iterator> // iterator_traits
 	#include <utility> // std::move
 
