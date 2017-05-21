@@ -32,6 +32,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm> // std::copy
+#include <utility> // std::move, std::less
 
 #ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
@@ -41,33 +42,32 @@
 #endif
 
 // If compiler supports both type traits and move semantics - will cover most but not all compilers/std libraries:
-#if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L) && (!defined(__GNUC__) || ((defined(__clang__) || __GNUC__ >= 5) && (!defined(__GLIBCXX__) || __GLIBCXX__ >= 20150422))))
-    #include <iterator> // iterator_traits
-    #include <utility> // std::move
+#if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L && !defined(_LIBCPP_VERSION)) && ((!defined(__GNUC__) || __GNUC__ >= 5)) && (!defined(__GLIBCXX__) ||  __GLIBCXX__ >= 20150422))
+	#include <iterator> // iterator_traits
 
-    #define PLF_TIMSORT_MOVE(x) (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) ? std::move(x) : (x)
-    #define PLF_TIMSORT_MOVE_RANGE(in1, in2, out) \
-        if (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) \
-        { \
-            std::move((in1), (in2), (out)); \
-        } \
-        else \
-        { \
-            std::copy((in1), (in2), (out)); \
-        }
-    #define PLF_TIMSORT_MOVE_BACKWARD(in1, in2, out) \
-        if (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) \
-        { \
-            std::move_backward((in1), (in2), (out)); \
-        } \
-        else \
-        { \
-            std::copy_backward((in1), (in2), (out)); \
-        }
+	#define GFX_TIMSORT_MOVE(x) (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) ? std::move(x) : (x)
+	#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) \
+		if (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) \
+		{ \
+			std::move((in1), (in2), (out)); \
+		} \
+		else \
+		{ \
+			std::copy((in1), (in2), (out)); \
+		}
+	#define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) \
+		if (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) \
+		{ \
+			std::move_backward((in1), (in2), (out)); \
+		} \
+		else \
+		{ \
+			std::copy_backward((in1), (in2), (out)); \
+		}
 #else
-    #define PLF_TIMSORT_MOVE(x) (x)
-    #define PLF_TIMSORT_MOVE_RANGE(in1, in2, out) std::copy((in1), (in2), (out));
-    #define PLF_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::copy_backward((in1), (in2), (out));
+	#define GFX_TIMSORT_MOVE(x) (x)
+	#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::copy((in1), (in2), (out)); 
+	#define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::copy_backward((in1), (in2), (out));
 #endif
 
 
