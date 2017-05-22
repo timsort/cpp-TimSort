@@ -32,7 +32,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm> // std::copy
-#include <utility> // std::move, std::less
+#include <functional> // std::less
 
 #ifdef ENABLE_TIMSORT_LOG
 #include <iostream>
@@ -44,6 +44,7 @@
 // If compiler supports both type traits and move semantics - will cover most but not all compilers/std libraries:
 #if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L && !defined(_LIBCPP_VERSION)) && ((!defined(__GNUC__) || __GNUC__ >= 5)) && (!defined(__GLIBCXX__) ||  __GLIBCXX__ >= 20150422))
 	#include <iterator> // iterator_traits
+	#include <utility> // std::move
 
 	#define GFX_TIMSORT_MOVE(x) (std::is_move_constructible<value_t>::value && std::is_move_assignable<value_t>::value) ? std::move(x) : (x)
 	#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) \
