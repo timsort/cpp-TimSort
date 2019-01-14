@@ -10,7 +10,7 @@
 
 #include "timsort.hpp"
 
-#if ENABLE_STD_MOVE
+#if GFX_TIMSORT_USE_CXX11
 #warning std::move() enabled
 #else
 #warning std::move() disabled
