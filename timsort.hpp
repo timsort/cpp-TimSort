@@ -95,47 +95,13 @@ inline void timsort(RandomAccessIterator const first, RandomAccessIterator const
 // Implementation
 // ---------------------------------------
 
-template <typename Value, typename LessFunction> class Compare {
-  public:
-    typedef Value value_type;
-    typedef LessFunction func_type;
-
-    Compare(LessFunction f) : less_(f) {
-    }
-    Compare(const Compare<value_type, func_type> &other) : less_(other.less_) {
-    }
-
-    bool lt(value_type x, value_type y) {
-        return less_(x, y);
-    }
-    bool le(value_type x, value_type y) {
-        return less_(x, y) || !less_(y, x);
-    }
-    bool gt(value_type x, value_type y) {
-        return !less_(x, y) && less_(y, x);
-    }
-    bool ge(value_type x, value_type y) {
-        return !less_(x, y);
-    }
-
-    func_type &less_function() {
-        return less_;
-    }
-
-  private:
-    func_type less_;
-};
-
 template <typename RandomAccessIterator, typename LessFunction> class TimSort {
     typedef RandomAccessIterator iter_t;
     typedef typename std::iterator_traits<iter_t>::value_type value_t;
     typedef typename std::iterator_traits<iter_t>::reference ref_t;
     typedef typename std::iterator_traits<iter_t>::difference_type diff_t;
-    typedef Compare<const value_t &, LessFunction> compare_t;
 
     static const int MIN_MERGE = 32;
-
-    compare_t comp_;
 
     static const int MIN_GALLOP = 7;
 
@@ -153,7 +119,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
     };
     std::vector<run> pending_;
 
-    static void sort(iter_t const lo, iter_t const hi, compare_t c) {
+    static void sort(iter_t const lo, iter_t const hi, LessFunction compare) {
         assert(lo <= hi);
 
         diff_t nRemaining = (hi - lo);
@@ -162,40 +128,40 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         }
 
         if (nRemaining < MIN_MERGE) {
-            diff_t const initRunLen = countRunAndMakeAscending(lo, hi, c);
+            diff_t const initRunLen = countRunAndMakeAscending(lo, hi, compare);
             GFX_TIMSORT_LOG("initRunLen: " << initRunLen);
-            binarySort(lo, hi, lo + initRunLen, c);
+            binarySort(lo, hi, lo + initRunLen, compare);
             return;
         }
 
-        TimSort ts(c);
+        TimSort ts;
         diff_t const minRun = minRunLength(nRemaining);
         iter_t cur = lo;
         do {
-            diff_t runLen = countRunAndMakeAscending(cur, hi, c);
+            diff_t runLen = countRunAndMakeAscending(cur, hi, compare);
 
             if (runLen < minRun) {
                 diff_t const force = std::min(nRemaining, minRun);
-                binarySort(cur, cur + force, cur + runLen, c);
+                binarySort(cur, cur + force, cur + runLen, compare);
                 runLen = force;
             }
 
             ts.pushRun(cur, runLen);
-            ts.mergeCollapse();
+            ts.mergeCollapse(compare);
 
             cur += runLen;
             nRemaining -= runLen;
         } while (nRemaining != 0);
 
         assert(cur == hi);
-        ts.mergeForceCollapse();
+        ts.mergeForceCollapse(compare);
         assert(ts.pending_.size() == 1);
 
         GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
                                  << " pending_.size(): " << ts.pending_.size());
     } // sort()
 
-    static void binarySort(iter_t const lo, iter_t const hi, iter_t start, compare_t compare) {
+    static void binarySort(iter_t const lo, iter_t const hi, iter_t start, LessFunction compare) {
         assert(lo <= start && start <= hi);
         if (start == lo) {
             ++start;
@@ -204,7 +170,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             assert(lo <= start);
             /*const*/ value_t pivot = GFX_TIMSORT_MOVE(*start);
 
-            iter_t const pos = std::upper_bound(lo, start, pivot, compare.less_function());
+            iter_t const pos = std::upper_bound(lo, start, pivot, compare);
             for (iter_t p = start; p > pos; --p) {
                 *p = GFX_TIMSORT_MOVE(*(p - 1));
             }
@@ -212,7 +178,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         }
     }
 
-    static diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi, compare_t compare) {
+    static diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi, LessFunction compare) {
         assert(lo < hi);
 
         iter_t runHi = lo + 1;
@@ -220,13 +186,13 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             return 1;
         }
 
-        if (compare.lt(*(runHi++), *lo)) { // descending
-            while (runHi < hi && compare.lt(*runHi, *(runHi - 1))) {
+        if (compare(*(runHi++), *lo)) { // descending
+            while (runHi < hi && compare(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
             std::reverse(lo, runHi);
         } else { // ascending
-            while (runHi < hi && compare.ge(*runHi, *(runHi - 1))) {
+            while (runHi < hi && !compare(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
         }
@@ -245,14 +211,14 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         return n + r;
     }
 
-    TimSort(compare_t c) : comp_(c), minGallop_(MIN_GALLOP) {
+    TimSort() : minGallop_(MIN_GALLOP) {
     }
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
         pending_.push_back(run(runBase, runLen));
     }
 
-    void mergeCollapse() {
+    void mergeCollapse(LessFunction compare) {
         while (pending_.size() > 1) {
             diff_t n = pending_.size() - 2;
 
@@ -261,27 +227,27 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                 if (pending_[n - 1].len < pending_[n + 1].len) {
                     --n;
                 }
-                mergeAt(n);
+                mergeAt(n, compare);
             } else if (pending_[n].len <= pending_[n + 1].len) {
-                mergeAt(n);
+                mergeAt(n, compare);
             } else {
                 break;
             }
         }
     }
 
-    void mergeForceCollapse() {
+    void mergeForceCollapse(LessFunction compare) {
         while (pending_.size() > 1) {
             diff_t n = pending_.size() - 2;
 
             if (n > 0 && pending_[n - 1].len < pending_[n + 1].len) {
                 --n;
             }
-            mergeAt(n);
+            mergeAt(n, compare);
         }
     }
 
-    void mergeAt(diff_t const i) {
+    void mergeAt(diff_t const i, LessFunction compare) {
         diff_t const stackSize = pending_.size();
         assert(stackSize >= 2);
         assert(i >= 0);
@@ -303,7 +269,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
 
         pending_.pop_back();
 
-        diff_t const k = gallopRight(*base2, base1, len1, 0);
+        diff_t const k = gallopRight(*base2, base1, len1, 0, compare);
         assert(k >= 0);
 
         base1 += k;
@@ -313,28 +279,28 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             return;
         }
 
-        len2 = gallopLeft(*(base1 + (len1 - 1)), base2, len2, len2 - 1);
+        len2 = gallopLeft(*(base1 + (len1 - 1)), base2, len2, len2 - 1, compare);
         assert(len2 >= 0);
         if (len2 == 0) {
             return;
         }
 
         if (len1 <= len2) {
-            mergeLo(base1, len1, base2, len2);
+            mergeLo(base1, len1, base2, len2, compare);
         } else {
-            mergeHi(base1, len1, base2, len2);
+            mergeHi(base1, len1, base2, len2, compare);
         }
     }
 
-    template <typename Iter> diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint) {
+    template <typename Iter> diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint, LessFunction compare) {
         assert(len > 0 && hint >= 0 && hint < len);
 
         diff_t lastOfs = 0;
         diff_t ofs = 1;
 
-        if (comp_.gt(key, *(base + hint))) {
+        if (compare(*(base + hint), key)) {
             diff_t const maxOfs = len - hint;
-            while (ofs < maxOfs && comp_.gt(key, *(base + (hint + ofs)))) {
+            while (ofs < maxOfs && compare(*(base + (hint + ofs)), key)) {
                 lastOfs = ofs;
                 ofs = (ofs << 1) + 1;
 
@@ -350,7 +316,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             ofs += hint;
         } else {
             diff_t const maxOfs = hint + 1;
-            while (ofs < maxOfs && comp_.le(key, *(base + (hint - ofs)))) {
+            while (ofs < maxOfs && !compare(*(base + (hint - ofs)), key)) {
                 lastOfs = ofs;
                 ofs = (ofs << 1) + 1;
 
@@ -368,18 +334,18 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         }
         assert(-1 <= lastOfs && lastOfs < ofs && ofs <= len);
 
-        return std::lower_bound(base + (lastOfs + 1), base + ofs, key, comp_.less_function()) - base;
+        return std::lower_bound(base + (lastOfs + 1), base + ofs, key, compare) - base;
     }
 
-    template <typename Iter> diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint) {
+    template <typename Iter> diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint, LessFunction compare) {
         assert(len > 0 && hint >= 0 && hint < len);
 
         diff_t ofs = 1;
         diff_t lastOfs = 0;
 
-        if (comp_.lt(key, *(base + hint))) {
+        if (compare(key, *(base + hint))) {
             diff_t const maxOfs = hint + 1;
-            while (ofs < maxOfs && comp_.lt(key, *(base + (hint - ofs)))) {
+            while (ofs < maxOfs && compare(key, *(base + (hint - ofs)))) {
                 lastOfs = ofs;
                 ofs = (ofs << 1) + 1;
 
@@ -396,7 +362,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             ofs = hint - tmp;
         } else {
             diff_t const maxOfs = len - hint;
-            while (ofs < maxOfs && comp_.ge(key, *(base + (hint + ofs)))) {
+            while (ofs < maxOfs && !compare(key, *(base + (hint + ofs)))) {
                 lastOfs = ofs;
                 ofs = (ofs << 1) + 1;
 
@@ -413,10 +379,10 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         }
         assert(-1 <= lastOfs && lastOfs < ofs && ofs <= len);
 
-        return std::upper_bound(base + (lastOfs + 1), base + ofs, key, comp_.less_function()) - base;
+        return std::upper_bound(base + (lastOfs + 1), base + ofs, key, compare) - base;
     }
 
-    void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
+    void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2, LessFunction compare) {
         assert(len1 > 0 && len2 > 0 && base1 + len1 == base2);
 
         copy_to_tmp(base1, len1);
@@ -447,7 +413,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             do {
                 assert(len1 > 1 && len2 > 0);
 
-                if (comp_.lt(*cursor2, *cursor1)) {
+                if (compare(*cursor2, *cursor1)) {
                     *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
                     ++count2;
                     count1 = 0;
@@ -472,7 +438,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             do {
                 assert(len1 > 1 && len2 > 0);
 
-                count1 = gallopRight(*cursor2, cursor1, len1, 0);
+                count1 = gallopRight(*cursor2, cursor1, len1, 0, compare);
                 if (count1 != 0) {
                     GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + count1, dest + count1);
                     dest += count1;
@@ -490,7 +456,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     break;
                 }
 
-                count2 = gallopLeft(*cursor1, cursor2, len2, 0);
+                count2 = gallopLeft(*cursor1, cursor2, len2, 0, compare);
                 if (count2 != 0) {
                     GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + count2, dest);
                     dest += count2;
@@ -533,7 +499,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         }
     }
 
-    void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2) {
+    void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2, LessFunction compare) {
         assert(len1 > 0 && len2 > 0 && base1 + len1 == base2);
 
         copy_to_tmp(base2, len2);
@@ -566,7 +532,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             do {
                 assert(len1 > 0 && len2 > 1);
 
-                if (comp_.lt(*cursor2, *cursor1)) {
+                if (compare(*cursor2, *cursor1)) {
                     *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
                     ++count1;
                     count2 = 0;
@@ -591,7 +557,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             do {
                 assert(len1 > 0 && len2 > 1);
 
-                count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1);
+                count1 = len1 - gallopRight(*cursor2, base1, len1, len1 - 1, compare);
                 if (count1 != 0) {
                     dest -= count1;
                     cursor1 -= count1;
@@ -609,7 +575,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     break;
                 }
 
-                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1);
+                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1, compare);
                 if (count2 != 0) {
                     dest -= count2;
                     cursor2 -= count2;
@@ -660,7 +626,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
     }
 
     // the only interface is the friend timsort() function
-    template <typename IterT, typename LessT> friend void timsort(IterT first, IterT last, LessT c);
+    template <typename IterT, typename LessT> friend void timsort(IterT first, IterT last, LessT compare);
 };
 
 template <typename RandomAccessIterator>
