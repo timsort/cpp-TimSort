@@ -19,14 +19,16 @@ SYNOPSIS
 TEST
 ==================
 
-Run `make test` for testing and `make coverage` for test coverage.
+The tests are written with Catch (branch 1.x) and can be compiled with CMake.
+
+TODO: describe CMake support
 
 COMPATIBILITY
 ==================
 
-This library is compatible with C++98, but if you give compile it with C++11 or later, this library uses `std::move()` instead of value copy and thus you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
+This library is compatible with C++98, but if you compile it with C++11 or later, this library uses `std::move()` instead of value copy and thus you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
 
-You can disable use of `std::move()` by passing the macro '-DDISABLE_STD_MOVE'.
+You can explicity disable the use of `std::move()` by passing the macro '-DGFX_TIMSORT_DISABLE_STD_MOVE'.
 
 SEE ALSO
 ==================
