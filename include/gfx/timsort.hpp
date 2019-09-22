@@ -48,13 +48,19 @@
 #ifdef GFX_TIMSORT_DISABLE_STD_MOVE
 #   define GFX_TIMSORT_ENABLED_STD_MOVE 0
 #   undef GFX_TIMSORT_DISABLE_STD_MOVE
-#else
-#   if (defined(_MSC_VER) && _MSC_VER >= 1700) || ((defined(__cplusplus) && __cplusplus >= 201103L && !defined(_LIBCPP_VERSION)) && ((!defined(__GNUC__) || __GNUC__ >= 5)) && (!defined(__GLIBCXX__) ||  __GLIBCXX__ >= 20150422))
+#elif !defined(GFX_TIMSORT_ENABLED_STD_MOVE)
+#   if !(defined(__cplusplus) && __cplusplus >= 201103L)
+#       define GFX_TIMSORT_ENABLED_STD_MOVE 0
+#   elif defined(_MSC_VER) && _MSC_VER >= 1700
+#       define GFX_TIMSORT_ENABLED_STD_MOVE 1
+#   elif defined(__CLANG__)
+#       define GFX_TIMSORT_ENABLED_STD_MOVE 1
+#   elif defined(__GNUC__) && (__GNUC__ >= 5 || (__GNUC__ >= 4 && __GNUC_MINOR__ >= 6))
 #       define GFX_TIMSORT_ENABLED_STD_MOVE 1
 #   else
 #       define GFX_TIMSORT_ENABLED_STD_MOVE 0
 #   endif
-#endif // GFX_TIMSORT_DISABLE_STD_MOVE
+#endif
 
 #if GFX_TIMSORT_ENABLED_STD_MOVE
 	#include <utility>
