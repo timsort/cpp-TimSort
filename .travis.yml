@@ -147,7 +147,6 @@ script:
           -DGFX_TIMSORT_USE_VALGRIND=${USE_VALGRIND}
           -G"${CMAKE_GENERATOR}"
           -DCMAKE_SH="CMAKE_SH-NOTFOUND"
-          -DBUILD_EXAMPLES=ON
   - if [[ $TRAVIS_OS_NAME = "osx" ]]; then
         cmake --build build --config ${BUILD_TYPE} -j 2;
     else
