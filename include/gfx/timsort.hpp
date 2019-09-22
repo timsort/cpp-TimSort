@@ -53,7 +53,7 @@
 #       define GFX_TIMSORT_ENABLED_STD_MOVE 0
 #   elif defined(_MSC_VER) && _MSC_VER >= 1700
 #       define GFX_TIMSORT_ENABLED_STD_MOVE 1
-#   elif defined(__CLANG__)
+#   elif defined(__clang__)
 #       define GFX_TIMSORT_ENABLED_STD_MOVE 1
 #   elif defined(__GNUC__) && (__GNUC__ >= 5 || (__GNUC__ >= 4 && __GNUC_MINOR__ >= 6))
 #       define GFX_TIMSORT_ENABLED_STD_MOVE 1
