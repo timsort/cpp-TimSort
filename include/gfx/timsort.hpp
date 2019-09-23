@@ -43,26 +43,33 @@
 #   define GFX_TIMSORT_LOG(expr) ((void)0)
 #endif
 
-// Conditionally enable/disable move semantics
+// If GFX_TIMSORT_USE_STD_MOVE is not defined, try to define it as follows:
+// - Check standard feature-testing macro
+// - Check non-standard feature-testing macro
+// - Check C++ standard (disable if < C++11)
+// - Check compiler-specific versions known to support move semantics
 
-#ifdef GFX_TIMSORT_DISABLE_STD_MOVE
-#   define GFX_TIMSORT_ENABLED_STD_MOVE 0
-#   undef GFX_TIMSORT_DISABLE_STD_MOVE
-#elif !defined(GFX_TIMSORT_ENABLED_STD_MOVE)
-#   if !(defined(__cplusplus) && __cplusplus >= 201103L)
-#       define GFX_TIMSORT_ENABLED_STD_MOVE 0
+#ifndef GFX_TIMSORT_USE_STD_MOVE
+#   if defined(__cpp_rvalue_references)
+#       define GFX_TIMSORT_USE_STD_MOVE 1
+#   elif defined(__has_feature)
+#       if __has_feature(cxx_rvalue_references)
+#           define GFX_TIMSORT_USE_STD_MOVE 1
+#       else
+#           define GFX_TIMSORT_USE_STD_MOVE 0
+#       endif
+#   elif !(defined(__cplusplus) && __cplusplus >= 201103L)
+#       define GFX_TIMSORT_USE_STD_MOVE 0
 #   elif defined(_MSC_VER) && _MSC_VER >= 1700
-#       define GFX_TIMSORT_ENABLED_STD_MOVE 1
-#   elif defined(__clang__)
-#       define GFX_TIMSORT_ENABLED_STD_MOVE 1
+#       define GFX_TIMSORT_USE_STD_MOVE 1
 #   elif defined(__GNUC__) && (__GNUC__ >= 5 || (__GNUC__ >= 4 && __GNUC_MINOR__ >= 6))
-#       define GFX_TIMSORT_ENABLED_STD_MOVE 1
+#       define GFX_TIMSORT_USE_STD_MOVE 1
 #   else
-#       define GFX_TIMSORT_ENABLED_STD_MOVE 0
+#       define GFX_TIMSORT_USE_STD_MOVE 0
 #   endif
 #endif
 
-#if GFX_TIMSORT_ENABLED_STD_MOVE
+#if GFX_TIMSORT_USE_STD_MOVE
 	#include <utility>
 	#define GFX_TIMSORT_MOVE(x) std::move(x)
 	#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::move((in1), (in2), (out));
@@ -681,6 +688,6 @@ inline void timsort(RandomAccessIterator const first, RandomAccessIterator const
 #undef GFX_TIMSORT_MOVE
 #undef GFX_TIMSORT_MOVE_RANGE
 #undef GFX_TIMSORT_MOVE_BACKWARD
-#undef GFX_TIMSORT_ENABLED_STD_MOVE
+#undef GFX_TIMSORT_USE_STD_MOVE
 
 #endif // GFX_TIMSORT_HPP

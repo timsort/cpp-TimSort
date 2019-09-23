@@ -1,43 +1,43 @@
-TimSort [![Build Status](https://travis-ci.org/gfx/cpp-TimSort.svg?branch=master)](https://travis-ci.org/gfx/cpp-TimSort)
-==================
+## TimSort [![Build Status](https://travis-ci.org/gfx/cpp-TimSort.svg?branch=master)](https://travis-ci.org/gfx/cpp-TimSort)
 
-A C++ implementation of TimSort, O(n log n) in worst case and stable sort algorithm, ported from Python's and OpenJDK's.
+A C++ implementation of TimSort, an O(n log n) stable sorting algorithm, ported from Python's and OpenJDK's.
 
 According to benchmark, this is a bit slower than `std::sort()` on randomized sequences, but much faster on partially-sorted sequences.
 
-SYNOPSIS
-==================
+## SYNOPSIS
 
-    #include "timsort.hpp"
+```cpp
+#include <string>
+#include <vector>
+#include <gfx/timsort.hpp>
 
-    std::vector<string> a;
+std::vector<std::string> a;
+// ... initialize a ...
+gfx::timsort(a.begin(), a.end(), std::less<string>());
+```
 
-    // initialize a
+## TEST
 
-    gfx::timsort(a.begin(), a.end(), std::less<string>());
-
-TEST
-==================
-
-The tests are written with Catch (branch 1.x) and can be compiled with CMake.
+The tests are written with Catch2 (branch 1.x) and can be compiled with CMake and run through CTest.
 
 TODO: describe CMake support
 
-COMPATIBILITY
-==================
+## COMPATIBILITY
 
-This library is compatible with C++98, but if you compile it with C++11 or later, this library uses `std::move()` instead of value copy and thus you can sort move-only types (see [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
+This library is compatible with C++98, but if you compile it with C++11 or later it will try to use `std::move()`
+when possible instead of copying vaues around, which notably allows to sort collections of move-only types (see
+[#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
 
-You can explicity disable the use of `std::move()` by passing the macro '-DGFX_TIMSORT_DISABLE_STD_MOVE'.
+You can explicity control the use of `std::move()` by setting the macro `GFX_TIMSORT_USE_STD_MOVE` to `0` or `1`.
 
-SEE ALSO
-==================
+## SEE ALSO
 
 * http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 * http://en.wikipedia.org/wiki/Timsort
 
-BENCHMARK
-==================
+## BENCHMARK
+
+TODO: integrate benchmarks to CMake, update documentation
 
 bench.cpp, invoked by `make bench`, is a simple benchmark.
 An example output is as follows (timing scale: sec.):
