@@ -399,8 +399,10 @@ TEST_CASE( "default_compare_function" ) {
 }
 
 enum id { foo, bar, baz };
+
 typedef std::pair<int, id> pair_t;
-bool less_in_first(pair_t x, pair_t y) {
+
+inline bool less_in_first(pair_t x, pair_t y) {
     return x.first < y.first;
 }
 
@@ -444,7 +446,7 @@ TEST_CASE( "stability" ) {
     CHECK(a[11].second == baz);
 }
 
-bool less_in_pair(const std::pair<int, int> &x, const std::pair<int, int> &y) {
+inline bool less_in_pair(const std::pair<int, int> &x, const std::pair<int, int> &y) {
     if (x.first == y.first) {
         return x.second < y.second;
     }
@@ -487,7 +489,7 @@ TEST_CASE( "issue2_duplication" ) {
     std::sort(expected.begin(), expected.end(), &less_in_pair);
     gfx::timsort(a.begin(), a.end(), &less_in_pair);
 
-    if (false) {
+#if 0
         for (std::size_t i = 0; i < a.size(); ++i) {
             std::clog << i << " ";
             std::clog << "(" << a[i].first << ", " << a[i].second << ")";
@@ -496,7 +498,7 @@ TEST_CASE( "issue2_duplication" ) {
             std::clog << "\n";
         }
         return;
-    }
+#endif
 
     CHECK(a.size() == expected.size());
 
