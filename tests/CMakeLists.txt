@@ -34,11 +34,13 @@ macro(configure_tests target)
     )
 
     # Add warnings
-    target_compile_options(${target} PRIVATE
-        -Wall -Wextra -Wcast-align -Winline -Wmissing-declarations -Wmissing-include-dirs
-        -Wnon-virtual-dtor -Wodr -Wpedantic -Wredundant-decls -Wundef -Wunreachable-code
-        $<$<CXX_COMPILER_ID:GNU>:-Wlogical-op -Wuseless-cast -Wzero-as-null-pointer-constant>
-    )
+    if (NOT MSVC)
+        target_compile_options(${target} PRIVATE
+            -Wall -Wextra -Wcast-align -Winline -Wmissing-declarations -Wmissing-include-dirs
+            -Wnon-virtual-dtor -Wodr -Wpedantic -Wredundant-decls -Wundef -Wunreachable-code
+            $<$<CXX_COMPILER_ID:GNU>:-Wlogical-op -Wuseless-cast -Wzero-as-null-pointer-constant>
+        )
+    endif()
 
     # Configure optimization options
     target_compile_options(${target} PRIVATE

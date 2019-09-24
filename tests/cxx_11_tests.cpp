@@ -22,7 +22,7 @@ template <typename T> struct move_only {
     }
 
     move_only(move_only &&other) : can_read(true), value(std::move(other.value)) {
-        if (not exchange(other.can_read, false)) {
+        if (!exchange(other.can_read, false)) {
             std::cerr << "illegal read from a moved-from value\n";
             assert(false);
         }
@@ -34,7 +34,7 @@ template <typename T> struct move_only {
 
     auto operator=(move_only &&other) -> move_only & {
         if (&other != this) {
-            if (not exchange(other.can_read, false)) {
+            if (!exchange(other.can_read, false)) {
                 std::cerr << "illegal read from a moved-from value\n";
                 assert(false);
             }
