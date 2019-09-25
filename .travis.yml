@@ -150,7 +150,9 @@ install:
 
 script:
   - if [[ $CMAKE_GENERATOR = "MSVC" ]]; then
-        cmake -H. -Bbuild -DCMAKE_CONFIGURATION_TYPES="${BUILD_TYPE}";
+        cmake -H. -Bbuild
+              -DCMAKE_CONFIGURATION_TYPES="${BUILD_TYPE}"
+              -DBUILD_BENCHMARKS=ON;
     else
         cmake -H. -Bbuild
               -DCMAKE_CONFIGURATION_TYPES="${BUILD_TYPE}"
@@ -158,7 +160,8 @@ script:
               -DGFX_TIMSORT_SANITIZE="${SANITIZE}"
               -DGFX_TIMSORT_USE_VALGRIND=${USE_VALGRIND}
               -G"${CMAKE_GENERATOR}"
-              -DCMAKE_SH="CMAKE_SH-NOTFOUND";
+              -DCMAKE_SH="CMAKE_SH-NOTFOUND"
+              -DBUILD_BENCHMARKS=ON;
     fi
   - if [[ $CMAKE_GENERATOR = "MSVC" || $TRAVIS_OS_NAME = "osx" ]]; then
         cmake --build build --config ${BUILD_TYPE} -j 2;

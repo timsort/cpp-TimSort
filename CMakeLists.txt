@@ -9,7 +9,7 @@ include(GNUInstallDirs)
 
 # Project options
 option(BUILD_TESTING "Build the tests" ON)
-option(BUILD_EXAMPLES "Build the examples" OFF)
+option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
 
 # Create gfx::timsort as an interface library
 add_library(timsort INTERFACE)
@@ -73,14 +73,14 @@ export(
     NAMESPACE gfx::
 )
 
-# Build tests and/or examples if this is the main project
+# Build tests and/or benchmarks if this is the main project
 if (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     if (BUILD_TESTING)
         enable_testing()
         add_subdirectory(tests)
     endif()
 
-    if (BUILD_EXAMPLES)
-        add_subdirectory(examples)
+    if (BUILD_BENCHMARKS)
+        add_subdirectory(benchmarks)
     endif()
 endif()
