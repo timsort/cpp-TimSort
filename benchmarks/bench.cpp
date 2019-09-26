@@ -1,26 +1,48 @@
-#include <vector>
-#include <algorithm>
-#include <iostream>
-#include <iomanip>
+/*
+ * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
+ * Copyright (c) 2019 Morwenn.
+ *
+ * SPDX-License-Identifier: MIT
+ */
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
-#include <boost/rational.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include <boost/timer.hpp>
-
-#include "timsort.hpp"
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <gfx/timsort.hpp>
 
 using namespace gfx;
 
 enum state_t { sorted, randomized, reversed };
 
-template <typename value_t> static void bench(int const size, state_t const state) {
+template <typename T>
+struct convert_to
+{
+    static T from(int value) {
+        return T(value);
+    }
+};
+
+template <>
+struct convert_to<std::string>
+{
+    static std::string from(int value) {
+        std::ostringstream ss;
+        ss << value;
+        return ss.str();
+    }
+};
+
+template <typename value_t>
+static void bench(int size, state_t const state) {
     std::cerr << "size\t" << size << std::endl;
 
     std::vector<value_t> a;
     for (int i = 0; i < size; ++i) {
-        a.push_back(boost::lexical_cast<value_t>((i + 1) * 10));
+        a.push_back(convert_to<value_t>::from((i + 1) * 10));
     }
 
     switch (state) {
@@ -40,38 +62,41 @@ template <typename value_t> static void bench(int const size, state_t const stat
 
     {
         std::vector<value_t> b(a);
-        boost::timer t;
 
+        std::clock_t start = std::clock();
         for (int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
             std::sort(b.begin(), b.end());
         }
+        std::clock_t stop = std::clock();
 
-        std::cerr << "std::sort        " << t.elapsed() << std::endl;
+        std::cerr << "std::sort        " << (double(stop - start) / CLOCKS_PER_SEC) << std::endl;
     }
 
     {
         std::vector<value_t> b(a);
-        boost::timer t;
 
+        std::clock_t start = std::clock();
         for (int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
             std::stable_sort(b.begin(), b.end());
         }
+        std::clock_t stop = clock();
 
-        std::cerr << "std::stable_sort " << t.elapsed() << std::endl;
+        std::cerr << "std::stable_sort " << (double(stop - start) / CLOCKS_PER_SEC) << std::endl;
     }
 
     {
         std::vector<value_t> b(a);
-        boost::timer t;
 
+        std::clock_t start = std::clock();
         for (int i = 0; i < 100; ++i) {
             std::copy(a.begin(), a.end(), b.begin());
             timsort(b.begin(), b.end());
         }
+        std::clock_t stop = std::clock();
 
-        std::cerr << "timsort          " << t.elapsed() << std::endl;
+        std::cerr << "timsort          " << (double(stop - start) / CLOCKS_PER_SEC) << std::endl;
     }
 }
 
@@ -84,7 +109,7 @@ static void doit(int const n, state_t const state) {
 }
 
 int main(int argc, const char *argv[]) {
-    const int N = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 100 * 1000;
+    const int N = argc > 1 ? std::atoi(argv[1]) : 100 * 1000;
 
     std::cerr << std::setprecision(6) << std::setiosflags(std::ios::fixed);
 
