@@ -6,7 +6,6 @@
  */
 #include <algorithm>
 #include <deque>
-#include <iostream>
 #include <stdexcept>
 #include <utility>
 #include <vector>
