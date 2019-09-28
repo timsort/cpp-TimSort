@@ -2,9 +2,15 @@
 
 A C++ implementation of TimSort, an O(n log n) stable sorting algorithm, ported from Python's and OpenJDK's.
 
-According to benchmark, this is a bit slower than `std::sort()` on randomized sequences, but much faster on partially-sorted sequences.
+See also the following links for a detailed description of TimSort:
+* http://svn.python.org/projects/python/trunk/Objects/listsort.txt
+* http://en.wikipedia.org/wiki/Timsort
 
-## SYNOPSIS
+According to the benchmarks, it is a bit slower than `std::sort()` on randomized sequences, but much faster on
+partially-sorted ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the
+difference that it's can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
+
+## EXAMPLE
 
 ```cpp
 #include <string>
@@ -16,12 +22,6 @@ std::vector<std::string> a;
 gfx::timsort(a.begin(), a.end(), std::less<string>());
 ```
 
-## TEST
-
-The tests are written with Catch2 (branch 1.x) and can be compiled with CMake and run through CTest.
-
-TODO: describe CMake support
-
 ## COMPATIBILITY
 
 This library is compatible with C++98, but if you compile it with C++11 or later it will try to use `std::move()`
@@ -30,17 +30,38 @@ when possible instead of copying vaues around, which notably allows to sort coll
 
 You can explicity control the use of `std::move()` by setting the macro `GFX_TIMSORT_USE_STD_MOVE` to `0` or `1`.
 
-## SEE ALSO
+The library has been tested with the following compilers:
+* GCC 5
+* Clang 3.8
+* The Clang version that ships with Xcode 8.3
+* MSVC 2017 update 9
 
-* http://svn.python.org/projects/python/trunk/Objects/listsort.txt
-* http://en.wikipedia.org/wiki/Timsort
+It should also work with more recent compilers, and most likely with some older compilers too.
 
-## BENCHMARK
+The library can be installed on the system via CMake with the following commands:
 
-TODO: integrate benchmarks to CMake, update documentation
+```sh
+cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cd build
+make install
+```
 
-bench.cpp, invoked by `make bench`, is a simple benchmark.
-An example output is as follows (timing scale: sec.):
+## TESTS
+
+The tests are written with Catch2 (branch 1.x) and can be compiled with CMake and run through CTest.
+
+When using the project's main `CMakeLists.txt`, the CMake variable `BUILD_TESTING` is `ON` by default unless the
+project is included as a subdirectory. The following CMake variables are available to change the way the tests are
+built with CMake:
+* `GFX_TIMSORT_USE_VALGRIND`: if `ON`, the tests will be run through Valgrind (`OFF` by default)
+* `GFX_TIMSORT_SANITIZE`: this variable takes a comma-separated list of sanitizers options to run the tests (empty by default)
+
+## BENCHMARKS
+
+Benchmarks are available in the `benchmarks` subdirectory, and can be constructed directly by passing `BUILD_BENCHMARKS=ON`
+variable to CMake during the configuration step.
+
+Example output (timing scale: sec.):
 
     c++ -v
     Apple LLVM version 7.0.0 (clang-700.0.72)
