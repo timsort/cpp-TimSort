@@ -46,6 +46,12 @@ cd build
 make install
 ```
 
+## CONFIGURATION
+
+A few configuration macros allow gfx::timsort to emit diagnostic, which might be helpful to diagnose issues:
+* Defining `GFX_TIMSORT_ENABLE_ASSERT` inserts assertions in key locations in the algorithm to avoid logic errors.
+* Defining `GFX_TIMSORT_ENABLE_LOG` inserts logs in key locations, which allow to follow more closely the flow of the algorithm.
+
 ## TESTS
 
 The tests are written with Catch2 (branch 1.x) and can be compiled with CMake and run through CTest.
