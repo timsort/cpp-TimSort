@@ -552,11 +552,11 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
 
         copy_to_tmp(base2, len2);
 
-        iter_t cursor1 = base1 + (len1 - 1);
+        iter_t cursor1 = base1 + len1;
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
         iter_t dest = base2 + (len2 - 1);
 
-        *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
+        *(dest--) = GFX_TIMSORT_MOVE(*(--cursor1));
         if (--len1 == 0) {
             GFX_TIMSORT_MOVE_RANGE(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
             return;
@@ -564,7 +564,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         if (len2 == 1) {
             dest -= len1;
             cursor1 -= len1;
-            GFX_TIMSORT_MOVE_BACKWARD(cursor1 + 1, cursor1 + (1 + len1), dest + (1 + len1));
+            GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + len1, dest + (1 + len1));
             *dest = GFX_TIMSORT_MOVE(*cursor2);
             return;
         }
@@ -576,23 +576,31 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             diff_t count1 = 0;
             diff_t count2 = 0;
 
+            // The next loop is a hot path of the algorithm, so we decrement
+            // eagerly the cursor so that it always points directly to the value
+            // to compare, but we have to implement some trickier logic to make
+            // sure that it points to the next value again by the end of said loop
+            --cursor1;
+
             bool break_outer = false;
             do {
                 GFX_TIMSORT_ASSERT(len1 > 0 && len2 > 1);
 
                 if (comp_.lt(*cursor2, *cursor1)) {
-                    *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
+                    *(dest--) = GFX_TIMSORT_MOVE(*cursor1);
                     ++count1;
                     count2 = 0;
                     if (--len1 == 0) {
                         break_outer = true;
                         break;
                     }
+                    --cursor1;
                 } else {
                     *(dest--) = GFX_TIMSORT_MOVE(*(cursor2--));
                     ++count2;
                     count1 = 0;
                     if (--len2 == 1) {
+                        ++cursor1;
                         break_outer = true;
                         break;
                     }
@@ -600,6 +608,8 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             } while ((count1 | count2) < minGallop);
             if (break_outer) {
                 break;
+            } else {
+                ++cursor1; // See comment before the loop
             }
 
             do {
@@ -610,7 +620,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     dest -= count1;
                     cursor1 -= count1;
                     len1 -= count1;
-                    GFX_TIMSORT_MOVE_BACKWARD(cursor1 + 1, cursor1 + (1 + count1), dest + (1 + count1));
+                    GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + count1, dest + (1 + count1));
 
                     if (len1 == 0) {
                         break_outer = true;
@@ -623,7 +633,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     break;
                 }
 
-                count2 = len2 - gallopLeft(*cursor1, tmp_.begin(), len2, len2 - 1);
+                count2 = len2 - gallopLeft(*(cursor1 - 1), tmp_.begin(), len2, len2 - 1);
                 if (count2 != 0) {
                     dest -= count2;
                     cursor2 -= count2;
@@ -634,7 +644,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                         break;
                     }
                 }
-                *(dest--) = GFX_TIMSORT_MOVE(*(cursor1--));
+                *(dest--) = GFX_TIMSORT_MOVE(*(--cursor1));
                 if (--len1 == 0) {
                     break_outer = true;
                     break;
@@ -657,7 +667,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
         if (len2 == 1) {
             GFX_TIMSORT_ASSERT(len1 > 0);
             dest -= len1;
-            GFX_TIMSORT_MOVE_BACKWARD(cursor1 + (1 - len1), cursor1 + 1, dest + (1 + len1));
+            GFX_TIMSORT_MOVE_BACKWARD(cursor1 - len1, cursor1, dest + (1 + len1));
             *dest = GFX_TIMSORT_MOVE(*cursor2);
         } else {
             GFX_TIMSORT_ASSERT(len2 != 0 && "Comparison function violates its general contract");
