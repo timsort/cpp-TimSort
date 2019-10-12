@@ -227,6 +227,9 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     TimSort() : minGallop_(MIN_GALLOP) {
     }
 
+    // Silence GCC -Winline warning
+    ~TimSort() {}
+
     void pushRun(iter_t const runBase, diff_t const runLen) {
         pending_.push_back(run(runBase, runLen));
     }
