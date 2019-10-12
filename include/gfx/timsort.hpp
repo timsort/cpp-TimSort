@@ -621,10 +621,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         }
     }
 
-    void copy_to_tmp(iter_t const begin, diff_t const len) {
-        tmp_.clear();
-        tmp_.reserve(len);
-        GFX_TIMSORT_MOVE_RANGE(begin, begin + len, std::back_inserter(tmp_));
+    void copy_to_tmp(iter_t const begin, diff_t len) {
+#if GFX_TIMSORT_USE_STD_MOVE
+        tmp_.assign(std::make_move_iterator(begin),
+                    std::make_move_iterator(begin + len));
+#else
+        tmp_.assign(begin, begin + len);
+#endif
     }
 
     template <typename IterT, typename LessT>
