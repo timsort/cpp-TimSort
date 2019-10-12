@@ -457,7 +457,6 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             diff_t count1 = 0;
             diff_t count2 = 0;
 
-            bool break_outer = false;
             do {
                 GFX_TIMSORT_ASSERT(len1 > 1 && len2 > 0);
 
@@ -466,22 +465,17 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     ++count2;
                     count1 = 0;
                     if (--len2 == 0) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                 } else {
                     *(dest++) = GFX_TIMSORT_MOVE(*(cursor1++));
                     ++count1;
                     count2 = 0;
                     if (--len1 == 1) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                 }
             } while ((count1 | count2) < minGallop);
-            if (break_outer) {
-                break;
-            }
 
             do {
                 GFX_TIMSORT_ASSERT(len1 > 1 && len2 > 0);
@@ -494,14 +488,12 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     len1 -= count1;
 
                     if (len1 <= 1) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                 }
                 *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
                 if (--len2 == 0) {
-                    break_outer = true;
-                    break;
+                    goto epilogue;
                 }
 
                 count2 = gallopLeft(*cursor1, cursor2, len2, 0);
@@ -511,27 +503,24 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     cursor2 += count2;
                     len2 -= count2;
                     if (len2 == 0) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                 }
                 *(dest++) = GFX_TIMSORT_MOVE(*(cursor1++));
                 if (--len1 == 1) {
-                    break_outer = true;
-                    break;
+                    goto epilogue;
                 }
 
                 --minGallop;
             } while ((count1 >= MIN_GALLOP) | (count2 >= MIN_GALLOP));
-            if (break_outer) {
-                break;
-            }
 
             if (minGallop < 0) {
                 minGallop = 0;
             }
             minGallop += 2;
         } // end of "outer" loop
+
+        epilogue: // merge what is left from either cursor1 or cursor2
 
         minGallop_ = std::min(minGallop, 1);
 
@@ -582,7 +571,6 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
             // sure that it points to the next value again by the end of said loop
             --cursor1;
 
-            bool break_outer = false;
             do {
                 GFX_TIMSORT_ASSERT(len1 > 0 && len2 > 1);
 
@@ -591,8 +579,7 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     ++count1;
                     count2 = 0;
                     if (--len1 == 0) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                     --cursor1;
                 } else {
@@ -600,17 +587,12 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     ++count2;
                     count1 = 0;
                     if (--len2 == 1) {
-                        ++cursor1;
-                        break_outer = true;
-                        break;
+                        ++cursor1; // See comment before the loop
+                        goto epilogue;
                     }
                 }
             } while ((count1 | count2) < minGallop);
-            if (break_outer) {
-                break;
-            } else {
-                ++cursor1; // See comment before the loop
-            }
+            ++cursor1; // See comment before the loop
 
             do {
                 GFX_TIMSORT_ASSERT(len1 > 0 && len2 > 1);
@@ -623,14 +605,12 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + count1, dest + (1 + count1));
 
                     if (len1 == 0) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                 }
                 *(dest--) = GFX_TIMSORT_MOVE(*(cursor2--));
                 if (--len2 == 1) {
-                    break_outer = true;
-                    break;
+                    goto epilogue;
                 }
 
                 count2 = len2 - gallopLeft(*(cursor1 - 1), tmp_.begin(), len2, len2 - 1);
@@ -640,27 +620,24 @@ template <typename RandomAccessIterator, typename LessFunction> class TimSort {
                     len2 -= count2;
                     GFX_TIMSORT_MOVE_RANGE(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
                     if (len2 <= 1) {
-                        break_outer = true;
-                        break;
+                        goto epilogue;
                     }
                 }
                 *(dest--) = GFX_TIMSORT_MOVE(*(--cursor1));
                 if (--len1 == 0) {
-                    break_outer = true;
-                    break;
+                    goto epilogue;
                 }
 
                 minGallop--;
             } while ((count1 >= MIN_GALLOP) | (count2 >= MIN_GALLOP));
-            if (break_outer) {
-                break;
-            }
 
             if (minGallop < 0) {
                 minGallop = 0;
             }
             minGallop += 2;
         } // end of "outer" loop
+
+        epilogue: // merge what is left from either cursor1 or cursor2
 
         minGallop_ = std::min(minGallop, 1);
 
