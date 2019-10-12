@@ -97,13 +97,13 @@ namespace gfx {
  * Same as std::stable_sort(first, last).
  */
 template <typename RandomAccessIterator>
-inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
 
 /**
- * Same as std::stable_sort(first, last, c).
+ * Same as std::stable_sort(first, last, compare).
  */
 template <typename RandomAccessIterator, typename Compare>
-inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare);
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare);
 
 // ---------------------------------------
 // Implementation
@@ -172,7 +172,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
         GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
                                  << " pending_.size(): " << ts.pending_.size());
-    } // sort()
+    }
 
     static void binarySort(iter_t const lo, iter_t const hi, iter_t start, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= start && start <= hi);
@@ -181,7 +181,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         }
         for (; start < hi; ++start) {
             GFX_TIMSORT_ASSERT(lo <= start);
-            /*const*/ value_t pivot = GFX_TIMSORT_MOVE(*start);
+            value_t pivot = GFX_TIMSORT_MOVE(*start);
 
             iter_t const pos = std::upper_bound(lo, start, pivot, compare);
             for (iter_t p = start; p > pos; --p) {
@@ -199,12 +199,12 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
             return 1;
         }
 
-        if (compare(*(runHi++), *lo)) { // descending
+        if (compare(*(runHi++), *lo)) { // decreasing
             while (runHi < hi && compare(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
             std::reverse(lo, runHi);
-        } else { // ascending
+        } else { // non-decreasing
             while (runHi < hi && !compare(*runHi, *(runHi - 1))) {
                 ++runHi;
             }
@@ -627,19 +627,18 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         GFX_TIMSORT_MOVE_RANGE(begin, begin + len, std::back_inserter(tmp_));
     }
 
-    // the only interface is the friend timsort() function
     template <typename IterT, typename LessT>
     friend void timsort(IterT first, IterT last, LessT c);
 };
 
 template <typename RandomAccessIterator>
-inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
     typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
     timsort(first, last, std::less<value_type>());
 }
 
 template <typename RandomAccessIterator, typename Compare>
-inline void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare) {
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare) {
     TimSort<RandomAccessIterator, Compare>::sort(first, last, compare);
 }
 
