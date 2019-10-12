@@ -44,7 +44,7 @@
 
 #ifdef GFX_TIMSORT_ENABLE_LOG
 #   include <iostream>
-#   define GFX_TIMSORT_LOG(expr) (std::clog << "# " << __func__ << ": " << (expr) << std::endl)
+#   define GFX_TIMSORT_LOG(expr) (std::clog << "# " << __func__ << ": " << expr << std::endl)
 #else
 #   define GFX_TIMSORT_LOG(expr) ((void)0)
 #endif
