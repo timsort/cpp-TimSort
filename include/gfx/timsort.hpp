@@ -397,8 +397,31 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         return std::upper_bound(base + (lastOfs + 1), base + ofs, key, compare) - base;
     }
 
+    static void rotateLeft(iter_t first, iter_t last)
+    {
+        value_t tmp = GFX_TIMSORT_MOVE(*first);
+        iter_t last_1 = GFX_TIMSORT_MOVE_RANGE(first + 1, last, first);
+        *last_1 = GFX_TIMSORT_MOVE(tmp);
+    }
+
+    static void rotateRight(iter_t first, iter_t last)
+    {
+        iter_t last_1 = last - 1;
+        value_t tmp = GFX_TIMSORT_MOVE(*last_1);
+        GFX_TIMSORT_MOVE_BACKWARD(first, last_1, last);
+        *first = GFX_TIMSORT_MOVE(tmp);
+    }
+
+
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2, Compare compare) {
         GFX_TIMSORT_ASSERT(len1 > 0 && len2 > 0 && base1 + len1 == base2);
+
+        if (len1 == 1) {
+            return rotateLeft(base1, base2 + len2);
+        }
+        if (len2 == 1) {
+            return rotateRight(base1, base2 + len2);
+        }
 
         copy_to_tmp(base1, len1);
 
@@ -407,15 +430,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         iter_t dest = base1;
 
         *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
-        if (--len2 == 0) {
-            GFX_TIMSORT_MOVE_RANGE(cursor1, cursor1 + len1, dest);
-            return;
-        }
-        if (len1 == 1) {
-            GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + len2, dest);
-            *(dest + len2) = GFX_TIMSORT_MOVE(*cursor1);
-            return;
-        }
+        --len2;
 
         int minGallop(minGallop_);
 
@@ -506,6 +521,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2, Compare compare) {
         GFX_TIMSORT_ASSERT(len1 > 0 && len2 > 0 && base1 + len1 == base2);
 
+        if (len1 == 1) {
+            return rotateLeft(base1, base2 + len2);
+        }
+        if (len2 == 1) {
+            return rotateRight(base1, base2 + len2);
+        }
+
         copy_to_tmp(base2, len2);
 
         iter_t cursor1 = base1 + len1;
@@ -513,17 +535,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         iter_t dest = base2 + (len2 - 1);
 
         *(dest--) = GFX_TIMSORT_MOVE(*(--cursor1));
-        if (--len1 == 0) {
-            GFX_TIMSORT_MOVE_RANGE(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
-            return;
-        }
-        if (len2 == 1) {
-            dest -= len1;
-            cursor1 -= len1;
-            GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + len1, dest + (1 + len1));
-            *dest = GFX_TIMSORT_MOVE(*cursor2);
-            return;
-        }
+        --len1;
 
         int minGallop(minGallop_);
 
