@@ -453,27 +453,6 @@ inline bool less_in_pair(const std::pair<int, int> &x, const std::pair<int, int>
     return x.first < y.first;
 }
 
-TEST_CASE( "issue2_compare" ) {
-    typedef std::pair<int, int> p;
-    gfx::Compare<p, bool (*)(const p &, const p &)> c(&less_in_pair);
-
-    CHECK_FALSE(c.lt(std::make_pair(10, 10), std::make_pair(10, 9)));
-    CHECK_FALSE(c.lt(std::make_pair(10, 10), std::make_pair(10, 10)));
-    CHECK(c.lt(std::make_pair(10, 10), std::make_pair(10, 11)));
-
-    CHECK_FALSE(c.le(std::make_pair(10, 10), std::make_pair(10, 9)));
-    CHECK(c.le(std::make_pair(10, 10), std::make_pair(10, 10)));
-    CHECK(c.le(std::make_pair(10, 10), std::make_pair(10, 11)));
-
-    CHECK(c.gt(std::make_pair(10, 10), std::make_pair(10, 9)));
-    CHECK_FALSE(c.gt(std::make_pair(10, 10), std::make_pair(10, 10)));
-    CHECK_FALSE(c.gt(std::make_pair(10, 10), std::make_pair(10, 11)));
-
-    CHECK(c.ge(std::make_pair(10, 10), std::make_pair(10, 9)));
-    CHECK(c.ge(std::make_pair(10, 10), std::make_pair(10, 10)));
-    CHECK_FALSE(c.ge(std::make_pair(10, 10), std::make_pair(10, 11)));
-}
-
 TEST_CASE( "issue2_duplication" ) {
     std::vector<std::pair<int, int> > a;
 
