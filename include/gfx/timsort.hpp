@@ -90,24 +90,20 @@
 namespace gfx {
 
 // ---------------------------------------
-// Declaration
+// Implementation details
 // ---------------------------------------
 
-/**
- * Same as std::stable_sort(first, last).
- */
-template <typename RandomAccessIterator>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
+namespace detail {
 
-/**
- * Same as std::stable_sort(first, last, compare).
- */
-template <typename RandomAccessIterator, typename Compare>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare);
+template <typename Iterator> struct run {
+    typedef typename std::iterator_traits<Iterator>::difference_type diff_t;
 
-// ---------------------------------------
-// Implementation
-// ---------------------------------------
+    Iterator base;
+    diff_t len;
+
+    run(Iterator b, diff_t l) : base(b), len(l) {
+    }
+};
 
 template <typename RandomAccessIterator, typename Compare> class TimSort {
     typedef RandomAccessIterator iter_t;
@@ -123,56 +119,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     std::vector<value_t> tmp_; // temp storage for merges
     typedef typename std::vector<value_t>::iterator tmp_iter_t;
 
-    struct run {
-        iter_t base;
-        diff_t len;
-
-        run(iter_t const b, diff_t const l) : base(b), len(l) {
-        }
-    };
-    std::vector<run> pending_;
-
-    static void sort(iter_t const lo, iter_t const hi, Compare compare) {
-        GFX_TIMSORT_ASSERT(lo <= hi);
-
-        diff_t nRemaining = (hi - lo);
-        if (nRemaining < 2) {
-            return; // nothing to do
-        }
-
-        if (nRemaining < MIN_MERGE) {
-            diff_t const initRunLen = countRunAndMakeAscending(lo, hi, compare);
-            GFX_TIMSORT_LOG("initRunLen: " << initRunLen);
-            binarySort(lo, hi, lo + initRunLen, compare);
-            return;
-        }
-
-        TimSort ts;
-        diff_t const minRun = minRunLength(nRemaining);
-        iter_t cur = lo;
-        do {
-            diff_t runLen = countRunAndMakeAscending(cur, hi, compare);
-
-            if (runLen < minRun) {
-                diff_t const force = std::min(nRemaining, minRun);
-                binarySort(cur, cur + force, cur + runLen, compare);
-                runLen = force;
-            }
-
-            ts.pushRun(cur, runLen);
-            ts.mergeCollapse(compare);
-
-            cur += runLen;
-            nRemaining -= runLen;
-        } while (nRemaining != 0);
-
-        GFX_TIMSORT_ASSERT(cur == hi);
-        ts.mergeForceCollapse(compare);
-        GFX_TIMSORT_ASSERT(ts.pending_.size() == 1);
-
-        GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
-                                 << " pending_.size(): " << ts.pending_.size());
-    }
+    std::vector<run<RandomAccessIterator> > pending_;
 
     static void binarySort(iter_t const lo, iter_t const hi, iter_t start, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= start && start <= hi);
@@ -231,7 +178,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     ~TimSort() {}
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
-        pending_.push_back(run(runBase, runLen));
+        pending_.push_back(run<iter_t>(runBase, runLen));
     }
 
     void mergeCollapse(Compare compare) {
@@ -645,19 +592,72 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 #endif
     }
 
-    template <typename IterT, typename LessT>
-    friend void timsort(IterT first, IterT last, LessT c);
+public:
+
+    static void sort(iter_t const lo, iter_t const hi, Compare compare) {
+        GFX_TIMSORT_ASSERT(lo <= hi);
+
+        diff_t nRemaining = (hi - lo);
+        if (nRemaining < 2) {
+            return; // nothing to do
+        }
+
+        if (nRemaining < MIN_MERGE) {
+            diff_t const initRunLen = countRunAndMakeAscending(lo, hi, compare);
+            GFX_TIMSORT_LOG("initRunLen: " << initRunLen);
+            binarySort(lo, hi, lo + initRunLen, compare);
+            return;
+        }
+
+        TimSort ts;
+        diff_t const minRun = minRunLength(nRemaining);
+        iter_t cur = lo;
+        do {
+            diff_t runLen = countRunAndMakeAscending(cur, hi, compare);
+
+            if (runLen < minRun) {
+                diff_t const force = std::min(nRemaining, minRun);
+                binarySort(cur, cur + force, cur + runLen, compare);
+                runLen = force;
+            }
+
+            ts.pushRun(cur, runLen);
+            ts.mergeCollapse(compare);
+
+            cur += runLen;
+            nRemaining -= runLen;
+        } while (nRemaining != 0);
+
+        GFX_TIMSORT_ASSERT(cur == hi);
+        ts.mergeForceCollapse(compare);
+        GFX_TIMSORT_ASSERT(ts.pending_.size() == 1);
+
+        GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
+                                 << " pending_.size(): " << ts.pending_.size());
+    }
 };
 
+} // namespace detail
+
+// ---------------------------------------
+// Public interface implementation
+// ---------------------------------------
+
+/**
+ * Same as std::stable_sort(first, last, compare).
+ */
+template <typename RandomAccessIterator, typename Compare>
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare) {
+    detail::TimSort<RandomAccessIterator, Compare>::sort(first, last, compare);
+}
+
+/**
+ * Same as std::stable_sort(first, last).
+ */
 template <typename RandomAccessIterator>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
     typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
-    timsort(first, last, std::less<value_type>());
-}
-
-template <typename RandomAccessIterator, typename Compare>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare) {
-    TimSort<RandomAccessIterator, Compare>::sort(first, last, compare);
+    gfx::timsort(first, last, std::less<value_type>());
 }
 
 } // namespace gfx
