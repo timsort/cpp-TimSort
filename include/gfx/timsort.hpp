@@ -35,6 +35,14 @@
 #include <iterator>
 #include <vector>
 
+// Semantic versioning macros
+
+#define GFX_TIMSORT_VERSION_MAJOR 1
+#define GFX_TIMSORT_VERSION_MINOR 0
+#define GFX_TIMSORT_VERSION_PATCH 0
+
+// Diagnostic selection macros
+
 #ifdef GFX_TIMSORT_ENABLE_ASSERT
 #   include <cassert>
 #   define GFX_TIMSORT_ASSERT(expr) assert(expr)

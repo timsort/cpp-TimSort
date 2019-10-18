@@ -1,4 +1,8 @@
-## TimSort [![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
+[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F1.0.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
+[![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
+[![License](https://img.shields.io/:license-mit-blue.svg)](https://doge.mit-license.org)
+
+## TimSort
 
 A C++ implementation of TimSort, an O(n log n) stable sorting algorithm, ported from Python's and OpenJDK's.
 
@@ -46,11 +50,20 @@ cd build
 make install
 ```
 
-## CONFIGURATION
+## DIAGNOSTICS & INFORMATION
 
 A few configuration macros allow gfx::timsort to emit diagnostic, which might be helpful to diagnose issues:
 * Defining `GFX_TIMSORT_ENABLE_ASSERT` inserts assertions in key locations in the algorithm to avoid logic errors.
 * Defining `GFX_TIMSORT_ENABLE_LOG` inserts logs in key locations, which allow to follow more closely the flow of the algorithm.
+
+**cpp-TimSort** follows semantic versioning and provides the following macros to retrieve the current major, minor
+and patch versions:
+
+```cpp
+GFX_TIMSORT_VERSION_MAJOR
+GFX_TIMSORT_VERSION_MINOR
+GFX_TIMSORT_VERSION_PATCH
+```
 
 ## TESTS
 
