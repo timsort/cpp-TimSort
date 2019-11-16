@@ -103,6 +103,52 @@ namespace gfx {
 
 namespace detail {
 
+// Equivalent to C++20 std::identity
+struct identity {
+#if GFX_TIMSORT_USE_STD_MOVE
+    template <typename T>
+    T&& operator()(T&& value) const
+    {
+        return std::forward<T>(value);
+    }
+#else
+    template <typename T>
+    T& operator()(T& value) const {
+        return value;
+    }
+
+    template <typename T>
+    T const& operator()(T const& value) const {
+        return value;
+    }
+#endif
+};
+
+// Merge a predicate and a projection function
+template <typename Compare, typename Projection>
+struct projection_compare {
+    projection_compare(Compare comp, Projection proj) : compare(comp), projection(proj) {
+    }
+
+#if GFX_TIMSORT_USE_STD_MOVE
+    template <typename T, typename U>
+    bool operator()(T &&lhs, U &&rhs) {
+        return static_cast<bool>(compare(
+            projection(std::forward<T>(lhs)),
+            projection(std::forward<U>(rhs))
+        ));
+    }
+#else
+    template <typename T, typename U>
+    bool operator()(T &lhs, U &rhs) {
+        return static_cast<bool>(compare(projection(lhs), projection(rhs)));
+    }
+#endif
+
+    Compare compare;
+    Projection projection;
+};
+
 template <typename Iterator> struct run {
     typedef typename std::iterator_traits<Iterator>::difference_type diff_t;
 
@@ -670,11 +716,22 @@ public:
 // ---------------------------------------
 
 /**
+ * Stably sorts a range with a comparison function and a projection function.
+ */
+template <typename RandomAccessIterator, typename Compare, typename Projection>
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
+             Compare compare, Projection projection) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(compare, projection);
+    detail::TimSort<RandomAccessIterator, compare_t>::sort(first, last, comp);
+}
+
+/**
  * Same as std::stable_sort(first, last, compare).
  */
 template <typename RandomAccessIterator, typename Compare>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare) {
-    detail::TimSort<RandomAccessIterator, Compare>::sort(first, last, compare);
+    gfx::timsort(first, last, compare, detail::identity());
 }
 
 /**
@@ -683,7 +740,7 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last, 
 template <typename RandomAccessIterator>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
     typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
-    gfx::timsort(first, last, std::less<value_type>());
+    gfx::timsort(first, last, std::less<value_type>(), detail::identity());
 }
 
 } // namespace gfx

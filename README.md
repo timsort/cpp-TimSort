@@ -12,18 +12,29 @@ See also the following links for a detailed description of TimSort:
 
 According to the benchmarks, it is a bit slower than `std::sort()` on randomized sequences, but much faster on
 partially-sorted ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the
-difference that it's can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
+difference that it can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
+
+Additionally `gfx::timsort` can take a [projection function](https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html)
+after the comparison function. The support is a bit rougher than in the linked article: only instances of types
+callable with parenthesis can be used, there is no support for pointer to members.
 
 ## EXAMPLE
+
+Example using timsort with a comparison function and a projection function to sort a vector of strings by length:
 
 ```cpp
 #include <string>
 #include <vector>
 #include <gfx/timsort.hpp>
 
-std::vector<std::string> a;
-// ... initialize a ...
-gfx::timsort(a.begin(), a.end(), std::less<string>());
+size_t len(const std::string& str) {
+    return str.size();
+}
+
+// Sort a vector of strings by length
+std::vector<std::string> vec;
+// ... fill vec ...
+gfx::timsort(vec.begin(), vec.end(), std::less<size_t>(), &len);
 ```
 
 ## COMPATIBILITY

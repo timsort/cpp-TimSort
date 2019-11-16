@@ -516,3 +516,18 @@ TEST_CASE( "issue2_duplication" ) {
     CHECK(a[1001].first == expected[1001].first);
     CHECK(a[1001].second == expected[1001].second);
 }
+
+TEST_CASE( "projection" ) {
+    const int size = 128;
+
+    std::vector<int> vec;
+    for (int i = 0; i < size; ++i) {
+        vec.push_back(i - 40);
+    }
+    std::random_shuffle(vec.begin(), vec.end());
+
+    gfx::timsort(vec.begin(), vec.end(), std::greater<int>(), std::negate<int>());
+    for (int i = 0; i < size; ++i) {
+        CHECK(vec[i] == i - 40);
+    }
+}
