@@ -46,8 +46,8 @@ macro(configure_tests target)
 
     # Configure optimization options
     target_compile_options(${target} PRIVATE
-        $<$<AND:$<CONFIG:DEBUG>,$<CXX_COMPILER_ID:Clang>>:-O0>
-        $<$<AND:$<CONFIG:DEBUG>,$<CXX_COMPILER_ID:GNU>>:-Og>
+        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-O0>
+        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-Og>
     )
 
     # Use lld or the gold linker if possible
