@@ -20,6 +20,12 @@ target_include_directories(Catch2 INTERFACE
 option(GFX_TIMSORT_USE_VALGRIND "Whether to run the tests with Valgrind" OFF)
 set(GFX_TIMSORT_SANITIZE "" CACHE STRING "Comma-separated list of options to pass to -fsanitize")
 
+# Configure Valgrind
+if (${GFX_TIMSORT_USE_VALGRIND})
+    find_program(MEMORYCHECK_COMMAND valgrind)
+    set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --track-origins=yes --error-exitcode=1 --show-reachable=no")
+endif()
+
 macro(configure_tests target)
     # Add required dependencies to tests
     target_link_libraries(${target} PRIVATE
@@ -80,22 +86,13 @@ add_executable(cxx_98_tests
 configure_tests(cxx_98_tests)
 target_compile_features(cxx_98_tests PRIVATE cxx_std_98)
 
-# Tests that require C++11 support to run
+# Tests that require C++11 support
 add_executable(cxx_11_tests
     main.cpp
     cxx_11_tests.cpp
 )
 configure_tests(cxx_11_tests)
 target_compile_features(cxx_11_tests PRIVATE cxx_std_11)
-
-# Configure Valgrind
-if (${GFX_TIMSORT_USE_VALGRIND})
-    find_program(MEMORYCHECK_COMMAND valgrind)
-    set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --track-origins=yes --error-exitcode=1 --show-reachable=no")
-    if (APPLE)
-        set(MEMORYCHECK_SUPPRESSIONS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/valgrind-osx.supp)
-    endif()
-endif()
 
 include(CTest)
 include(ParseAndAddCatchTests)
