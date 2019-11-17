@@ -1,4 +1,4 @@
-[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F1.0.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
+[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F1.1.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
 [![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
 [![License](https://img.shields.io/:license-mit-blue.svg)](https://doge.mit-license.org)
 
@@ -10,17 +10,17 @@ See also the following links for a detailed description of TimSort:
 * http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 * http://en.wikipedia.org/wiki/Timsort
 
-According to the benchmarks, it is a bit slower than `std::sort()` on randomized sequences, but much faster on
-partially-sorted ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the
-difference that it can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
+According to the benchmarks, it is slower than `std::sort()` on randomized sequences, but faster on partially-sorted
+ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the difference that it
+can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
 
 Additionally `gfx::timsort` can take a [projection function](https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html)
-after the comparison function. The support is a bit rougher than in the linked article: only instances of types
-callable with parenthesis can be used, there is no support for pointer to members.
+after the comparison function. The support is a bit rougher than in the linked article or the C++20 stadard library:
+only instances of types callable with parentheses can be used, there is no support for pointer to members.
 
 ## EXAMPLE
 
-Example using timsort with a comparison function and a projection function to sort a vector of strings by length:
+Example of using timsort with a comparison function and a projection function to sort a vector of strings by length:
 
 ```cpp
 #include <string>
@@ -39,7 +39,7 @@ gfx::timsort(vec.begin(), vec.end(), std::less<size_t>(), &len);
 
 ## COMPATIBILITY
 
-This library is compatible with C++98, but if you compile it with C++11 or later it will try to use `std::move()`
+This library is compatible with C++98, but if you compile it with C++11 or higher it will try to use `std::move()`
 when possible instead of copying vaues around, which notably allows to sort collections of move-only types (see
 [#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
 
@@ -48,7 +48,7 @@ You can explicity control the use of `std::move()` by setting the macro `GFX_TIM
 The library has been tested with the following compilers:
 * GCC 5
 * Clang 3.8
-* The Clang version that ships with Xcode 8.3
+* The AppleClang version that ships with Xcode 8.3
 * MSVC 2017 update 9
 
 It should also work with more recent compilers, and most likely with some older compilers too.
