@@ -94,8 +94,21 @@ add_executable(cxx_11_tests
 configure_tests(cxx_11_tests)
 target_compile_features(cxx_11_tests PRIVATE cxx_std_11)
 
+# Windows-specific tests
+if (WIN32)
+    add_executable(windows_tests
+        main.cpp
+        windows.cpp
+    )
+    configure_tests(windows_tests)
+    target_compile_features(windows_tests PRIVATE cxx_std_98)
+endif()
+
 include(CTest)
 include(ParseAndAddCatchTests)
 
 ParseAndAddCatchTests(cxx_98_tests)
 ParseAndAddCatchTests(cxx_11_tests)
+if (WIN32)
+    ParseAndAddCatchTests(windows_tests)
+endif()

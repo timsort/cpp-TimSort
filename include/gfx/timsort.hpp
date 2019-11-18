@@ -522,7 +522,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
         epilogue: // merge what is left from either cursor1 or cursor2
 
-        minGallop_ = std::min(minGallop, 1);
+        minGallop_ = (std::min)(minGallop, 1);
 
         if (len1 == 1) {
             GFX_TIMSORT_ASSERT(len2 > 0);
@@ -640,7 +640,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
         epilogue: // merge what is left from either cursor1 or cursor2
 
-        minGallop_ = std::min(minGallop, 1);
+        minGallop_ = (std::min)(minGallop, 1);
 
         if (len2 == 1) {
             GFX_TIMSORT_ASSERT(len1 > 0);
@@ -688,7 +688,7 @@ public:
             diff_t runLen = countRunAndMakeAscending(cur, hi, compare);
 
             if (runLen < minRun) {
-                diff_t const force = std::min(nRemaining, minRun);
+                diff_t const force = (std::min)(nRemaining, minRun);
                 binarySort(cur, cur + force, cur + runLen, compare);
                 runLen = force;
             }
