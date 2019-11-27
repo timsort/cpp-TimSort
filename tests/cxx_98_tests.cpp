@@ -12,6 +12,168 @@
 #include <catch.hpp>
 #include <gfx/timsort.hpp>
 
+namespace {
+    // Helper types for the tests
+
+    ////////////////////////////////////////////////////////////
+    // Timsort should work with types that are not
+    // default-constructible
+
+    struct NonDefaultConstructible {
+        int i;
+
+        NonDefaultConstructible(int i_) : i(i_) {
+        }
+
+        friend bool operator<(NonDefaultConstructible const &x, NonDefaultConstructible const &y) {
+            return x.i < y.i;
+        }
+    };
+
+    ////////////////////////////////////////////////////////////
+    // Tools to test the stability of the sort
+
+    enum id { foo, bar, baz };
+
+    typedef std::pair<int, id> pair_t;
+
+    inline bool less_in_first(pair_t x, pair_t y) {
+        return x.first < y.first;
+    }
+
+    ////////////////////////////////////////////////////////////
+    // Timsort should work with iterators that don't have a
+    // post-increment or post-decrement operation
+
+    template<typename Iterator>
+    class NoPostIterator
+    {
+        public:
+
+            ////////////////////////////////////////////////////////////
+            // Public types
+
+            typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+            typedef Iterator iterator_type;
+            typedef typename std::iterator_traits<Iterator>::value_type value_type;
+            typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
+            typedef typename std::iterator_traits<Iterator>::pointer pointer;
+            typedef typename std::iterator_traits<Iterator>::reference reference;
+
+            ////////////////////////////////////////////////////////////
+            // Constructors
+
+            NoPostIterator() : _it() {
+            }
+
+            explicit NoPostIterator(Iterator it) : _it(it) {
+            }
+
+            ////////////////////////////////////////////////////////////
+            // Members access
+
+            iterator_type base() const {
+                return _it;
+            }
+
+            ////////////////////////////////////////////////////////////
+            // Element access
+
+            reference operator*() const {
+                return *base();
+            }
+
+            pointer operator->() const {
+                return &(operator*());
+            }
+
+            ////////////////////////////////////////////////////////////
+            // Increment/decrement operators
+
+            NoPostIterator& operator++() {
+                ++_it;
+                return *this;
+            }
+
+            NoPostIterator& operator--() {
+                --_it;
+                return *this;
+            }
+
+            NoPostIterator& operator+=(difference_type increment) {
+                _it += increment;
+                return *this;
+            }
+
+            NoPostIterator& operator-=(difference_type increment) {
+                _it -= increment;
+                return *this;
+            }
+
+            ////////////////////////////////////////////////////////////
+            // Comparison operators
+
+            friend bool operator==(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() == rhs.base();
+            }
+
+            friend bool operator!=(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() != rhs.base();
+            }
+
+            ////////////////////////////////////////////////////////////
+            // Relational operators
+
+            friend bool operator<(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() < rhs.base();
+            }
+
+            friend bool operator<=(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() <= rhs.base();
+            }
+
+            friend bool operator>(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() > rhs.base();
+            }
+
+            friend bool operator>=(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() >= rhs.base();
+            }
+
+            ////////////////////////////////////////////////////////////
+            // Arithmetic operators
+
+            friend NoPostIterator operator+(NoPostIterator it, difference_type size) {
+                return it += size;
+            }
+
+            friend NoPostIterator operator+(difference_type size, NoPostIterator it) {
+                return it += size;
+            }
+
+            friend NoPostIterator operator-(NoPostIterator it, difference_type size) {
+                return it -= size;
+            }
+
+            friend difference_type operator-(NoPostIterator const& lhs, NoPostIterator const& rhs) {
+                return lhs.base() - rhs.base();
+            }
+
+        private:
+
+            Iterator _it;
+    };
+
+    ////////////////////////////////////////////////////////////
+    // Construction function
+
+    template<typename Iterator>
+    NoPostIterator<Iterator> make_no_post_iterator(Iterator it) {
+        return NoPostIterator<Iterator>(it);
+    }
+
+}
+
 TEST_CASE( "simple0" ) {
     std::vector<int> a;
 
@@ -358,17 +520,6 @@ TEST_CASE( "string_array" ) {
     CHECK(a[4] == "9");
 }
 
-struct NonDefaultConstructible {
-    int i;
-
-    NonDefaultConstructible(int i_) : i(i_) {
-    }
-
-    friend bool operator<(NonDefaultConstructible const &x, NonDefaultConstructible const &y) {
-        return x.i < y.i;
-    }
-};
-
 TEST_CASE( "non_default_constructible" ) {
     NonDefaultConstructible a[] = {7, 1, 5, 3, 9};
 
@@ -396,14 +547,6 @@ TEST_CASE( "default_compare_function" ) {
     for (int i = 0; i < size; ++i) {
         CHECK(a[i] == (i + 1) * 10);
     }
-}
-
-enum id { foo, bar, baz };
-
-typedef std::pair<int, id> pair_t;
-
-inline bool less_in_first(pair_t x, pair_t y) {
-    return x.first < y.first;
 }
 
 TEST_CASE( "stability" ) {
@@ -446,13 +589,6 @@ TEST_CASE( "stability" ) {
     CHECK(a[11].second == baz);
 }
 
-inline bool less_in_pair(const std::pair<int, int> &x, const std::pair<int, int> &y) {
-    if (x.first == y.first) {
-        return x.second < y.second;
-    }
-    return x.first < y.first;
-}
-
 TEST_CASE( "issue2_duplication" ) {
     std::vector<std::pair<int, int> > a;
 
@@ -465,8 +601,8 @@ TEST_CASE( "issue2_duplication" ) {
 
     std::vector<std::pair<int, int> > expected(a);
 
-    std::sort(expected.begin(), expected.end(), &less_in_pair);
-    gfx::timsort(a.begin(), a.end(), &less_in_pair);
+    std::sort(expected.begin(), expected.end());
+    gfx::timsort(a.begin(), a.end());
 
 #if 0
         for (std::size_t i = 0; i < a.size(); ++i) {
@@ -530,4 +666,12 @@ TEST_CASE( "projection" ) {
     for (int i = 0; i < size; ++i) {
         CHECK(vec[i] == i - 40);
     }
+}
+
+TEST_CASE( "iterator without post-increment or post-decrement" ) {
+    std::vector<int> a;
+
+    gfx::timsort(make_no_post_iterator(a.begin()), make_no_post_iterator(a.end()));
+
+    CHECK(a.size() == std::size_t(0));
 }

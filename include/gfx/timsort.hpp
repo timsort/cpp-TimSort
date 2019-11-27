@@ -201,15 +201,15 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
             return 1;
         }
 
-        if (compare(*(runHi++), *lo)) { // decreasing
-            while (runHi < hi && compare(*runHi, *(runHi - 1))) {
+        if (compare(*runHi, *lo)) { // decreasing
+            do {
                 ++runHi;
-            }
+            } while (runHi < hi && compare(*runHi, *(runHi - 1)));
             std::reverse(lo, runHi);
         } else { // non-decreasing
-            while (runHi < hi && !compare(*runHi, *(runHi - 1))) {
+            do {
                 ++runHi;
-            }
+            } while (runHi < hi && !compare(*runHi, *(runHi - 1)));
         }
 
         return runHi - lo;
@@ -445,7 +445,9 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         iter_t cursor2 = base2;
         iter_t dest = base1;
 
-        *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
+        *dest = GFX_TIMSORT_MOVE(*cursor2);
+        ++cursor2;
+        ++dest;
         --len2;
 
         int minGallop(minGallop_);
@@ -460,14 +462,18 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                 GFX_TIMSORT_ASSERT(len2 > 0);
 
                 if (compare(*cursor2, *cursor1)) {
-                    *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
+                    *dest = GFX_TIMSORT_MOVE(*cursor2);
+                    ++cursor2;
+                    ++dest;
                     ++count2;
                     count1 = 0;
                     if (--len2 == 0) {
                         goto epilogue;
                     }
                 } else {
-                    *(dest++) = GFX_TIMSORT_MOVE(*(cursor1++));
+                    *dest = GFX_TIMSORT_MOVE(*cursor1);
+                    ++cursor1;
+                    ++dest;
                     ++count1;
                     count2 = 0;
                     if (--len1 == 1) {
@@ -491,7 +497,9 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 }
-                *(dest++) = GFX_TIMSORT_MOVE(*(cursor2++));
+                *dest = GFX_TIMSORT_MOVE(*cursor2);
+                ++cursor2;
+                ++dest;
                 if (--len2 == 0) {
                     goto epilogue;
                 }
@@ -506,7 +514,9 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 }
-                *(dest++) = GFX_TIMSORT_MOVE(*(cursor1++));
+                *dest = GFX_TIMSORT_MOVE(*cursor1);
+                ++cursor1;
+                ++dest;
                 if (--len1 == 1) {
                     goto epilogue;
                 }
@@ -554,7 +564,8 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
         iter_t dest = base2 + (len2 - 1);
 
-        *(dest--) = GFX_TIMSORT_MOVE(*(--cursor1));
+        *dest = GFX_TIMSORT_MOVE(*(--cursor1));
+        --dest;
         --len1;
 
         int minGallop(minGallop_);
@@ -575,7 +586,8 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                 GFX_TIMSORT_ASSERT(len2 > 1);
 
                 if (compare(*cursor2, *cursor1)) {
-                    *(dest--) = GFX_TIMSORT_MOVE(*cursor1);
+                    *dest = GFX_TIMSORT_MOVE(*cursor1);
+                    --dest;
                     ++count1;
                     count2 = 0;
                     if (--len1 == 0) {
@@ -583,7 +595,9 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                     }
                     --cursor1;
                 } else {
-                    *(dest--) = GFX_TIMSORT_MOVE(*(cursor2--));
+                    *dest = GFX_TIMSORT_MOVE(*cursor2);
+                    --cursor2;
+                    --dest;
                     ++count2;
                     count1 = 0;
                     if (--len2 == 1) {
@@ -609,7 +623,9 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 }
-                *(dest--) = GFX_TIMSORT_MOVE(*(cursor2--));
+                *dest = GFX_TIMSORT_MOVE(*cursor2);
+                --cursor2;
+                --dest;
                 if (--len2 == 1) {
                     goto epilogue;
                 }
@@ -624,12 +640,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 }
-                *(dest--) = GFX_TIMSORT_MOVE(*(--cursor1));
+                *dest = GFX_TIMSORT_MOVE(*(--cursor1));
+                --dest;
                 if (--len1 == 0) {
                     goto epilogue;
                 }
 
-                minGallop--;
+                --minGallop;
             } while ((count1 >= MIN_GALLOP) | (count2 >= MIN_GALLOP));
 
             if (minGallop < 0) {
