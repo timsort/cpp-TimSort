@@ -1,4 +1,4 @@
-[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F1.1.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
+[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F1.2.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
 [![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
 [![License](https://img.shields.io/:license-mit-blue.svg)](https://doge.mit-license.org)
 

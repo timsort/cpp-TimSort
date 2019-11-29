@@ -38,7 +38,7 @@
 // Semantic versioning macros
 
 #define GFX_TIMSORT_VERSION_MAJOR 1
-#define GFX_TIMSORT_VERSION_MINOR 1
+#define GFX_TIMSORT_VERSION_MINOR 2
 #define GFX_TIMSORT_VERSION_PATCH 0
 
 // Diagnostic selection macros
