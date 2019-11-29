@@ -133,10 +133,17 @@ struct projection_compare {
 #if GFX_TIMSORT_USE_STD_MOVE
     template <typename T, typename U>
     bool operator()(T &&lhs, U &&rhs) {
+#   ifdef __cpp_lib_invoke
+        return static_cast<bool>(std::invoke(compare,
+            std::invoke(projection, std::forward<T>(lhs)),
+            std::invoke(projection, std::forward<U>(rhs))
+        ));
+#   else
         return static_cast<bool>(compare(
             projection(std::forward<T>(lhs)),
             projection(std::forward<U>(rhs))
         ));
+#   endif
     }
 #else
     template <typename T, typename U>
