@@ -19,7 +19,7 @@ target_include_directories(timsort INTERFACE
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_features(timsort INTERFACE cxx_std_98)
+target_compile_features(timsort INTERFACE cxx_std_11)
 
 add_library(gfx::timsort ALIAS timsort)
 
