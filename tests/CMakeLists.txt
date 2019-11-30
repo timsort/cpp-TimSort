@@ -79,13 +79,21 @@ add_executable(cxx_98_tests
 configure_tests(cxx_98_tests)
 target_compile_features(cxx_98_tests PRIVATE cxx_std_98)
 
-# Tests that require C++11 support
+# Tests requiring C++11 support
 add_executable(cxx_11_tests
     main.cpp
     cxx_11_tests.cpp
 )
 configure_tests(cxx_11_tests)
 target_compile_features(cxx_11_tests PRIVATE cxx_std_11)
+
+# Tests requiring C++17 support
+add_executable(cxx_17_tests
+    main.cpp
+    cxx_17_tests.cpp
+)
+configure_tests(cxx_17_tests)
+target_compile_features(cxx_17_tests PRIVATE cxx_std_17)
 
 # Windows-specific tests
 if (WIN32)
@@ -102,6 +110,7 @@ include(Catch)
 
 catch_discover_tests(cxx_98_tests)
 catch_discover_tests(cxx_11_tests)
+catch_discover_tests(cxx_17_tests)
 if (WIN32)
     catch_discover_tests(windows_tests)
 endif()
