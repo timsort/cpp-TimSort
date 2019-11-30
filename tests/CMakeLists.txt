@@ -3,18 +3,11 @@ include(DownloadProject)
 # Download and configure Catch2 for the tests
 download_project(PROJ Catch2
                  GIT_REPOSITORY https://github.com/catchorg/Catch2
-                 GIT_TAG Catch1.x
+                 GIT_TAG master
                  UPDATE_DISCONNECTED 1
 )
+add_subdirectory(${Catch2_SOURCE_DIR} ${Catch2_BINARY_DIR})
 list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/contrib)
-
-# Configure Catch2 so that it looks like a proper target
-add_library(Catch2 INTERFACE)
-add_library(Catch2::Catch2 ALIAS Catch2)
-target_include_directories(Catch2 INTERFACE
-    $<BUILD_INTERFACE:${Catch2_SOURCE_DIR}/single_include>  
-    $<INSTALL_INTERFACE:include>
-)
 
 # Testsutie options
 option(GFX_TIMSORT_USE_VALGRIND "Whether to run the tests with Valgrind" OFF)
@@ -105,10 +98,10 @@ if (WIN32)
 endif()
 
 include(CTest)
-include(ParseAndAddCatchTests)
+include(Catch)
 
-ParseAndAddCatchTests(cxx_98_tests)
-ParseAndAddCatchTests(cxx_11_tests)
+catch_discover_tests(cxx_98_tests)
+catch_discover_tests(cxx_11_tests)
 if (WIN32)
-    ParseAndAddCatchTests(windows_tests)
+    catch_discover_tests(windows_tests)
 endif()

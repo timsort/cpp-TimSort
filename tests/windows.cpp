@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-#include <catch.hpp>
 #include <windows.h>
+#include <catch2/catch.hpp>
 #include <gfx/timsort.hpp>
 
 TEST_CASE( "check inclusion of windows.h" ) {

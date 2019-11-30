@@ -9,7 +9,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <gfx/timsort.hpp>
 
 namespace {
