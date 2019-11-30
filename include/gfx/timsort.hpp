@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <utility>
 #include <vector>
 
 // Semantic versioning macros
@@ -57,43 +58,6 @@
 #   define GFX_TIMSORT_LOG(expr) ((void)0)
 #endif
 
-// If GFX_TIMSORT_USE_STD_MOVE is not defined, try to define it as follows:
-// - Check standard feature-testing macro
-// - Check non-standard feature-testing macro
-// - Check C++ standard (disable if < C++11)
-// - Check compiler-specific versions known to support move semantics
-
-#ifndef GFX_TIMSORT_USE_STD_MOVE
-#   if defined(__cpp_rvalue_references)
-#       define GFX_TIMSORT_USE_STD_MOVE 1
-#   elif defined(__has_feature)
-#       if __has_feature(cxx_rvalue_references)
-#           define GFX_TIMSORT_USE_STD_MOVE 1
-#       else
-#           define GFX_TIMSORT_USE_STD_MOVE 0
-#       endif
-#   elif !(defined(__cplusplus) && __cplusplus >= 201103L)
-#       define GFX_TIMSORT_USE_STD_MOVE 0
-#   elif defined(_MSC_VER) && _MSC_VER >= 1700
-#       define GFX_TIMSORT_USE_STD_MOVE 1
-#   elif defined(__GNUC__) && (__GNUC__ >= 5 || (__GNUC__ >= 4 && __GNUC_MINOR__ >= 6))
-#       define GFX_TIMSORT_USE_STD_MOVE 1
-#   else
-#       define GFX_TIMSORT_USE_STD_MOVE 0
-#   endif
-#endif
-
-#if GFX_TIMSORT_USE_STD_MOVE
-	#include <utility>
-	#define GFX_TIMSORT_MOVE(x) std::move(x)
-	#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::move((in1), (in2), (out));
-	#define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::move_backward((in1), (in2), (out));
-#else
-	#define GFX_TIMSORT_MOVE(x) (x)
-	#define GFX_TIMSORT_MOVE_RANGE(in1, in2, out) std::copy((in1), (in2), (out));
-	#define GFX_TIMSORT_MOVE_BACKWARD(in1, in2, out) std::copy_backward((in1), (in2), (out));
-#endif
-
 
 namespace gfx {
 
@@ -105,23 +69,11 @@ namespace detail {
 
 // Equivalent to C++20 std::identity
 struct identity {
-#if GFX_TIMSORT_USE_STD_MOVE
     template <typename T>
-    T&& operator()(T&& value) const
+    constexpr T&& operator()(T&& value) const noexcept
     {
         return std::forward<T>(value);
     }
-#else
-    template <typename T>
-    T& operator()(T& value) const {
-        return value;
-    }
-
-    template <typename T>
-    T const& operator()(T const& value) const {
-        return value;
-    }
-#endif
 };
 
 // Merge a predicate and a projection function
@@ -130,27 +82,20 @@ struct projection_compare {
     projection_compare(Compare comp, Projection proj) : compare(comp), projection(proj) {
     }
 
-#if GFX_TIMSORT_USE_STD_MOVE
     template <typename T, typename U>
     bool operator()(T &&lhs, U &&rhs) {
-#   ifdef __cpp_lib_invoke
+#ifdef __cpp_lib_invoke
         return static_cast<bool>(std::invoke(compare,
             std::invoke(projection, std::forward<T>(lhs)),
             std::invoke(projection, std::forward<U>(rhs))
         ));
-#   else
+#else
         return static_cast<bool>(compare(
             projection(std::forward<T>(lhs)),
             projection(std::forward<U>(rhs))
         ));
-#   endif
-    }
-#else
-    template <typename T, typename U>
-    bool operator()(T &lhs, U &rhs) {
-        return static_cast<bool>(compare(projection(lhs), projection(rhs)));
-    }
 #endif
+    }
 
     Compare compare;
     Projection projection;
@@ -190,13 +135,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         }
         for (; start < hi; ++start) {
             GFX_TIMSORT_ASSERT(lo <= start);
-            value_t pivot = GFX_TIMSORT_MOVE(*start);
+            value_t pivot = std::move(*start);
 
             iter_t const pos = std::upper_bound(lo, start, pivot, compare);
             for (iter_t p = start; p > pos; --p) {
-                *p = GFX_TIMSORT_MOVE(*(p - 1));
+                *p = std::move(*(p - 1));
             }
-            *pos = GFX_TIMSORT_MOVE(pivot);
+            *pos = std::move(pivot);
         }
     }
 
@@ -420,17 +365,17 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
     static void rotateLeft(iter_t first, iter_t last)
     {
-        value_t tmp = GFX_TIMSORT_MOVE(*first);
-        iter_t last_1 = GFX_TIMSORT_MOVE_RANGE(first + 1, last, first);
-        *last_1 = GFX_TIMSORT_MOVE(tmp);
+        value_t tmp = std::move(*first);
+        iter_t last_1 = std::move(first + 1, last, first);
+        *last_1 = std::move(tmp);
     }
 
     static void rotateRight(iter_t first, iter_t last)
     {
         iter_t last_1 = last - 1;
-        value_t tmp = GFX_TIMSORT_MOVE(*last_1);
-        GFX_TIMSORT_MOVE_BACKWARD(first, last_1, last);
-        *first = GFX_TIMSORT_MOVE(tmp);
+        value_t tmp = std::move(*last_1);
+        std::move_backward(first, last_1, last);
+        *first = std::move(tmp);
     }
 
 
@@ -452,7 +397,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         iter_t cursor2 = base2;
         iter_t dest = base1;
 
-        *dest = GFX_TIMSORT_MOVE(*cursor2);
+        *dest = std::move(*cursor2);
         ++cursor2;
         ++dest;
         --len2;
@@ -469,7 +414,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                 GFX_TIMSORT_ASSERT(len2 > 0);
 
                 if (compare(*cursor2, *cursor1)) {
-                    *dest = GFX_TIMSORT_MOVE(*cursor2);
+                    *dest = std::move(*cursor2);
                     ++cursor2;
                     ++dest;
                     ++count2;
@@ -478,7 +423,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 } else {
-                    *dest = GFX_TIMSORT_MOVE(*cursor1);
+                    *dest = std::move(*cursor1);
                     ++cursor1;
                     ++dest;
                     ++count1;
@@ -495,7 +440,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
                 count1 = gallopRight(*cursor2, cursor1, len1, 0, compare);
                 if (count1 != 0) {
-                    GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + count1, dest + count1);
+                    std::move_backward(cursor1, cursor1 + count1, dest + count1);
                     dest += count1;
                     cursor1 += count1;
                     len1 -= count1;
@@ -504,7 +449,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 }
-                *dest = GFX_TIMSORT_MOVE(*cursor2);
+                *dest = std::move(*cursor2);
                 ++cursor2;
                 ++dest;
                 if (--len2 == 0) {
@@ -513,7 +458,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
                 count2 = gallopLeft(*cursor1, cursor2, len2, 0, compare);
                 if (count2 != 0) {
-                    GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + count2, dest);
+                    std::move(cursor2, cursor2 + count2, dest);
                     dest += count2;
                     cursor2 += count2;
                     len2 -= count2;
@@ -521,7 +466,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                         goto epilogue;
                     }
                 }
-                *dest = GFX_TIMSORT_MOVE(*cursor1);
+                *dest = std::move(*cursor1);
                 ++cursor1;
                 ++dest;
                 if (--len1 == 1) {
@@ -543,13 +488,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
         if (len1 == 1) {
             GFX_TIMSORT_ASSERT(len2 > 0);
-            GFX_TIMSORT_MOVE_RANGE(cursor2, cursor2 + len2, dest);
-            *(dest + len2) = GFX_TIMSORT_MOVE(*cursor1);
+            std::move(cursor2, cursor2 + len2, dest);
+            *(dest + len2) = std::move(*cursor1);
         } else {
             GFX_TIMSORT_ASSERT(len1 != 0 && "Comparison function violates its general contract");
             GFX_TIMSORT_ASSERT(len2 == 0);
             GFX_TIMSORT_ASSERT(len1 > 1);
-            GFX_TIMSORT_MOVE_RANGE(cursor1, cursor1 + len1, dest);
+            std::move(cursor1, cursor1 + len1, dest);
         }
     }
 
@@ -571,7 +516,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
         iter_t dest = base2 + (len2 - 1);
 
-        *dest = GFX_TIMSORT_MOVE(*(--cursor1));
+        *dest = std::move(*(--cursor1));
         --dest;
         --len1;
 
@@ -593,7 +538,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                 GFX_TIMSORT_ASSERT(len2 > 1);
 
                 if (compare(*cursor2, *cursor1)) {
-                    *dest = GFX_TIMSORT_MOVE(*cursor1);
+                    *dest = std::move(*cursor1);
                     --dest;
                     ++count1;
                     count2 = 0;
@@ -602,7 +547,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                     }
                     --cursor1;
                 } else {
-                    *dest = GFX_TIMSORT_MOVE(*cursor2);
+                    *dest = std::move(*cursor2);
                     --cursor2;
                     --dest;
                     ++count2;
@@ -624,13 +569,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                     dest -= count1;
                     cursor1 -= count1;
                     len1 -= count1;
-                    GFX_TIMSORT_MOVE_BACKWARD(cursor1, cursor1 + count1, dest + (1 + count1));
+                    std::move_backward(cursor1, cursor1 + count1, dest + (1 + count1));
 
                     if (len1 == 0) {
                         goto epilogue;
                     }
                 }
-                *dest = GFX_TIMSORT_MOVE(*cursor2);
+                *dest = std::move(*cursor2);
                 --cursor2;
                 --dest;
                 if (--len2 == 1) {
@@ -642,12 +587,12 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                     dest -= count2;
                     cursor2 -= count2;
                     len2 -= count2;
-                    GFX_TIMSORT_MOVE_RANGE(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
+                    std::move(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
                     if (len2 <= 1) {
                         goto epilogue;
                     }
                 }
-                *dest = GFX_TIMSORT_MOVE(*(--cursor1));
+                *dest = std::move(*(--cursor1));
                 --dest;
                 if (--len1 == 0) {
                     goto epilogue;
@@ -669,23 +614,19 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         if (len2 == 1) {
             GFX_TIMSORT_ASSERT(len1 > 0);
             dest -= len1;
-            GFX_TIMSORT_MOVE_BACKWARD(cursor1 - len1, cursor1, dest + (1 + len1));
-            *dest = GFX_TIMSORT_MOVE(*cursor2);
+            std::move_backward(cursor1 - len1, cursor1, dest + (1 + len1));
+            *dest = std::move(*cursor2);
         } else {
             GFX_TIMSORT_ASSERT(len2 != 0 && "Comparison function violates its general contract");
             GFX_TIMSORT_ASSERT(len1 == 0);
             GFX_TIMSORT_ASSERT(len2 > 1);
-            GFX_TIMSORT_MOVE_RANGE(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
+            std::move(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
     }
 
     void copy_to_tmp(iter_t const begin, diff_t len) {
-#if GFX_TIMSORT_USE_STD_MOVE
         tmp_.assign(std::make_move_iterator(begin),
                     std::make_move_iterator(begin + len));
-#else
-        tmp_.assign(begin, begin + len);
-#endif
     }
 
 public:
@@ -773,9 +714,5 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last) 
 #undef GFX_TIMSORT_ASSERT
 #undef GFX_TIMSORT_ENABLE_LOG
 #undef GFX_TIMSORT_LOG
-#undef GFX_TIMSORT_MOVE
-#undef GFX_TIMSORT_MOVE_RANGE
-#undef GFX_TIMSORT_MOVE_BACKWARD
-#undef GFX_TIMSORT_USE_STD_MOVE
 
 #endif // GFX_TIMSORT_HPP

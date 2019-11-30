@@ -10,6 +10,8 @@ See also the following links for a detailed description of TimSort:
 * http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 * http://en.wikipedia.org/wiki/Timsort
 
+This library is compatible with C++11. If you need a C++98 version, you can check the 1.x.y branch of this repository.
+
 According to the benchmarks, it is slower than `std::sort()` on randomized sequences, but faster on partially-sorted
 ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the difference that it
 can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
@@ -43,12 +45,6 @@ gfx::timsort(vec.begin(), vec.end(), std::less<size_t>(), &len);
 ```
 
 ## COMPATIBILITY
-
-This library is compatible with C++98, but if you compile it with C++11 or higher it will try to use `std::move()`
-when possible instead of copying vaues around, which notably allows to sort collections of move-only types (see
-[#9](https://github.com/gfx/cpp-TimSort/pull/9) for details).
-
-You can explicity control the use of `std::move()` by setting the macro `GFX_TIMSORT_USE_STD_MOVE` to `0` or `1`.
 
 The library has been tested with the following compilers:
 * GCC 5
