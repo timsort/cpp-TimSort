@@ -1,6 +1,6 @@
-[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F1.2.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
+[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F2.0.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
 [![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
-[![License](https://img.shields.io/:license-mit-blue.svg)](https://doge.mit-license.org)
+[![License](https://img.shields.io/:license-mit-yellow.svg)](https://doge.mit-license.org)
 
 ## TimSort
 
@@ -31,19 +31,26 @@ The full list of available signatures is as follows (in namespace `gfx`):
 
 ```cpp
 // Overloads taking a pair of iterators
+
 template <typename RandomAccessIterator>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
+
 template <typename RandomAccessIterator, typename Compare>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
              Compare compare);
+
 template <typename RandomAccessIterator, typename Compare, typename Projection>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
              Compare compare, Projection projection);
+
 // Overloads taking a range
+
 template <typename RandomAccessRange>
 void timsort(RandomAccessRange &range);
+
 template <typename RandomAccessRange, typename Compare>
 void timsort(RandomAccessRange &range, Compare compare);
+
 template <typename RandomAccessRange, typename Compare, typename Projection>
 void timsort(RandomAccessRange &range, Compare compare, Projection projection);
 ```
