@@ -6,6 +6,7 @@
  */
 #include <algorithm>
 #include <deque>
+#include <numeric>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -138,4 +139,27 @@ TEST_CASE( "issue14" ) {
 
     gfx::timsort(std::begin(c), std::end(c));
     CHECK(std::is_sorted(std::begin(c), std::end(c)));
+}
+
+TEST_CASE( "range signatures" ) {
+    std::vector<int> vec(50, 0);
+    std::iota(vec.begin(), vec.end(), -25);
+    std::random_shuffle(vec.begin(), vec.end());
+
+    SECTION( "range only" ) {
+        gfx::timsort(vec);
+        CHECK(std::is_sorted(vec.begin(), vec.end()));
+    }
+
+    SECTION( "range with a comparison function" ) {
+        using value_type = std::vector<int>::value_type;
+        gfx::timsort(vec, std::greater<value_type>{});
+        CHECK(std::is_sorted(vec.begin(), vec.end(), std::greater<value_type>{}));
+    }
+
+    SECTION( "range with comparison and projection functions" ) {
+        using value_type = std::vector<int>::value_type;
+        gfx::timsort(vec, std::greater<value_type>{}, std::negate<value_type>{});
+        CHECK(std::is_sorted(vec.begin(), vec.end()));
+    }
 }

@@ -16,14 +16,37 @@ According to the benchmarks, it is slower than `std::sort()` on randomized seque
 ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the difference that it
 can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
 
-Additionally `gfx::timsort` can take a [projection function](https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html)
-after the comparison function. The support is a bit rougher than in the linked article or the C++20 standard library:
-unless `std::invoke` is available, only instances of types callable with parentheses can be used, there is no support
-for pointer to members.
+`gfx::timsort` also has a few additional features and guarantees compared to `std::stable_sort`:
+* It can take a [projection function](https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html)
+  after the comparison function. The support is a bit rougher than in the linked article or the C++20 standard library:
+  unless `std::invoke` is available, only instances of types callable with parentheses can be used, there is no support
+  for pointer to members.
+* It can also be passed a range instead of a pair of iterators, in which case it will sort the whole range.
+* This implementation of timsort notably avoids using the postfix `++` or `--` operators: only their prefix equivalents
+  are used, which means that timsort will work even if the postfix operators are not present or return an incompatible
+  type such as `void`.
 
-This implementation of timsort notably avoids using the postfix `++` or `--` operators: only their prefix equivalents
-are used, which means that timsort will work even if the postfix operators are not present or return an incompatible
-type such as `void`.
+
+The full list of available signatures is as follows (in namespace `gfx`):
+
+```cpp
+// Overloads taking a pair of iterators
+template <typename RandomAccessIterator>
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
+template <typename RandomAccessIterator, typename Compare>
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
+             Compare compare);
+template <typename RandomAccessIterator, typename Compare, typename Projection>
+void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
+             Compare compare, Projection projection);
+// Overloads taking a range
+template <typename RandomAccessRange>
+void timsort(RandomAccessRange &range);
+template <typename RandomAccessRange, typename Compare>
+void timsort(RandomAccessRange &range, Compare compare);
+template <typename RandomAccessRange, typename Compare, typename Projection>
+void timsort(RandomAccessRange &range, Compare compare, Projection projection);
+```
 
 ## EXAMPLE
 
@@ -39,9 +62,8 @@ size_t len(const std::string& str) {
 }
 
 // Sort a vector of strings by length
-std::vector<std::string> vec;
-// ... fill vec ...
-gfx::timsort(vec.begin(), vec.end(), std::less<size_t>(), &len);
+std::vector<std::string> collection = { /* ... */ };
+gfx::timsort(collection, std::less<std::string>{}, &len);
 ```
 
 ## COMPATIBILITY
