@@ -1,4 +1,5 @@
 [![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F2.0.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
+[![Conan Package](https://img.shields.io/badge/conan-2.0.0-blue.svg)](https://bintray.com/conan/conan-center/timsort%3A_)
 [![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
 [![License](https://img.shields.io/:license-mit-yellow.svg)](https://doge.mit-license.org)
 
@@ -73,7 +74,7 @@ std::vector<std::string> collection = { /* ... */ };
 gfx::timsort(collection, std::less<std::string>{}, &len);
 ```
 
-## COMPATIBILITY
+## INSTALLATION & COMPATIBILITY
 
 The library has been tested with the following compilers:
 * GCC 5
@@ -89,6 +90,13 @@ The library can be installed on the system via CMake with the following commands
 cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cd build
 make install
+```
+
+Alternatively the library is also available on conan-center-index and can be installed in your local Conan cache via
+the following command:
+
+```sh
+conan install timsort/2.0.0
 ```
 
 ## DIAGNOSTICS & INFORMATION
