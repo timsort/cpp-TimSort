@@ -79,7 +79,7 @@ gfx::timsort(collection, std::less<std::string>{}, &len);
 The library has been tested with the following compilers:
 * GCC 5
 * Clang 3.8
-* The AppleClang version that ships with Xcode 8.3
+* Xcode 9.2 AppleClang
 * MSVC 2017 update 9
 
 It should also work with more recent compilers, and most likely with some older compilers too.
