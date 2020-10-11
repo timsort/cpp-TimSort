@@ -171,7 +171,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         GFX_TIMSORT_ASSERT(n >= 0);
 
         diff_t r = 0;
-        while (n >= MIN_MERGE) {
+        while (n >= 2 * MIN_MERGE) {
             r |= (n & 1);
             n >>= 1;
         }
