@@ -6,7 +6,7 @@
  * - http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
  *
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2020 Morwenn.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,7 +39,7 @@
 
 #define GFX_TIMSORT_VERSION_MAJOR 1
 #define GFX_TIMSORT_VERSION_MINOR 2
-#define GFX_TIMSORT_VERSION_PATCH 0
+#define GFX_TIMSORT_VERSION_PATCH 1
 
 // Diagnostic selection macros
 
