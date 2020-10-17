@@ -1,5 +1,5 @@
 [![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F2.0.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases)
-[![Conan Package](https://img.shields.io/badge/conan-2.0.0-blue.svg)](https://bintray.com/conan/conan-center/timsort%3A_)
+[![Conan Package](https://img.shields.io/badge/conan-2.0.0-blue.svg)](https://conan.io/center/timsort?version=2.0.0)
 [![Build Status](https://travis-ci.org/timsort/cpp-TimSort.svg?branch=master)](https://travis-ci.org/timsort/cpp-TimSort)
 [![License](https://img.shields.io/:license-mit-yellow.svg)](https://doge.mit-license.org)
 
