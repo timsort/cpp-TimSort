@@ -43,7 +43,7 @@ std::vector<std::string> vec;
 gfx::timsort(vec.begin(), vec.end(), std::less<size_t>(), &len);
 ```
 
-## COMPATIBILITY
+## INSTALLATION & COMPATIBILITY
 
 This library is compatible with C++98, but if you compile it with C++11 or higher it will try to use `std::move()`
 when possible instead of copying vaues around, which notably allows to sort collections of move-only types (see
@@ -65,6 +65,13 @@ The library can be installed on the system via CMake with the following commands
 cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cd build
 make install
+```
+
+Alternatively the library is also available on conan-center-index and can be installed in your local Conan cache via
+the following command:
+
+```sh
+conan install timsort/1.2.1
 ```
 
 ## DIAGNOSTICS & INFORMATION
