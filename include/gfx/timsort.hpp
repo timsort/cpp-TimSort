@@ -319,7 +319,8 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     }
 
     template <typename Iter>
-    diff_t gallopLeft(ref_t key, Iter const base, diff_t const len, diff_t const hint, Compare compare) {
+    static diff_t gallopLeft(ref_t key, Iter const base, diff_t const len,
+                             diff_t const hint, Compare compare) {
         GFX_TIMSORT_ASSERT(len > 0);
         GFX_TIMSORT_ASSERT(hint >= 0);
         GFX_TIMSORT_ASSERT(hint < len);
@@ -369,7 +370,8 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     }
 
     template <typename Iter>
-    diff_t gallopRight(ref_t key, Iter const base, diff_t const len, diff_t const hint, Compare compare) {
+    static diff_t gallopRight(ref_t key, Iter const base, diff_t const len,
+                              diff_t const hint, Compare compare) {
         GFX_TIMSORT_ASSERT(len > 0);
         GFX_TIMSORT_ASSERT(hint >= 0);
         GFX_TIMSORT_ASSERT(hint < len);
