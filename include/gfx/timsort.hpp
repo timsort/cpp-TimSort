@@ -7,6 +7,7 @@
  *
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
  * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -633,6 +634,25 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
 public:
 
+    static void merge(iter_t const lo, iter_t const mid, iter_t const hi, Compare compare) {
+        GFX_TIMSORT_ASSERT(lo <= mid);
+        GFX_TIMSORT_ASSERT(mid <= hi);
+
+        if (lo == mid || mid == hi) {
+            return; // nothing to do
+        }
+
+        TimSort ts;
+        ts.pushRun(lo, mid - lo);
+        ts.pushRun(mid, hi - mid);
+        GFX_TIMSORT_ASSERT(ts.pending_.size() == 2);
+        ts.mergeAt(0, compare);
+        GFX_TIMSORT_ASSERT(ts.pending_.size() == 1);
+
+        GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
+                                 << " pending_.size(): " << ts.pending_.size());
+    }
+
     static void sort(iter_t const lo, iter_t const hi, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= hi);
 
@@ -682,6 +702,37 @@ public:
 // ---------------------------------------
 // Public interface implementation
 // ---------------------------------------
+
+/**
+ * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
+ * sorted range [first, last) with a comparison function and a projection function.
+ */
+template <typename RandomAccessIterator, typename Compare, typename Projection>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last, Compare compare, Projection projection) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(std::move(compare), std::move(projection));
+    detail::TimSort<RandomAccessIterator, compare_t>::merge(first, middle, last, std::move(comp));
+}
+
+/**
+ * Same as std::inplace_merge(first, middle, last, compare).
+ */
+template <typename RandomAccessIterator, typename Compare>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last, Compare compare) {
+    gfx::timmerge(first, middle, last, compare, detail::identity());
+}
+
+/**
+ * Same as std::inplace_merge(first, middle, last).
+ */
+template <typename RandomAccessIterator>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last) {
+    typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
+    gfx::timmerge(first, middle, last, std::less<value_type>(), detail::identity());
+}
 
 /**
  * Stably sorts a range with a comparison function and a projection function.

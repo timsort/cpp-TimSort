@@ -46,18 +46,38 @@ TEST_CASE( "generalized callables" ) {
     std::mt19937 gen(123456); // fixed seed is enough
     std::shuffle(vec.begin(), vec.end(), gen);
 
-    SECTION( "for comparisons" ) {
-        gfx::timsort(vec, &wrapper::compare_to);
-        CHECK(std::is_sorted(vec.begin(), vec.end(), [](wrapper const& lhs, wrapper const& rhs) {
+    const auto is_vec_sorted = [&vec] {
+        return std::is_sorted(vec.begin(), vec.end(), [](wrapper const& lhs, wrapper const& rhs) {
             return lhs.value < rhs.value;
-        }));
+        });
+    };
+
+    SECTION( "timsort for comparisons" ) {
+        gfx::timsort(vec, &wrapper::compare_to);
+        CHECK(is_vec_sorted());
     }
 
-    SECTION( "for projections" ) {
+    SECTION( "timsort for projections" ) {
         gfx::timsort(vec, std::less<>{}, &wrapper::value);
-        CHECK(std::is_sorted(vec.begin(), vec.end(), [](wrapper const& lhs, wrapper const& rhs) {
-            return lhs.value < rhs.value;
-        }));
+        CHECK(is_vec_sorted());
+    }
+
+    std::uniform_int_distribution<int> random_middle(0, vec.size());
+
+    SECTION( "timmerge for comparisons" ) {
+        const auto middle = vec.begin() + random_middle(gen);
+        gfx::timsort(vec.begin(), middle, &wrapper::compare_to);
+        gfx::timsort(middle, vec.end(), &wrapper::compare_to);
+        gfx::timmerge(vec.begin(), middle, vec.end(), &wrapper::compare_to);
+        CHECK(is_vec_sorted());
+    }
+
+    SECTION( "timmerge for projections" ) {
+        const auto middle = vec.begin() + random_middle(gen);
+        gfx::timsort(vec.begin(), middle, std::less<>{}, &wrapper::value);
+        gfx::timsort(middle, vec.end(), std::less<>{}, &wrapper::value);
+        gfx::timmerge(vec.begin(), middle, vec.end(), std::less<>{}, &wrapper::value);
+        CHECK(is_vec_sorted());
     }
 }
 
