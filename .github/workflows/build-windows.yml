@@ -1,0 +1,53 @@
+# Copyright (c) 2021 Morwenn
+# SPDX-License-Identifier: MIT
+
+name: Windows Builds
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-windows.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'include/gfx/timsort.hpp'
+      - 'tests/*'
+  pull_request:
+    paths:
+      - '.github/workflows/build-windows.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'include/gfx/timsort.hpp'
+      - 'tests/*'
+
+jobs:
+  build:
+    runs-on: windows-2016
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+        cmake_generator: ['MinGW Makefiles', 'Visual Studio 15 2017 Win64']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure CMake
+        shell: pwsh
+        working-directory: ${{runner.workspace}}
+        run: |
+          cmake -H${{github.event.repository.name}} -Bbuild `
+                -DCMAKE_CONFIGURATION_TYPES=${{matrix.build_type}} `
+                -DCMAKE_BUILD_TYPE=${{matrix.build_type}} `
+                -G"${{matrix.cmake_generator}}" `
+                -DBUILD_BENCHMARKS=ON
+
+      - name: Build the test suite
+        working-directory: ${{runner.workspace}}/build
+        run: cmake --build . --config ${{matrix.build_type}} -j 2
+
+      - name: Run the test suite
+        env:
+          CTEST_OUTPUT_ON_FAILURE: 1
+        working-directory: ${{runner.workspace}}/build
+        run: ctest -C ${{matrix.build_type}}
