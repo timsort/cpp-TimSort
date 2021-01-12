@@ -3,7 +3,7 @@ include(DownloadProject)
 # Download and configure Catch2 for the tests
 download_project(PROJ Catch2
                  GIT_REPOSITORY https://github.com/catchorg/Catch2
-                 GIT_TAG master
+                 GIT_TAG v2.x
                  UPDATE_DISCONNECTED 1
 )
 add_subdirectory(${Catch2_SOURCE_DIR} ${Catch2_BINARY_DIR})
