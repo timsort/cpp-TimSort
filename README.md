@@ -1,6 +1,5 @@
-[![Latest Release](https://img.shields.io/badge/release-cpp--TimSort%2F2.0.1-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v2.0.1)
-[![Conan Package](https://img.shields.io/badge/conan-2.0.1-blue.svg)](https://conan.io/center/timsort?version=2.0.1)
-[![License](https://img.shields.io/:license-mit-yellow.svg)](https://doge.mit-license.org)
+[![Latest Release](https://img.shields.io/badge/release-2.0.1-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v2.0.1)
+[![Conan Package](https://img.shields.io/badge/conan-cpp--TimSort%2F2.0.1-blue.svg)](https://conan.io/center/timsort?version=2.0.1)
 
 ## TimSort
 
@@ -75,13 +74,16 @@ gfx::timsort(collection, std::less<std::string>{}, &len);
 
 ## INSTALLATION & COMPATIBILITY
 
-The library has been tested with the following compilers:
-* GCC 5
-* Clang 3.8
-* Xcode 9.2 AppleClang
-* MSVC 2017 update 9
+![Ubuntu builds status](https://github.com/timsort/cpp-TimSort/workflows/Ubuntu%20Builds/badge.svg?branch=master)
+![Windows builds status](https://github.com/timsort/cpp-TimSort/workflows/Windows%20Builds/badge.svg?branch=master)
+![MacOS builds status](https://github.com/timsort/cpp-TimSort/workflows/MacOS%20Builds/badge.svg?branch=master)
 
-It should also work with more recent compilers, and most likely with some older compilers too.
+The library has been tested with the following compilers:
+* GCC 5.5
+* Clang 6
+* MSVC 2017
+
+It should also work with more recent compilers, and most likely with some older compilers too. We used to guarantee support as far back as Clang 3.8, but the new continuous integration environment doesn't go that far.
 
 The library can be installed on the system via CMake with the following commands:
 
