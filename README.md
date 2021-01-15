@@ -217,3 +217,6 @@ middle iterator positions, reformatted to improve readability):
     SORTED SEQUENCE
     [int] approx. average        	  4.318979        	  0.131741
     [std::string] approx. average	156.490915        	  0.483608
+
+Detailed bench_merge results for different middle iterator positions can be found at
+https://github.com/timsort/cpp-TimSort/wiki/Benchmark-results
