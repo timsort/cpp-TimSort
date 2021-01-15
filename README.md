@@ -209,14 +209,14 @@ middle iterator positions, reformatted to improve readability):
     size	100000
     element type\algorithm:      	std::inplace_merge	timmerge
     RANDOMIZED SEQUENCE
-    [int] approx. average        	 33.492257        	 38.055953
-    [std::string] approx. average	326.214047        	214.629334
+    [int] approx. average        	 33.404430        	 37.047990
+    [std::string] approx. average	324.964249        	210.297207
     REVERSED SEQUENCE
-    [int] approx. average        	 11.328833        	  4.126918
-    [std::string] approx. average	281.925539        	107.483879
+    [int] approx. average        	 11.441404        	  4.017482
+    [std::string] approx. average	305.649503        	114.773898
     SORTED SEQUENCE
-    [int] approx. average        	  4.318979        	  0.131741
-    [std::string] approx. average	156.490915        	  0.483608
+    [int] approx. average        	  4.291098        	  0.105571
+    [std::string] approx. average	158.238114        	  0.273858
 
 Detailed bench_merge results for different middle iterator positions can be found at
 https://github.com/timsort/cpp-TimSort/wiki/Benchmark-results

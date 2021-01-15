@@ -241,6 +241,10 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
         pending_.pop_back();
 
+        mergeRuns(base1, len1, base2, len2, std::move(compare));
+    }
+
+    void mergeRuns(iter_t base1, diff_t len1, iter_t base2, diff_t len2, Compare compare) {
         diff_t const k = gallopRight(*base2, base1, len1, 0, compare);
         GFX_TIMSORT_ASSERT(k >= 0);
 
@@ -643,11 +647,7 @@ public:
         }
 
         TimSort ts;
-        ts.pushRun(lo, mid - lo);
-        ts.pushRun(mid, hi - mid);
-        GFX_TIMSORT_ASSERT(ts.pending_.size() == 2);
-        ts.mergeAt(0, compare);
-        GFX_TIMSORT_ASSERT(ts.pending_.size() == 1);
+        ts.mergeRuns(lo, mid - lo, mid, hi - mid, std::move(compare));
 
         GFX_TIMSORT_LOG("1st size: " << (mid - lo) << "; 2nd size: " << (hi - mid)
                                      << "; tmp_.size(): " << ts.tmp_.size());
