@@ -35,6 +35,9 @@ namespace
 
         return result;
     }
+
+    using Result = std::valarray<double>;
+    Result zeroResult() { return Result(2); }
 }
 
 template <typename value_t>
@@ -44,8 +47,8 @@ struct Bench {
         const auto middle_positions = generate_middle_positions(size);
 
         int prev_middle = 0;
-        Result prev_result(2);
-        Result result_sum(2);
+        auto prev_result = zeroResult();
+        auto result_sum = zeroResult();
 
         std::cerr << "middle\\algorithm:\tstd::inplace_merge\ttimmerge" << std::endl;
         constexpr int width = 10;
@@ -82,8 +85,6 @@ struct Bench {
     }
 
 private:
-    using Result = std::valarray<double>;
-
     static Result run(const std::vector<value_t> &a, const int middle) {
         std::vector<value_t> b(a.size());
         const auto assert_is_sorted = [&b] {
@@ -93,7 +94,7 @@ private:
             }
         };
 
-        Result result(2);
+        auto result = zeroResult();
         for (auto *total_time_ms : { &result[0], &result[1] }) {
             using Clock = std::chrono::steady_clock;
             decltype(Clock::now() - Clock::now()) total_time{0};
