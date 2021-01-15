@@ -60,7 +60,8 @@ struct Bench {
 
             if (middle != prev_middle) {
                 // Trapezoidal rule for approximating the definite integral.
-                result_sum += 0.5 * (result + prev_result) * (middle - prev_middle);
+                result_sum += 0.5 * (result + prev_result)
+                                  * static_cast<double>(middle - prev_middle);
                 prev_middle = middle;
             }
             prev_result = result;
@@ -72,7 +73,7 @@ struct Bench {
         }
 
         if (size != 0) {
-            result_sum /= size;
+            result_sum /= static_cast<double>(size);
             std::cerr << "approx. average"
                       << "  \t" << std::setw(width) << result_sum[0]
                       << padding << std::setw(width) << result_sum[1]
