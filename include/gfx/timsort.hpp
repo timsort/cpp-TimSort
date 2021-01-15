@@ -649,8 +649,8 @@ public:
         ts.mergeAt(0, compare);
         GFX_TIMSORT_ASSERT(ts.pending_.size() == 1);
 
-        GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
-                                 << " pending_.size(): " << ts.pending_.size());
+        GFX_TIMSORT_LOG("1st size: " << (mid - lo) << "; 2nd size: " << (hi - mid)
+                                     << "; tmp_.size(): " << ts.tmp_.size());
     }
 
     static void sort(iter_t const lo, iter_t const hi, Compare compare) {
