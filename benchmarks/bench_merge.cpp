@@ -30,7 +30,7 @@ struct Bench {
         constexpr const char* padding1 = "       \t";
         constexpr const char* padding2 = "        \t";
 
-        std::vector<value_t> a(source);
+        std::vector<value_t> a(source.size());
         for (auto middle : middle_positions) {
             if (middle < 0 || middle > size) {
                 continue;
@@ -60,8 +60,8 @@ struct Bench {
 private:
     using Result = std::pair<double, double>;
 
-    Result run(const std::vector<value_t> &a, const int middle) const {
-        std::vector<value_t> b(a);
+    static Result run(const std::vector<value_t> &a, const int middle) {
+        std::vector<value_t> b(a.size());
         const auto assert_is_sorted = [&b] {
             if (!std::is_sorted(b.cbegin(), b.cend())) {
                 std::cerr << "Not sorted!" << std::endl;
