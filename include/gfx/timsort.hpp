@@ -229,10 +229,6 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         iter_t base2 = pending_[i + 1].base;
         diff_t len2 = pending_[i + 1].len;
 
-        GFX_TIMSORT_ASSERT(len1 > 0);
-        GFX_TIMSORT_ASSERT(len2 > 0);
-        GFX_TIMSORT_ASSERT(base1 + len1 == base2);
-
         pending_[i].len = len1 + len2;
 
         if (i == stackSize - 3) {
@@ -241,10 +237,14 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
         pending_.pop_back();
 
-        mergeRuns(base1, len1, base2, len2, std::move(compare));
+        mergeConsecutiveRuns(base1, len1, base2, len2, std::move(compare));
     }
 
-    void mergeRuns(iter_t base1, diff_t len1, iter_t base2, diff_t len2, Compare compare) {
+    void mergeConsecutiveRuns(iter_t base1, diff_t len1, iter_t base2, diff_t len2, Compare compare) {
+        GFX_TIMSORT_ASSERT(len1 > 0);
+        GFX_TIMSORT_ASSERT(len2 > 0);
+        GFX_TIMSORT_ASSERT(base1 + len1 == base2);
+
         diff_t const k = gallopRight(*base2, base1, len1, 0, compare);
         GFX_TIMSORT_ASSERT(k >= 0);
 
@@ -647,7 +647,7 @@ public:
         }
 
         TimSort ts;
-        ts.mergeRuns(lo, mid - lo, mid, hi - mid, std::move(compare));
+        ts.mergeConsecutiveRuns(lo, mid - lo, mid, hi - mid, std::move(compare));
 
         GFX_TIMSORT_LOG("1st size: " << (mid - lo) << "; 2nd size: " << (hi - mid)
                                      << "; tmp_.size(): " << ts.tmp_.size());
