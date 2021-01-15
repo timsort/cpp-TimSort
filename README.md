@@ -28,10 +28,11 @@ can't fallback to a O(n log² n) algorithm when there isn't enough extra heap me
 
 Merging sorted ranges efficiently is an important part of the TimSort algorithm. This library exposes its merge
 algorithm in the public API. According to the benchmarks, `gfx::timmerge` is slower than `std::inplace_merge` on
-randomized sequences of simple elements, but it is faster for complex elements such as `std::string` and
-partially-sorted ranges. `gfx::timmerge` should be usable as a drop-in replacement for `std::inplace_merge`, with the
-difference that it can't fallback to a O(n log n) algorithm when there isn't enough extra heap memory available. Like
-`gfx::timsort`, `gfx::timmerge` can take a projection function and avoids using the postfix `++` or `--` operators.
+heavily/randomly overlapping subranges of simple elements, but it is faster for complex elements such as `std::string`
+and on sparsely overlapping subranges. `gfx::timmerge` should be usable as a drop-in replacement for
+`std::inplace_merge`, with the difference that it can't fallback to a O(n log n) algorithm when there isn't enough
+extra heap memory available. Like `gfx::timsort`, `gfx::timmerge` can take a projection function and avoids using the
+postfix `++` or `--` operators.
 
 
 The full list of available signatures is as follows (in namespace `gfx`):
