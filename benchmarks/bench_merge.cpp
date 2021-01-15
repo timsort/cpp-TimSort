@@ -9,56 +9,79 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <valarray>
 #include <vector>
 #include <gfx/timsort.hpp>
 #include "benchmarker.hpp"
+
+namespace
+{
+    std::vector<int> generate_middle_positions(int size) {
+        std::vector<int> result = {
+            0, 1, 2, 5, 100, size/100, size/20, size/5, size/3, size/2, 3*size/4,
+            6*size/7, 24*size/25, 90*size/91, size-85, size-8, size-2, size-1, size
+        };
+
+        // The code below can remove or reorder elements if size is small.
+
+        auto logical_end = std::remove_if(result.begin(), result.end(), [size](int middle) {
+            return middle < 0 || middle > size;
+        });
+        result.erase(logical_end, result.end());
+
+        std::sort(result.begin(), result.end());
+        logical_end = std::unique(result.begin(), result.end());
+        result.erase(logical_end, result.end());
+
+        return result;
+    }
+}
 
 template <typename value_t>
 struct Bench {
     void operator()(const std::vector<value_t> &source) const {
         const int size = static_cast<int>(source.size());
-        const std::vector<int> middle_positions = {
-            0, 1, 2, 5, 100, size/100, size/20, size/5, size/3, size/2, 3*size/4,
-            6*size/7, 24*size/25, 90*size/91, size-85, size-8, size-2, size-1, size
-        };
+        const auto middle_positions = generate_middle_positions(size);
 
-        int result_count = 0;
-        Result result_sum = {};
+        int prev_middle = 0;
+        Result prev_result(2);
+        Result result_sum(2);
 
         std::cerr << "middle\\algorithm:\tstd::inplace_merge\ttimmerge" << std::endl;
         constexpr int width = 10;
-        constexpr const char* padding1 = "       \t";
-        constexpr const char* padding2 = "        \t";
+        constexpr const char* padding = "        \t";
 
         std::vector<value_t> a(source.size());
         for (auto middle : middle_positions) {
-            if (middle < 0 || middle > size) {
-                continue;
-            }
-
             std::copy(source.begin(), source.end(), a.begin());
             std::sort(a.begin(), a.begin() + middle);
             std::sort(a.begin() + middle, a.end());
             const auto result = run(a, middle);
 
-            ++result_count;
-            result_sum.first += result.first;
-            result_sum.second += result.second;
+            if (middle != prev_middle) {
+                // Trapezoidal rule for approximating the definite integral.
+                result_sum += 0.5 * (result + prev_result) * (middle - prev_middle);
+                prev_middle = middle;
+            }
+            prev_result = result;
 
             std::cerr << std::setw(width) << middle
-                      << padding1 << std::setw(width) << result.first
-                      << padding2 << std::setw(width) << result.second
+                      << "       \t" << std::setw(width) << result[0]
+                      << padding << std::setw(width) << result[1]
                       << std::endl;
         }
 
-        std::cerr << "   AVERAGE"
-                  << padding1 << std::setw(width) << result_sum.first / result_count
-                  << padding2 << std::setw(width) << result_sum.second / result_count
-                  << std::endl;
+        if (size != 0) {
+            result_sum /= size;
+            std::cerr << "approx. average"
+                      << "  \t" << std::setw(width) << result_sum[0]
+                      << padding << std::setw(width) << result_sum[1]
+                      << std::endl;
+        }
     }
 
 private:
-    using Result = std::pair<double, double>;
+    using Result = std::valarray<double>;
 
     static Result run(const std::vector<value_t> &a, const int middle) {
         std::vector<value_t> b(a.size());
@@ -69,8 +92,8 @@ private:
             }
         };
 
-        Result result;
-        for (auto *total_time_ms : { &result.first, &result.second }) {
+        Result result(2);
+        for (auto *total_time_ms : { &result[0], &result[1] }) {
             using Clock = std::chrono::steady_clock;
             decltype(Clock::now() - Clock::now()) total_time{0};
 
@@ -78,7 +101,7 @@ private:
                 std::copy(a.begin(), a.end(), b.begin());
                 const auto time_begin = Clock::now();
 
-                if (total_time_ms == &result.first) {
+                if (total_time_ms == &result[0]) {
                     std::inplace_merge(b.begin(), b.begin() + middle, b.end());
                 } else {
                     gfx::timmerge(b.begin(), b.begin() + middle, b.end());

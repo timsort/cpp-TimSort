@@ -206,14 +206,14 @@ middle iterator positions, reformatted to improve readability):
     gcc version 10.2.0 (GCC)
     c++ -I ../include -Wall -Wextra -g -DNDEBUG -O2 -std=c++11 bench_merge.cpp -o bench_merge
     ./bench_merge
-    middle\algorithm:    	std::inplace_merge	timmerge
     size	100000
+    element type\algorithm:      	std::inplace_merge	timmerge
     RANDOMIZED SEQUENCE
-    [int] AVERAGE        	 17.163368        	 16.056263
-    [std::string] AVERAGE	255.844053        	118.394158
+    [int] approx. average        	 33.492257        	 38.055953
+    [std::string] approx. average	326.214047        	214.629334
     REVERSED SEQUENCE
-    [int] AVERAGE        	 10.906316        	  2.690474
-    [std::string] AVERAGE	258.129842        	 80.367474
+    [int] approx. average        	 11.328833        	  4.126918
+    [std::string] approx. average	281.925539        	107.483879
     SORTED SEQUENCE
-    [int] AVERAGE        	  1.470789        	  0.127211
-    [std::string] AVERAGE	100.856632        	  0.316158
+    [int] approx. average        	  4.318979        	  0.131741
+    [std::string] approx. average	156.490915        	  0.483608
