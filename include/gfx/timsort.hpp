@@ -7,6 +7,7 @@
  *
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
  * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -283,10 +284,6 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         iter_t base2 = pending_[i + 1].base;
         diff_t len2 = pending_[i + 1].len;
 
-        GFX_TIMSORT_ASSERT(len1 > 0);
-        GFX_TIMSORT_ASSERT(len2 > 0);
-        GFX_TIMSORT_ASSERT(base1 + len1 == base2);
-
         pending_[i].len = len1 + len2;
 
         if (i == stackSize - 3) {
@@ -294,6 +291,14 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         }
 
         pending_.pop_back();
+
+        mergeConsecutiveRuns(base1, len1, base2, len2, compare);
+    }
+
+    void mergeConsecutiveRuns(iter_t base1, diff_t len1, iter_t base2, diff_t len2, Compare compare) {
+        GFX_TIMSORT_ASSERT(len1 > 0);
+        GFX_TIMSORT_ASSERT(len2 > 0);
+        GFX_TIMSORT_ASSERT(base1 + len1 == base2);
 
         diff_t const k = gallopRight(*base2, base1, len1, 0, compare);
         GFX_TIMSORT_ASSERT(k >= 0);
@@ -692,6 +697,21 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
 public:
 
+    static void merge(iter_t const lo, iter_t const mid, iter_t const hi, Compare compare) {
+        GFX_TIMSORT_ASSERT(lo <= mid);
+        GFX_TIMSORT_ASSERT(mid <= hi);
+
+        if (lo == mid || mid == hi) {
+            return; // nothing to do
+        }
+
+        TimSort ts;
+        ts.mergeConsecutiveRuns(lo, mid - lo, mid, hi - mid, compare);
+
+        GFX_TIMSORT_LOG("1st size: " << (mid - lo) << "; 2nd size: " << (hi - mid)
+                                     << "; tmp_.size(): " << ts.tmp_.size());
+    }
+
     static void sort(iter_t const lo, iter_t const hi, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= hi);
 
@@ -740,6 +760,37 @@ public:
 // ---------------------------------------
 // Public interface implementation
 // ---------------------------------------
+
+/**
+ * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
+ * sorted range [first, last) with a comparison function and a projection function.
+ */
+template <typename RandomAccessIterator, typename Compare, typename Projection>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last, Compare compare, Projection projection) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(compare, projection);
+    detail::TimSort<RandomAccessIterator, compare_t>::merge(first, middle, last, comp);
+}
+
+/**
+ * Same as std::inplace_merge(first, middle, last, compare).
+ */
+template <typename RandomAccessIterator, typename Compare>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last, Compare compare) {
+    gfx::timmerge(first, middle, last, compare, detail::identity());
+}
+
+/**
+ * Same as std::inplace_merge(first, middle, last).
+ */
+template <typename RandomAccessIterator>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last) {
+    typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
+    gfx::timmerge(first, middle, last, std::less<value_type>(), detail::identity());
+}
 
 /**
  * Stably sorts a range with a comparison function and a projection function.
