@@ -108,6 +108,14 @@ if (WIN32)
     target_compile_features(windows_tests PRIVATE cxx_std_98)
 endif()
 
+# timmerge tests requiring C++11 support
+add_executable(merge_cxx_11_tests
+    main.cpp
+    merge_cxx_11_tests.cpp
+)
+configure_tests(merge_cxx_11_tests)
+target_compile_features(merge_cxx_11_tests PRIVATE cxx_std_11)
+
 include(CTest)
 include(Catch)
 
@@ -117,3 +125,4 @@ catch_discover_tests(cxx_17_tests)
 if (WIN32)
     catch_discover_tests(windows_tests)
 endif()
+catch_discover_tests(merge_cxx_11_tests)

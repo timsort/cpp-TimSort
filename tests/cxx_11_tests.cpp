@@ -132,13 +132,53 @@ TEST_CASE( "shuffle10k_for_move_only_types" ) {
     }
 }
 
+TEST_CASE( "merge_shuffle10k_for_move_only_types" ) {
+    const int size = 1024 * 10; // should be even number of elements
+
+    std::vector<move_only<int> > a;
+    for (int i = 0; i < size; ++i) {
+        a.push_back((i + 1) * 10);
+    }
+
+    for (int n = 0; n < 100; ++n) {
+        std::random_shuffle(a.begin(), a.end());
+
+        const auto compare = [](const move_only<int> &x, const move_only<int> &y) { return x.value < y.value; };
+        const auto middle = a.begin() + rand() % size;
+        gfx::timsort(a.begin(), middle, compare);
+        gfx::timsort(middle, a.end(), compare);
+        gfx::timmerge(a.begin(), middle, a.end(), compare);
+
+        for (int i = 0; i < size; ++i) {
+            CHECK(a[i].value == (i + 1) * 10);
+        }
+    }
+}
+
 TEST_CASE( "issue14" ) {
-    int a[] = {15, 7,  16, 20, 25, 28, 13, 27, 34, 24, 19, 1, 6,  30, 32, 29, 10, 9,
-               3,  31, 21, 26, 8,  2,  22, 14, 4,  12, 5,  0, 23, 33, 11, 17, 18};
+    const int a[] = {15, 7,  16, 20, 25, 28, 13, 27, 34, 24, 19, 1, 6,  30, 32, 29, 10, 9,
+                     3,  31, 21, 26, 8,  2,  22, 14, 4,  12, 5,  0, 23, 33, 11, 17, 18};
     std::deque<int> c(std::begin(a), std::end(a));
 
-    gfx::timsort(std::begin(c), std::end(c));
-    CHECK(std::is_sorted(std::begin(c), std::end(c)));
+    SECTION( "timsort" ) {
+        gfx::timsort(std::begin(c), std::end(c));
+        CHECK(std::is_sorted(std::begin(c), std::end(c)));
+    }
+
+    SECTION( "timmerge" ) {
+        for (auto middle = c.begin(); ; ++middle) {
+            std::copy(std::begin(a), std::end(a), c.begin());
+
+            gfx::timsort(c.begin(), middle);
+            gfx::timsort(middle, c.end());
+            gfx::timmerge(c.begin(), middle, c.end());
+            CHECK(std::is_sorted(c.cbegin(), c.cend()));
+
+            if (middle == c.end()) {
+                break;
+            }
+        }
+    }
 }
 
 TEST_CASE( "range signatures" ) {
