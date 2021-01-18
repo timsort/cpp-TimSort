@@ -127,6 +127,8 @@ conan install timsort/2.0.2
 
 A few configuration macros allow `gfx::timsort` and `gfx::timmerge` to emit diagnostic, which might be helpful to diagnose issues:
 * Defining `GFX_TIMSORT_ENABLE_ASSERT` inserts assertions in key locations in the algorithm to avoid logic errors.
+* Defining `GFX_TIMSORT_ENABLE_AUDIT` inserts assertions that verify pre- and postconditions. These verifications can slow the
+  algorithm down significantly. Enable the audit only while testing or debugging.
 * Defining `GFX_TIMSORT_ENABLE_LOG` inserts logs in key locations, which allow to follow more closely the flow of the algorithm.
 
 **cpp-TimSort** follows semantic versioning and provides the following macros to retrieve the current major, minor

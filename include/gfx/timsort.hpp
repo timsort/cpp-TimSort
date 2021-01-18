@@ -45,11 +45,20 @@
 
 // Diagnostic selection macros
 
-#ifdef GFX_TIMSORT_ENABLE_ASSERT
+#if defined(GFX_TIMSORT_ENABLE_ASSERT) || defined(GFX_TIMSORT_ENABLE_AUDIT)
 #   include <cassert>
+#endif
+
+#ifdef GFX_TIMSORT_ENABLE_ASSERT
 #   define GFX_TIMSORT_ASSERT(expr) assert(expr)
 #else
 #   define GFX_TIMSORT_ASSERT(expr) ((void)0)
+#endif
+
+#ifdef GFX_TIMSORT_ENABLE_AUDIT
+#   define GFX_TIMSORT_AUDIT(expr) assert(expr)
+#else
+#   define GFX_TIMSORT_AUDIT(expr) ((void)0)
 #endif
 
 #ifdef GFX_TIMSORT_ENABLE_LOG
@@ -712,7 +721,10 @@ void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
               RandomAccessIterator last, Compare compare, Projection projection) {
     typedef detail::projection_compare<Compare, Projection> compare_t;
     compare_t comp(std::move(compare), std::move(projection));
-    detail::TimSort<RandomAccessIterator, compare_t>::merge(first, middle, last, std::move(comp));
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp) && "Precondition");
+    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp) && "Precondition");
+    detail::TimSort<RandomAccessIterator, compare_t>::merge(first, middle, last, comp);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
 }
 
 /**
@@ -742,7 +754,8 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
              Compare compare, Projection projection) {
     typedef detail::projection_compare<Compare, Projection> compare_t;
     compare_t comp(std::move(compare), std::move(projection));
-    detail::TimSort<RandomAccessIterator, compare_t>::sort(first, last, std::move(comp));
+    detail::TimSort<RandomAccessIterator, compare_t>::sort(first, last, comp);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
 }
 
 /**
@@ -790,6 +803,8 @@ void timsort(RandomAccessRange &range) {
 
 #undef GFX_TIMSORT_ENABLE_ASSERT
 #undef GFX_TIMSORT_ASSERT
+#undef GFX_TIMSORT_ENABLE_AUDIT
+#undef GFX_TIMSORT_AUDIT
 #undef GFX_TIMSORT_ENABLE_LOG
 #undef GFX_TIMSORT_LOG
 
