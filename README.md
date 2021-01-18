@@ -1,5 +1,5 @@
-[![Latest Release](https://img.shields.io/badge/release-2.0.2-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v2.0.2)
-[![Conan Package](https://img.shields.io/badge/conan-cpp--TimSort%2F2.0.2-blue.svg)](https://conan.io/center/timsort?version=2.0.2)
+[![Latest Release](https://img.shields.io/badge/release-2.1.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v2.1.0)
+[![Conan Package](https://img.shields.io/badge/conan-cpp--TimSort%2F2.1.0-blue.svg)](https://conan.io/center/timsort?version=2.1.0)
 
 ## TimSort
 
@@ -120,7 +120,7 @@ Alternatively the library is also available on conan-center-index and can be ins
 the following command:
 
 ```sh
-conan install timsort/2.0.2
+conan install timsort/2.1.0
 ```
 
 ## DIAGNOSTICS & INFORMATION
