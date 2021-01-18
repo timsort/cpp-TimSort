@@ -4,3 +4,5 @@ foreach(filename bench_merge.cpp bench_sort.cpp)
     add_executable(${name} ${filename})
     target_link_libraries(${name} PRIVATE gfx::timsort)
 endforeach()
+
+target_compile_features(bench_merge PRIVATE cxx_std_11)
