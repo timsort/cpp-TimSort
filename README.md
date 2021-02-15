@@ -1,5 +1,6 @@
 [![Latest Release](https://img.shields.io/badge/release-2.1.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v2.1.0)
 [![Conan Package](https://img.shields.io/badge/conan-cpp--TimSort%2F2.1.0-blue.svg)](https://conan.io/center/timsort?version=2.1.0)
+[![Pitchfork Layout](https://img.shields.io/badge/standard-PFL-orange.svg)](https://github.com/vector-of-bool/pitchfork)
 
 ## TimSort
 
