@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.8.0)
+cmake_minimum_required(VERSION 3.12.4)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-project(timsort VERSION 2.1.0 LANGUAGES CXX)
+project(timsort VERSION 3.0.0 LANGUAGES CXX)
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
@@ -19,7 +19,7 @@ target_include_directories(timsort INTERFACE
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_features(timsort INTERFACE cxx_std_11)
+target_compile_features(timsort INTERFACE cxx_std_20)
 
 add_library(gfx::timsort ALIAS timsort)
 

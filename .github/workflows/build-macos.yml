@@ -27,8 +27,8 @@ jobs:
       fail-fast: false
       matrix:
         cxx:
-          - g++-9
-          - $(brew --prefix llvm)/bin/clang++  # Clang 11
+          - g++-10
+          - $(brew --prefix llvm)/bin/clang++  # Clang 12
         config:
           # Release build
           - build_type: Release
