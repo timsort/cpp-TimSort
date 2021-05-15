@@ -1,3 +1,6 @@
+# Copyright (c) 2019-2021 Morwenn
+# SPDX-License-Identifier: MIT
+
 include(DownloadProject)
 
 # Download and configure Catch2 for the tests
@@ -9,7 +12,7 @@ download_project(PROJ Catch2
 add_subdirectory(${Catch2_SOURCE_DIR} ${Catch2_BINARY_DIR})
 list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/contrib)
 
-# Testsutie options
+# Test suite options
 option(GFX_TIMSORT_USE_VALGRIND "Whether to run the tests with Valgrind" OFF)
 set(GFX_TIMSORT_SANITIZE "" CACHE STRING "Comma-separated list of options to pass to -fsanitize")
 
@@ -119,10 +122,11 @@ target_compile_features(merge_cxx_11_tests PRIVATE cxx_std_11)
 include(CTest)
 include(Catch)
 
-catch_discover_tests(cxx_98_tests)
-catch_discover_tests(cxx_11_tests)
-catch_discover_tests(cxx_17_tests)
+string(RANDOM LENGTH 5 ALPHABET 0123456789 RNG_SEED)
+catch_discover_tests(cxx_98_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
+catch_discover_tests(cxx_11_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
+catch_discover_tests(cxx_17_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 if (WIN32)
-    catch_discover_tests(windows_tests)
+    catch_discover_tests(windows_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 endif()
-catch_discover_tests(merge_cxx_11_tests)
+catch_discover_tests(merge_cxx_11_tests EXTRA_ARGS --rng-seed ${RNG_SEED})

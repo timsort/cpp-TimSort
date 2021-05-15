@@ -36,7 +36,7 @@ void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle) 
     sort_and_merge(range, middle, std::less<value_type>());
 }
 
-std::mt19937 random_engine(2581470); // fixed seed is enough
+std::mt19937 random_engine(Catch::rngSeed());
 }
 
 TEST_CASE( "merge_simple0" ) {

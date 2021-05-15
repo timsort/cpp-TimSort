@@ -176,7 +176,7 @@ namespace test_helpers {
     template <typename RandomAccessIterator>
     void shuffle(RandomAccessIterator first, RandomAccessIterator last)
     {
-        thread_local std::mt19937 random_engine(2581470); // fixed seed is enough
+        thread_local std::mt19937 random_engine(Catch::rngSeed());
 
         std::shuffle(first, last, random_engine);
     }
