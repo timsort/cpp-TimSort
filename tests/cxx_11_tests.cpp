@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2021 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -12,6 +12,7 @@
 #include <vector>
 #include <catch2/catch.hpp>
 #include <gfx/timsort.hpp>
+#include "test_helpers.hpp"
 
 ////////////////////////////////////////////////////////////
 // Move-only type for benchmarks
@@ -122,7 +123,7 @@ TEST_CASE( "shuffle10k_for_move_only_types" ) {
     }
 
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.end());
+        test_helpers::shuffle(a.begin(), a.end());
 
         gfx::timsort(a.begin(), a.end(), [](const move_only<int> &x, const move_only<int> &y) { return x.value < y.value; });
 
@@ -141,7 +142,7 @@ TEST_CASE( "merge_shuffle10k_for_move_only_types" ) {
     }
 
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.end());
+        test_helpers::shuffle(a.begin(), a.end());
 
         const auto compare = [](const move_only<int> &x, const move_only<int> &y) { return x.value < y.value; };
         const auto middle = a.begin() + rand() % size;
@@ -184,7 +185,7 @@ TEST_CASE( "issue14" ) {
 TEST_CASE( "range signatures" ) {
     std::vector<int> vec(50, 0);
     std::iota(vec.begin(), vec.end(), -25);
-    std::random_shuffle(vec.begin(), vec.end());
+    test_helpers::shuffle(vec.begin(), vec.end());
 
     SECTION( "range only" ) {
         gfx::timsort(vec);

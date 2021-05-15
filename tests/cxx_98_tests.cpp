@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2021 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -11,7 +11,7 @@
 #include <vector>
 #include <catch2/catch.hpp>
 #include <gfx/timsort.hpp>
-#include "cxx_98_test_helpers.hpp"
+#include "test_helpers.hpp"
 
 using namespace test_helpers;
 
@@ -116,7 +116,7 @@ TEST_CASE( "shuffle30" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    std::random_shuffle(a.begin(), a.end());
+    test_helpers::shuffle(a.begin(), a.end());
 
     gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -133,7 +133,7 @@ TEST_CASE( "shuffle31" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    std::random_shuffle(a.begin(), a.end());
+    test_helpers::shuffle(a.begin(), a.end());
 
     gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -150,7 +150,7 @@ TEST_CASE( "shuffle32" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    std::random_shuffle(a.begin(), a.end());
+    test_helpers::shuffle(a.begin(), a.end());
 
     gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -167,7 +167,7 @@ TEST_CASE( "shuffle128" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    std::random_shuffle(a.begin(), a.end());
+    test_helpers::shuffle(a.begin(), a.end());
 
     gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -186,7 +186,7 @@ TEST_CASE( "shuffle1023" ) {
     }
 
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.end());
+        test_helpers::shuffle(a.begin(), a.end());
 
         gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -205,7 +205,7 @@ TEST_CASE( "shuffle1024" ) {
     }
 
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.end());
+        test_helpers::shuffle(a.begin(), a.end());
 
         gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -225,7 +225,7 @@ TEST_CASE( "partial_shuffle1023" ) {
 
     // sorted-shuffled-sorted pattern
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
+        test_helpers::shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
 
         gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -236,8 +236,8 @@ TEST_CASE( "partial_shuffle1023" ) {
 
     // shuffled-sorted-shuffled pattern
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.begin() + (size / 3 * 1));
-        std::random_shuffle(a.begin() + (size / 3 * 2), a.end());
+        test_helpers::shuffle(a.begin(), a.begin() + (size / 3 * 1));
+        test_helpers::shuffle(a.begin() + (size / 3 * 2), a.end());
 
         gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -257,7 +257,7 @@ TEST_CASE( "partial_shuffle1024" ) {
 
     // sorted-shuffled-sorted pattern
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
+        test_helpers::shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
 
         gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -268,8 +268,8 @@ TEST_CASE( "partial_shuffle1024" ) {
 
     // shuffled-sorted-shuffled pattern
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.begin() + (size / 3 * 1));
-        std::random_shuffle(a.begin() + (size / 3 * 2), a.end());
+        test_helpers::shuffle(a.begin(), a.begin() + (size / 3 * 1));
+        test_helpers::shuffle(a.begin() + (size / 3 * 2), a.end());
 
         gfx::timsort(a.begin(), a.end(), std::less<int>());
 
@@ -288,7 +288,7 @@ TEST_CASE( "shuffle1024r" ) {
     }
 
     for (int n = 0; n < 100; ++n) {
-        std::random_shuffle(a.begin(), a.end());
+        test_helpers::shuffle(a.begin(), a.end());
 
         gfx::timsort(a.begin(), a.end(), std::greater<int>());
 
@@ -380,7 +380,7 @@ TEST_CASE( "default_compare_function" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    std::random_shuffle(a.begin(), a.end());
+    test_helpers::shuffle(a.begin(), a.end());
 
     gfx::timsort(a.begin(), a.end());
 
@@ -501,7 +501,7 @@ TEST_CASE( "projection" ) {
     for (int i = 0; i < size; ++i) {
         vec.push_back(i - 40);
     }
-    std::random_shuffle(vec.begin(), vec.end());
+    test_helpers::shuffle(vec.begin(), vec.end());
 
     gfx::timsort(vec.begin(), vec.end(), std::greater<int>(), std::negate<int>());
     for (int i = 0; i < size; ++i) {

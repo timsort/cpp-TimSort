@@ -1,11 +1,13 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2021 Morwenn.
  * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * SPDX-License-Identifier: MIT
  */
 #include <algorithm>
+#include <cstddef>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <random>
@@ -13,7 +15,7 @@
 #include <vector>
 #include <catch2/catch.hpp>
 #include <gfx/timsort.hpp>
-#include "cxx_98_test_helpers.hpp"
+#include "test_helpers.hpp"
 
 using namespace test_helpers;
 
@@ -30,23 +32,11 @@ void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle, 
 
 template <typename RandomAccessRange>
 void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle) {
-    typedef typename std::iterator_traits<decltype(middle)>::value_type value_type;
+    using value_type = typename std::iterator_traits<decltype(middle)>::value_type;
     sort_and_merge(range, middle, std::less<value_type>());
 }
 
 std::mt19937 random_engine(2581470); // fixed seed is enough
-
-template <typename RandomAccessIterator>
-void shuffle(RandomAccessIterator first, RandomAccessIterator last)
-{
-    std::shuffle(first, last, random_engine);
-}
-
-template <typename RandomAccessRange>
-void shuffle(RandomAccessRange &range)
-{
-    shuffle(std::begin(range), std::end(range));
-}
 }
 
 TEST_CASE( "merge_simple0" ) {
@@ -69,10 +59,7 @@ TEST_CASE( "merge_simple1" ) {
 }
 
 TEST_CASE( "merge_simple2" ) {
-    std::vector<int> a;
-
-    a.push_back(10);
-    a.push_back(20);
+    std::vector<int> a = { 10, 20 };
 
     gfx::timmerge(a.begin(), a.begin() + 1, a.end());
 
@@ -80,9 +67,7 @@ TEST_CASE( "merge_simple2" ) {
     CHECK(a[0] == 10);
     CHECK(a[1] == 20);
 
-    a.clear();
-    a.push_back(20);
-    a.push_back(10);
+    a = { 20, 10 };
 
     gfx::timmerge(a.begin(), a.begin() + 1, a.end(), std::less<int>());
 
@@ -90,9 +75,7 @@ TEST_CASE( "merge_simple2" ) {
     CHECK(a[0] == 10);
     CHECK(a[1] == 20);
 
-    a.clear();
-    a.push_back(10);
-    a.push_back(10);
+    a = { 10, 10 };
 
     gfx::timmerge(a.begin(), a.begin() + 1, a.end(), std::less<int>());
 
@@ -102,17 +85,7 @@ TEST_CASE( "merge_simple2" ) {
 }
 
 TEST_CASE( "merge_simple10" ) {
-    std::vector<int> a;
-    a.push_back(60);
-    a.push_back(50);
-    a.push_back(10);
-    a.push_back(40);
-    a.push_back(80);
-    a.push_back(20);
-    a.push_back(30);
-    a.push_back(70);
-    a.push_back(10);
-    a.push_back(90);
+    std::vector<int> a = { 60, 50, 10, 40, 80, 20, 30, 70, 10, 90 };
 
     sort_and_merge(a, a.begin() + 5, std::less<int>());
 
@@ -150,7 +123,7 @@ TEST_CASE( "merge_shuffle30" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    shuffle(a);
+    test_helpers::shuffle(a);
 
     sort_and_merge(a, a.begin() + 24);
 
@@ -167,7 +140,7 @@ TEST_CASE( "merge_shuffle128" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    shuffle(a);
+    test_helpers::shuffle(a);
 
     sort_and_merge(a, a.begin() + 51);
 
@@ -186,7 +159,7 @@ TEST_CASE( "merge_shuffle204x" ) {
 
         std::uniform_int_distribution<int> random_middle(0, size);
         for (int n = 0; n < 30; ++n) {
-            shuffle(a);
+            test_helpers::shuffle(a);
 
             sort_and_merge(a, a.begin() + random_middle(random_engine));
 
@@ -208,7 +181,7 @@ TEST_CASE( "merge_partial_shuffle102x" ) {
 
         // sorted-shuffled-sorted pattern
         for (int n = 0; n < 100; ++n) {
-            shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
+            test_helpers::shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
 
             sort_and_merge(a, a.begin() + random_middle(random_engine), std::less<int>());
 
@@ -219,8 +192,8 @@ TEST_CASE( "merge_partial_shuffle102x" ) {
 
         // shuffled-sorted-shuffled pattern
         for (int n = 0; n < 100; ++n) {
-            shuffle(a.begin(), a.begin() + (size / 3 * 1));
-            shuffle(a.begin() + (size / 3 * 2), a.end());
+            test_helpers::shuffle(a.begin(), a.begin() + (size / 3 * 1));
+            test_helpers::shuffle(a.begin() + (size / 3 * 2), a.end());
 
             sort_and_merge(a, a.begin() + random_middle(random_engine));
 
@@ -241,7 +214,7 @@ TEST_CASE( "merge_shuffle1025r" ) {
 
     std::uniform_int_distribution<int> random_middle(0, size);
     for (int n = 0; n < 100; ++n) {
-        shuffle(a);
+        test_helpers::shuffle(a);
 
         sort_and_merge(a, a.begin() + random_middle(random_engine), std::greater<int>());
 
@@ -315,7 +288,7 @@ TEST_CASE( "merge_default_compare_function" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back((i + 1) * 10);
     }
-    shuffle(a);
+    test_helpers::shuffle(a);
 
     const auto middle = a.begin() + a.size() / 3;
     gfx::timsort(a.begin(), middle);
@@ -393,7 +366,7 @@ TEST_CASE( "merge_projection" ) {
     for (int i = 0; i < size; ++i) {
         a.push_back(i - 40);
     }
-    shuffle(a);
+    test_helpers::shuffle(a);
 
     const auto middle = a.begin() + 43;
     gfx::timsort(a.begin(), middle, std::greater<int>(), std::negate<int>());

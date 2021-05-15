@@ -1,14 +1,16 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2021 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef GFX_TIMSORT_CXX_98_TEST_HELPERS_HPP
-#define GFX_TIMSORT_CXX_98_TEST_HELPERS_HPP
+#ifndef GFX_TIMSORT_TEST_HELPERS_HPP
+#define GFX_TIMSORT_TEST_HELPERS_HPP
 
+#include <algorithm>
 #include <iterator>
+#include <random>
 #include <utility>
 
 namespace test_helpers {
@@ -44,7 +46,7 @@ namespace test_helpers {
     // Timsort should work with iterators that don't have a
     // post-increment or post-decrement operation
 
-    template<typename Iterator>
+    template <typename Iterator>
     class NoPostIterator
     {
         public:
@@ -163,13 +165,27 @@ namespace test_helpers {
             Iterator _it;
     };
 
-    ////////////////////////////////////////////////////////////
-    // Construction function
-
-    template<typename Iterator>
+    template <typename Iterator>
     NoPostIterator<Iterator> make_no_post_iterator(Iterator it) {
         return NoPostIterator<Iterator>(it);
     }
+
+    ////////////////////////////////////////////////////////////
+    // Shuffle function
+
+    template <typename RandomAccessIterator>
+    void shuffle(RandomAccessIterator first, RandomAccessIterator last)
+    {
+        thread_local std::mt19937 random_engine(2581470); // fixed seed is enough
+
+        std::shuffle(first, last, random_engine);
+    }
+
+    template <typename RandomAccessRange>
+    void shuffle(RandomAccessRange &range)
+    {
+        test_helpers::shuffle(std::begin(range), std::end(range));
+    }
 }
 
-#endif // GFX_TIMSORT_CXX_98_TEST_HELPERS_HPP
+#endif // GFX_TIMSORT_TEST_HELPERS_HPP
