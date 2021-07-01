@@ -9,11 +9,12 @@
 #ifndef GFX_TIMSORT_BENCHMARKER_HPP
 #define GFX_TIMSORT_BENCHMARKER_HPP
 
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -45,6 +46,8 @@ private:
 
     template <typename value_t>
     void bench(state_t const state) {
+        thread_local std::mt19937 random_engine(2581470); // fixed seed is enough
+
         std::vector<value_t> a;
         for (int i = 0; i < size_; ++i) {
             a.push_back(BenchmarkerHelpers::convert_to<value_t>::from((i + 1) * 10));
@@ -52,7 +55,7 @@ private:
 
         switch (state) {
         case randomized:
-            std::random_shuffle(a.begin(), a.end());
+            std::shuffle(a.begin(), a.end(), random_engine);
             break;
         case reversed:
             std::stable_sort(a.begin(), a.end());

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2021 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -12,6 +12,7 @@
 #include <windows.h>
 #include <catch2/catch.hpp>
 #include <gfx/timsort.hpp>
+#include "test_helpers.hpp"
 
 TEST_CASE( "check inclusion of windows.h" ) {
     const int size = 100;
@@ -21,7 +22,7 @@ TEST_CASE( "check inclusion of windows.h" ) {
         vec.push_back(i);
     }
 
-    std::random_shuffle(vec.begin(), vec.end());
+    test_helpers::shuffle(vec);
     gfx::timsort(vec.begin(), vec.end());
 
     for (int i = 0; i < size; ++i) {
