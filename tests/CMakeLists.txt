@@ -42,7 +42,7 @@ macro(configure_tests target)
         target_compile_options(${target} PRIVATE
             -Wall -Wextra -Wcast-align -Winline -Wmissing-declarations -Wmissing-include-dirs
             -Wnon-virtual-dtor -Wodr -Wpedantic -Wredundant-decls -Wundef -Wunreachable-code
-            $<$<CXX_COMPILER_ID:GNU>:-Wlogical-op -Wuseless-cast -Wzero-as-null-pointer-constant>
+            $<$<CXX_COMPILER_ID:GNU>:-Wlogical-op -Wuseless-cast>
         )
     endif()
 
@@ -115,6 +115,7 @@ include(Catch)
 string(RANDOM LENGTH 5 ALPHABET 0123456789 RNG_SEED)
 catch_discover_tests(cxx_98_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 catch_discover_tests(cxx_11_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
+catch_discover_tests(merge_cxx_11_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 catch_discover_tests(cxx_17_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 if (WIN32)
     catch_discover_tests(windows_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
