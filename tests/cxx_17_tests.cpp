@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019 Morwenn.
+ * Copyright (c) 2019-2021 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -37,8 +37,6 @@ namespace
         int value = 0;
     };
 }
-
-#ifdef __cpp_lib_invoke
 
 TEST_CASE( "generalized callables" ) {
     std::vector<wrapper> vec(50);
@@ -80,5 +78,3 @@ TEST_CASE( "generalized callables" ) {
         CHECK(is_vec_sorted());
     }
 }
-
-#endif // __cpp_lib_invoke
