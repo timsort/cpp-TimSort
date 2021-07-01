@@ -77,15 +77,6 @@ namespace gfx {
 
 namespace detail {
 
-// Equivalent to C++20 std::identity
-struct identity {
-    template <typename T>
-    constexpr T&& operator()(T&& value) const noexcept
-    {
-        return std::forward<T>(value);
-    }
-};
-
 // Merge a predicate and a projection function
 template <typename Compare, typename Projection>
 struct projection_compare {
@@ -712,7 +703,7 @@ public:
 template <
     typename RandomAccessIterator,
     typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
-    typename Projection = detail::identity
+    typename Projection = std::identity
 >
 void timmerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
               Compare compare={}, Projection projection={}) {
@@ -730,7 +721,7 @@ void timmerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAcc
 template <
     typename RandomAccessIterator,
     typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
-    typename Projection = detail::identity
+    typename Projection = std::identity
 >
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
              Compare compare={}, Projection projection={}) {
@@ -748,7 +739,7 @@ template <
     typename Compare = std::less<typename std::iterator_traits<
         decltype(std::begin(std::declval<RandomAccessRange>()))
     >::value_type>,
-    typename Projection = detail::identity
+    typename Projection = std::identity
 >
 void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={}) {
     gfx::timsort(std::begin(range), std::end(range), compare, projection);
