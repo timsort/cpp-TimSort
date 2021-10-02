@@ -10,73 +10,65 @@ See also the following links for a detailed description of TimSort:
 * http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 * http://en.wikipedia.org/wiki/Timsort
 
-This library is compatible with C++11. If you need a C++98 version, you can check the 1.x.y branch of this repository.
+This library requires at least C++11. If you need a C++98 version, you can check the 1.x.y branch of this repository.
 
-According to the benchmarks, it is slower than `std::sort()` on randomized sequences, but faster on partially-sorted
-ones. `gfx::timsort` should be usable as a drop-in replacement for `std::stable_sort`, with the difference that it
-can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory available.
+According to the benchmarks, `gfx::timsort` is slower than [`std::sort()`][std-sort] on randomized sequences, but
+faster on partially-sorted ones. It can be used as a drop-in replacement for [`std::stable_sort`][std-stable-sort],
+with the difference that it can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory
+available.
 
 `gfx::timsort` also has a few additional features and guarantees compared to `std::stable_sort`:
-* It can take a [projection function](https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html)
-  after the comparison function. The support is a bit rougher than in the linked article or the C++20 standard library:
-  unless `std::invoke` is available, only instances of types callable with parentheses can be used, there is no support
-  for pointer to members.
-* It can also be passed a range instead of a pair of iterators, in which case it will sort the whole range.
+* It can take a [projection function][projection] after the comparison function. The support is a bit rougher than in
+  the linked article or the C++20 standard library: unless [`std::invoke`][std-invoke] is available, only instances of
+  types callable with parentheses can be used, there is no support for pointer to members.
+* It can be passed a range instead of a pair of iterators, in which case it will sort the whole range.
 * This implementation of timsort notably avoids using the postfix `++` or `--` operators: only their prefix equivalents
   are used, which means that timsort will work even if the postfix operators are not present or return an incompatible
   type such as `void`.
 
+Merging sorted ranges efficiently is an important part of the TimSort algorithm. This library exposes `gfx::timmerge`
+in the public API, a drop-in replacement for [`std::inplace_merge`][std-inplace-merge] with the difference that it
+can't fallback to a O(n log n) algorithm when there isn't enough extra heap memory available. According to the
+benchmarks, `gfx::timmerge` is slower than `std::inplace_merge` on heavily/randomly overlapping subranges of simple
+elements, but it is faster for complex elements such as `std::string` and on sparsely overlapping subranges.
 
-Merging sorted ranges efficiently is an important part of the TimSort algorithm. This library exposes its merge
-algorithm in the public API. According to the benchmarks, `gfx::timmerge` is slower than `std::inplace_merge` on
-heavily/randomly overlapping subranges of simple elements, but it is faster for complex elements such as `std::string`
-and on sparsely overlapping subranges. `gfx::timmerge` should be usable as a drop-in replacement for
-`std::inplace_merge`, with the difference that it can't fallback to a O(n log n) algorithm when there isn't enough
-extra heap memory available. Like `gfx::timsort`, `gfx::timmerge` can take a projection function and avoids using the
-postfix `++` or `--` operators.
+Just like `gfx::timsort`, `gfx::timmerge` can take a projection function and avoids using the postfix `++` and `--`
+operators.
 
-
-The full list of available signatures is as follows (in namespace `gfx`):
+The list of available signatures is as follows (in namespace `gfx`):
 
 ```cpp
-// timsort overloads taking a pair of iterators
+// timsort
 
-template <typename RandomAccessIterator>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last);
-
-template <typename RandomAccessIterator, typename Compare>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
-             Compare compare);
-
-template <typename RandomAccessIterator, typename Compare, typename Projection>
+template <
+    typename RandomAccessIterator,
+    typename Compare = /* see below (1) */,
+    typename Projection = /* see below (2) */
+>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
              Compare compare, Projection projection);
 
-// timsort overloads taking a range
-
-template <typename RandomAccessRange>
-void timsort(RandomAccessRange &range);
-
-template <typename RandomAccessRange, typename Compare>
-void timsort(RandomAccessRange &range, Compare compare);
-
-template <typename RandomAccessRange, typename Compare, typename Projection>
+template <
+    typename RandomAccessRange,
+    typename Compare = /* see below (1) */,
+    typename Projection = /* see below (2) */
+>
 void timsort(RandomAccessRange &range, Compare compare, Projection projection);
 
-// timmerge overloads
+// timmerge
 
-template <typename RandomAccessIterator>
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last);
-
-template <typename RandomAccessIterator, typename Compare>
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last, Compare compare);
-
-template <typename RandomAccessIterator, typename Compare, typename Projection>
+template <
+    typename RandomAccessIterator,
+    typename Compare = /* see below (1) */,
+    typename Projection = /* see below (2) */
+>
 void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
               RandomAccessIterator last, Compare compare, Projection projection);
 ```
+
+In the signatures above:
+- (1) [`std::less`][std-less] specialization for the `value_type` of the passed range or iterator.
+- (2) Custom class equivalent to [`std::identity`][std-identity].
 
 ## EXAMPLE
 
@@ -107,7 +99,8 @@ The library has been tested with the following compilers:
 * Clang 6
 * MSVC 2017
 
-It should also work with more recent compilers, and most likely with some older compilers too. We used to guarantee support as far back as Clang 3.8, but the new continuous integration environment doesn't go that far.
+It should also work with more recent compilers, and most likely with some older compilers too. We used to guarantee
+support as far back as Clang 3.8, but the new continuous integration environment doesn't go that far back.
 
 The library can be installed on the system via CMake with the following commands:
 
@@ -126,11 +119,13 @@ conan install timsort/2.1.0
 
 ## DIAGNOSTICS & INFORMATION
 
-A few configuration macros allow `gfx::timsort` and `gfx::timmerge` to emit diagnostic, which might be helpful to diagnose issues:
+The following configuration macros allow `gfx::timsort` and `gfx::timmerge` to emit diagnostics, which can be helpful
+to diagnose issues:
 * Defining `GFX_TIMSORT_ENABLE_ASSERT` inserts assertions in key locations in the algorithm to avoid logic errors.
-* Defining `GFX_TIMSORT_ENABLE_AUDIT` inserts assertions that verify pre- and postconditions. These verifications can slow the
-  algorithm down significantly. Enable the audit only while testing or debugging.
-* Defining `GFX_TIMSORT_ENABLE_LOG` inserts logs in key locations, which allow to follow more closely the flow of the algorithm.
+* Defining `GFX_TIMSORT_ENABLE_AUDIT` inserts assertions that verify pre- and postconditions. These verifications can
+  slow the algorithm down significantly. Enable the audits only while testing or debugging.
+* Defining `GFX_TIMSORT_ENABLE_LOG` inserts logs in key locations, which allow to follow more closely the flow of the
+  algorithm.
 
 **cpp-TimSort** follows semantic versioning and provides the following macros to retrieve the current major, minor
 and patch versions:
@@ -143,7 +138,7 @@ GFX_TIMSORT_VERSION_PATCH
 
 ## TESTS
 
-The tests are written with Catch2 (branch 1.x) and can be compiled with CMake and run through CTest.
+The tests are written with Catch2 and can be compiled with CMake and run through CTest.
 
 When using the project's main `CMakeLists.txt`, the CMake variable `BUILD_TESTING` is `ON` by default unless the
 project is included as a subdirectory. The following CMake variables are available to change the way the tests are
@@ -223,3 +218,12 @@ middle iterator positions, reformatted to improve readability):
 
 Detailed bench_merge results for different middle iterator positions can be found at
 https://github.com/timsort/cpp-TimSort/wiki/Benchmark-results
+
+
+  [projection]: https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html
+  [std-identity]: https://en.cppreference.com/w/cpp/utility/functional/identity
+  [std-inplace-merge]: https://en.cppreference.com/w/cpp/algorithm/inplace_merge
+  [std-invoke]: https://en.cppreference.com/w/cpp/utility/functional/invoke
+  [std-less]: https://en.cppreference.com/w/cpp/utility/functional/less
+  [std-sort]: https://en.cppreference.com/w/cpp/algorithm/sort
+  [std-stable-sort]: https://en.cppreference.com/w/cpp/algorithm/stable_sort

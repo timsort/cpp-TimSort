@@ -716,9 +716,13 @@ public:
  * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
  * sorted range [first, last) with a comparison function and a projection function.
  */
-template <typename RandomAccessIterator, typename Compare, typename Projection>
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last, Compare compare, Projection projection) {
+template <
+    typename RandomAccessIterator,
+    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
+    typename Projection = detail::identity
+>
+void timmerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
+              Compare compare={}, Projection projection={}) {
     typedef detail::projection_compare<Compare, Projection> compare_t;
     compare_t comp(std::move(compare), std::move(projection));
     GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp) && "Precondition");
@@ -728,30 +732,15 @@ void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
 }
 
 /**
- * Same as std::inplace_merge(first, middle, last, compare).
- */
-template <typename RandomAccessIterator, typename Compare>
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last, Compare compare) {
-    gfx::timmerge(first, middle, last, compare, detail::identity());
-}
-
-/**
- * Same as std::inplace_merge(first, middle, last).
- */
-template <typename RandomAccessIterator>
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last) {
-    typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
-    gfx::timmerge(first, middle, last, std::less<value_type>(), detail::identity());
-}
-
-/**
  * Stably sorts a range with a comparison function and a projection function.
  */
-template <typename RandomAccessIterator, typename Compare, typename Projection>
+template <
+    typename RandomAccessIterator,
+    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
+    typename Projection = detail::identity
+>
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
-             Compare compare, Projection projection) {
+             Compare compare={}, Projection projection={}) {
     typedef detail::projection_compare<Compare, Projection> compare_t;
     compare_t comp(std::move(compare), std::move(projection));
     detail::TimSort<RandomAccessIterator, compare_t>::sort(first, last, comp);
@@ -759,44 +748,17 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
 }
 
 /**
- * Same as std::stable_sort(first, last, compare).
- */
-template <typename RandomAccessIterator, typename Compare>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last, Compare compare) {
-    gfx::timsort(first, last, compare, detail::identity());
-}
-
-/**
- * Same as std::stable_sort(first, last).
- */
-template <typename RandomAccessIterator>
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last) {
-    typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
-    gfx::timsort(first, last, std::less<value_type>(), detail::identity());
-}
-
-/**
  * Stably sorts a range with a comparison function and a projection function.
  */
-template <typename RandomAccessRange, typename Compare, typename Projection>
-void timsort(RandomAccessRange &range, Compare compare, Projection projection) {
+template <
+    typename RandomAccessRange,
+    typename Compare = std::less<typename std::iterator_traits<
+        decltype(std::begin(std::declval<RandomAccessRange>()))
+    >::value_type>,
+    typename Projection = detail::identity
+>
+void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={}) {
     gfx::timsort(std::begin(range), std::end(range), compare, projection);
-}
-
-/**
- * Same as std::stable_sort(std::begin(range), std::end(range), compare).
- */
-template <typename RandomAccessRange, typename Compare>
-void timsort(RandomAccessRange &range, Compare compare) {
-    gfx::timsort(std::begin(range), std::end(range), compare);
-}
-
-/**
- * Same as std::stable_sort(std::begin(range), std::end(range)).
- */
-template <typename RandomAccessRange>
-void timsort(RandomAccessRange &range) {
-    gfx::timsort(std::begin(range), std::end(range));
 }
 
 } // namespace gfx
