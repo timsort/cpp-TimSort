@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2022 Morwenn.
  * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * SPDX-License-Identifier: MIT
@@ -21,22 +21,26 @@ using namespace test_helpers;
 
 namespace
 {
-template <typename RandomAccessRange, typename Compare>
-void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle, Compare compare) {
-    const auto first = std::begin(range);
-    const auto last = std::end(range);
-    gfx::timsort(first, middle, compare);
-    gfx::timsort(middle, last, compare);
-    gfx::timmerge(first, middle, last, compare);
-}
+    template <typename RandomAccessRange, typename Compare>
+    void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle, Compare compare) {
+        const auto first = std::begin(range);
+        const auto last = std::end(range);
+        gfx::timsort(first, middle, compare);
+        gfx::timsort(middle, last, compare);
+        gfx::timmerge(first, middle, last, compare);
+    }
 
-template <typename RandomAccessRange>
-void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle) {
-    using value_type = typename std::iterator_traits<decltype(middle)>::value_type;
-    sort_and_merge(range, middle, std::less<value_type>());
-}
+    template <typename RandomAccessRange>
+    void sort_and_merge(RandomAccessRange &range, decltype(std::end(range)) middle) {
+        using value_type = typename std::iterator_traits<decltype(middle)>::value_type;
+        sort_and_merge(range, middle, std::less<value_type>());
+    }
 
-std::mt19937 random_engine(Catch::rngSeed());
+    inline std::mt19937& random_engine()
+    {
+        thread_local std::mt19937 res(Catch::rngSeed());
+        return res;
+    }
 }
 
 TEST_CASE( "merge_simple0" ) {
@@ -161,7 +165,7 @@ TEST_CASE( "merge_shuffle204x" ) {
         for (int n = 0; n < 30; ++n) {
             test_helpers::shuffle(a);
 
-            sort_and_merge(a, a.begin() + random_middle(random_engine));
+            sort_and_merge(a, a.begin() + random_middle(random_engine()));
 
             for (int i = 0; i < size; ++i) {
                 CHECK(a[i] == (i + 1) * 10);
@@ -183,7 +187,7 @@ TEST_CASE( "merge_partial_shuffle102x" ) {
         for (int n = 0; n < 100; ++n) {
             test_helpers::shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
 
-            sort_and_merge(a, a.begin() + random_middle(random_engine), std::less<int>());
+            sort_and_merge(a, a.begin() + random_middle(random_engine()), std::less<int>());
 
             for (int i = 0; i < size; ++i) {
                 CHECK(a[i] == (i + 1) * 10);
@@ -195,7 +199,7 @@ TEST_CASE( "merge_partial_shuffle102x" ) {
             test_helpers::shuffle(a.begin(), a.begin() + (size / 3 * 1));
             test_helpers::shuffle(a.begin() + (size / 3 * 2), a.end());
 
-            sort_and_merge(a, a.begin() + random_middle(random_engine));
+            sort_and_merge(a, a.begin() + random_middle(random_engine()));
 
             for (int i = 0; i < size; ++i) {
                 CHECK(a[i] == (i + 1) * 10);
@@ -216,7 +220,7 @@ TEST_CASE( "merge_shuffle1025r" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a);
 
-        sort_and_merge(a, a.begin() + random_middle(random_engine), std::greater<int>());
+        sort_and_merge(a, a.begin() + random_middle(random_engine()), std::greater<int>());
 
         int j = size;
         for (int i = 0; i < size; ++i) {
@@ -236,7 +240,7 @@ TEST_CASE( "merge_partial_reversed307x" ) {
         for (int n = 0; n < 20; ++n) {
             std::reverse(a.begin(), a.begin() + (size / 2)); // partial reversed
 
-            sort_and_merge(a, a.begin() + random_middle(random_engine));
+            sort_and_merge(a, a.begin() + random_middle(random_engine()));
 
             for (int i = 0; i < size; ++i) {
                 CHECK(a[i] == (i + 1) * 10);
