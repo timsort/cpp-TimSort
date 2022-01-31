@@ -23,7 +23,7 @@ TEST_CASE( "check inclusion of windows.h" ) {
     }
 
     test_helpers::shuffle(vec);
-    gfx::timsort(vec.begin(), vec.end());
+    GFX_TIMSORT_TEST_SORT(vec.begin(), vec.end());
 
     for (int i = 0; i < size; ++i) {
         CHECK(vec[i] == i);

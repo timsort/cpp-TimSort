@@ -13,6 +13,15 @@
 #include <random>
 #include <utility>
 
+// Macros used to be able to run the test suite with different
+// sorting and merging algorithms
+#ifndef GFX_TIMSORT_TEST_SORT
+#   define GFX_TIMSORT_TEST_SORT gfx::timsort
+#endif
+#ifndef GFX_TIMSORT_TEST_MERGE
+#   define GFX_TIMSORT_TEST_MERGE gfx::timmerge
+#endif
+
 namespace test_helpers {
     // Helper types for the tests
 

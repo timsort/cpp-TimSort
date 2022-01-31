@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2022 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -125,7 +125,7 @@ TEST_CASE( "shuffle10k_for_move_only_types" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a.begin(), a.end());
 
-        gfx::timsort(a.begin(), a.end(), [](const move_only<int> &x, const move_only<int> &y) { return x.value < y.value; });
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), [](const move_only<int> &x, const move_only<int> &y) { return x.value < y.value; });
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i].value == (i + 1) * 10);
@@ -146,9 +146,9 @@ TEST_CASE( "merge_shuffle10k_for_move_only_types" ) {
 
         const auto compare = [](const move_only<int> &x, const move_only<int> &y) { return x.value < y.value; };
         const auto middle = a.begin() + rand() % size;
-        gfx::timsort(a.begin(), middle, compare);
-        gfx::timsort(middle, a.end(), compare);
-        gfx::timmerge(a.begin(), middle, a.end(), compare);
+        GFX_TIMSORT_TEST_SORT(a.begin(), middle, compare);
+        GFX_TIMSORT_TEST_SORT(middle, a.end(), compare);
+        GFX_TIMSORT_TEST_MERGE(a.begin(), middle, a.end(), compare);
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i].value == (i + 1) * 10);
@@ -162,7 +162,7 @@ TEST_CASE( "issue14" ) {
     std::deque<int> c(std::begin(a), std::end(a));
 
     SECTION( "timsort" ) {
-        gfx::timsort(std::begin(c), std::end(c));
+        GFX_TIMSORT_TEST_SORT(std::begin(c), std::end(c));
         CHECK(std::is_sorted(std::begin(c), std::end(c)));
     }
 
@@ -170,9 +170,9 @@ TEST_CASE( "issue14" ) {
         for (auto middle = c.begin(); ; ++middle) {
             std::copy(std::begin(a), std::end(a), c.begin());
 
-            gfx::timsort(c.begin(), middle);
-            gfx::timsort(middle, c.end());
-            gfx::timmerge(c.begin(), middle, c.end());
+            GFX_TIMSORT_TEST_SORT(c.begin(), middle);
+            GFX_TIMSORT_TEST_SORT(middle, c.end());
+            GFX_TIMSORT_TEST_MERGE(c.begin(), middle, c.end());
             CHECK(std::is_sorted(c.cbegin(), c.cend()));
 
             if (middle == c.end()) {
@@ -188,19 +188,19 @@ TEST_CASE( "range signatures" ) {
     test_helpers::shuffle(vec.begin(), vec.end());
 
     SECTION( "range only" ) {
-        gfx::timsort(vec);
+        GFX_TIMSORT_TEST_SORT(vec);
         CHECK(std::is_sorted(vec.begin(), vec.end()));
     }
 
     SECTION( "range with a comparison function" ) {
         using value_type = std::vector<int>::value_type;
-        gfx::timsort(vec, std::greater<value_type>{});
+        GFX_TIMSORT_TEST_SORT(vec, std::greater<value_type>{});
         CHECK(std::is_sorted(vec.begin(), vec.end(), std::greater<value_type>{}));
     }
 
     SECTION( "range with comparison and projection functions" ) {
         using value_type = std::vector<int>::value_type;
-        gfx::timsort(vec, std::greater<value_type>{}, std::negate<value_type>{});
+        GFX_TIMSORT_TEST_SORT(vec, std::greater<value_type>{}, std::negate<value_type>{});
         CHECK(std::is_sorted(vec.begin(), vec.end()));
     }
 }

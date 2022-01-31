@@ -18,7 +18,7 @@ using namespace test_helpers;
 TEST_CASE( "simple0" ) {
     std::vector<int> a;
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(0));
 }
@@ -28,7 +28,7 @@ TEST_CASE( "simple1" ) {
 
     a.push_back(42);
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(1));
     CHECK(a[0] == 42);
@@ -40,7 +40,7 @@ TEST_CASE( "simple2" ) {
     a.push_back(10);
     a.push_back(20);
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(2));
     CHECK(a[0] == 10);
@@ -50,7 +50,7 @@ TEST_CASE( "simple2" ) {
     a.push_back(20);
     a.push_back(10);
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(2));
     CHECK(a[0] == 10);
@@ -60,7 +60,7 @@ TEST_CASE( "simple2" ) {
     a.push_back(10);
     a.push_back(10);
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(2));
     CHECK(a[0] == 10);
@@ -80,7 +80,7 @@ TEST_CASE( "simple10" ) {
     a.push_back(10);
     a.push_back(90);
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a[0] == 10);
     CHECK(a[1] == 10);
@@ -95,7 +95,7 @@ TEST_CASE( "simple10" ) {
 
     std::reverse(a.begin(), a.end());
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a[0] == 10);
     CHECK(a[1] == 10);
@@ -118,7 +118,7 @@ TEST_CASE( "shuffle30" ) {
     }
     test_helpers::shuffle(a.begin(), a.end());
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(size));
     for (int i = 0; i < size; ++i) {
@@ -135,7 +135,7 @@ TEST_CASE( "shuffle31" ) {
     }
     test_helpers::shuffle(a.begin(), a.end());
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(size));
     for (int i = 0; i < size; ++i) {
@@ -152,7 +152,7 @@ TEST_CASE( "shuffle32" ) {
     }
     test_helpers::shuffle(a.begin(), a.end());
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(size));
     for (int i = 0; i < size; ++i) {
@@ -169,7 +169,7 @@ TEST_CASE( "shuffle128" ) {
     }
     test_helpers::shuffle(a.begin(), a.end());
 
-    gfx::timsort(a.begin(), a.end(), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(size));
     for (int i = 0; i < size; ++i) {
@@ -188,7 +188,7 @@ TEST_CASE( "shuffle1023" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a.begin(), a.end());
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -207,7 +207,7 @@ TEST_CASE( "shuffle1024" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a.begin(), a.end());
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -227,7 +227,7 @@ TEST_CASE( "partial_shuffle1023" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -239,7 +239,7 @@ TEST_CASE( "partial_shuffle1023" ) {
         test_helpers::shuffle(a.begin(), a.begin() + (size / 3 * 1));
         test_helpers::shuffle(a.begin() + (size / 3 * 2), a.end());
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -259,7 +259,7 @@ TEST_CASE( "partial_shuffle1024" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a.begin() + (size / 3 * 1), a.begin() + (size / 3 * 2));
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -271,7 +271,7 @@ TEST_CASE( "partial_shuffle1024" ) {
         test_helpers::shuffle(a.begin(), a.begin() + (size / 3 * 1));
         test_helpers::shuffle(a.begin() + (size / 3 * 2), a.end());
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -290,7 +290,7 @@ TEST_CASE( "shuffle1024r" ) {
     for (int n = 0; n < 100; ++n) {
         test_helpers::shuffle(a.begin(), a.end());
 
-        gfx::timsort(a.begin(), a.end(), std::greater<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::greater<int>());
 
         int j = size;
         for (int i = 0; i < size; ++i) {
@@ -310,7 +310,7 @@ TEST_CASE( "partial_reversed1023" ) {
     for (int n = 0; n < 100; ++n) {
         std::reverse(a.begin(), a.begin() + (size / 2)); // partial reversed
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -329,7 +329,7 @@ TEST_CASE( "partial_reversed1024" ) {
     for (int n = 0; n < 100; ++n) {
         std::reverse(a.begin(), a.begin() + (size / 2)); // partial reversed
 
-        gfx::timsort(a.begin(), a.end(), std::less<int>());
+        GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), std::less<int>());
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i] == (i + 1) * 10);
@@ -340,7 +340,7 @@ TEST_CASE( "partial_reversed1024" ) {
 TEST_CASE( "c_array" ) {
     int a[] = {7, 1, 5, 3, 9};
 
-    gfx::timsort(a, a + sizeof(a) / sizeof(int), std::less<int>());
+    GFX_TIMSORT_TEST_SORT(a, a + sizeof(a) / sizeof(int), std::less<int>());
 
     CHECK(a[0] == 1);
     CHECK(a[1] == 3);
@@ -352,7 +352,7 @@ TEST_CASE( "c_array" ) {
 TEST_CASE( "string_array" ) {
     std::string a[] = {"7", "1", "5", "3", "9"};
 
-    gfx::timsort(a, a + sizeof(a) / sizeof(std::string), std::less<std::string>());
+    GFX_TIMSORT_TEST_SORT(a, a + sizeof(a) / sizeof(std::string), std::less<std::string>());
 
     CHECK(a[0] == "1");
     CHECK(a[1] == "3");
@@ -364,7 +364,7 @@ TEST_CASE( "string_array" ) {
 TEST_CASE( "non_default_constructible" ) {
     NonDefaultConstructible a[] = {7, 1, 5, 3, 9};
 
-    gfx::timsort(a, a + sizeof(a) / sizeof(a[0]), std::less<NonDefaultConstructible>());
+    GFX_TIMSORT_TEST_SORT(a, a + sizeof(a) / sizeof(a[0]), std::less<NonDefaultConstructible>());
 
     CHECK(a[0].i == 1);
     CHECK(a[1].i == 3);
@@ -382,7 +382,7 @@ TEST_CASE( "default_compare_function" ) {
     }
     test_helpers::shuffle(a.begin(), a.end());
 
-    gfx::timsort(a.begin(), a.end());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end());
 
     CHECK(a.size() == std::size_t(size));
     for (int i = 0; i < size; ++i) {
@@ -399,7 +399,7 @@ TEST_CASE( "stability" ) {
         a.push_back(std::make_pair(i, baz));
     }
 
-    gfx::timsort(a.begin(), a.end(), &less_in_first);
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end(), &less_in_first);
 
     CHECK(a[0].first == 0);
     CHECK(a[0].second == foo);
@@ -443,7 +443,7 @@ TEST_CASE( "issue2_duplication" ) {
     std::vector<std::pair<int, int> > expected(a);
 
     std::sort(expected.begin(), expected.end());
-    gfx::timsort(a.begin(), a.end());
+    GFX_TIMSORT_TEST_SORT(a.begin(), a.end());
 
 #if 0
         for (std::size_t i = 0; i < a.size(); ++i) {
@@ -503,7 +503,7 @@ TEST_CASE( "projection" ) {
     }
     test_helpers::shuffle(vec.begin(), vec.end());
 
-    gfx::timsort(vec.begin(), vec.end(), std::greater<int>(), std::negate<int>());
+    GFX_TIMSORT_TEST_SORT(vec.begin(), vec.end(), std::greater<int>(), std::negate<int>());
     for (int i = 0; i < size; ++i) {
         CHECK(vec[i] == i - 40);
     }
@@ -512,7 +512,7 @@ TEST_CASE( "projection" ) {
 TEST_CASE( "iterator without post-increment or post-decrement" ) {
     std::vector<int> a;
 
-    gfx::timsort(make_no_post_iterator(a.begin()), make_no_post_iterator(a.end()));
+    GFX_TIMSORT_TEST_SORT(make_no_post_iterator(a.begin()), make_no_post_iterator(a.end()));
 
     CHECK(a.size() == std::size_t(0));
 }
