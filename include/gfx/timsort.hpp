@@ -121,7 +121,12 @@ template <typename Iterator> struct run {
     }
 };
 
-template <typename RandomAccessIterator, typename Compare> class TimSort {
+template <
+    typename ChildClass,
+    typename RandomAccessIterator,
+    typename Compare
+>
+struct TimSortBase {
     typedef RandomAccessIterator iter_t;
     typedef typename std::iterator_traits<iter_t>::value_type value_t;
     typedef typename std::iterator_traits<iter_t>::reference ref_t;
@@ -188,11 +193,11 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         return n + r;
     }
 
-    TimSort() : minGallop_(MIN_GALLOP) {
+    TimSortBase() : minGallop_(MIN_GALLOP) {
     }
 
     // Silence GCC -Winline warning
-    ~TimSort() {}
+    ~TimSortBase() {}
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
         pending_.push_back(run<iter_t>(runBase, runLen));
@@ -393,7 +398,6 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         std::move_backward(first, last_1, last);
         *first = std::move(tmp);
     }
-
 
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2, Compare compare) {
         GFX_TIMSORT_ASSERT(len1 > 0);
@@ -645,8 +649,6 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                     std::make_move_iterator(begin + len));
     }
 
-public:
-
     static void merge(iter_t const lo, iter_t const mid, iter_t const hi, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= mid);
         GFX_TIMSORT_ASSERT(mid <= hi);
@@ -655,7 +657,7 @@ public:
             return; // nothing to do
         }
 
-        TimSort ts;
+        ChildClass ts;
         ts.mergeConsecutiveRuns(lo, mid - lo, mid, hi - mid, std::move(compare));
 
         GFX_TIMSORT_LOG("1st size: " << (mid - lo) << "; 2nd size: " << (hi - mid)
@@ -677,7 +679,7 @@ public:
             return;
         }
 
-        TimSort ts;
+        ChildClass ts;
         diff_t const minRun = minRunLength(nRemaining);
         iter_t cur = lo;
         do {
@@ -705,11 +707,68 @@ public:
     }
 };
 
+template <typename RandomAccessIterator, typename Compare>
+class TimSort:
+    protected TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare> {
+
+    using base = TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
+
+public:
+
+    TimSort() : base() {
+    }
+
+    static void merge(RandomAccessIterator lo, RandomAccessIterator mid, RandomAccessIterator hi,
+                      Compare compare) {
+        base::merge(lo, mid, hi, std::move(compare));
+    }
+
+    static void sort(RandomAccessIterator lo, RandomAccessIterator hi, Compare compare) {
+        base::sort(lo, hi, std::move(compare));
+    }
+
+    friend class TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
+};
+
+template <typename RandomAccessIterator, typename Compare>
+class AdaptiveShiversSort:
+    protected TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare> {
+
+    using base = TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
+
+    void mergeCollapse(Compare compare) {
+        while (this->pending_.size() > 1) {
+            typename base::diff_t n = this->pending_.size() - 3;
+            auto x = this->pending_[n + 1].len | this->pending_[n + 2].len;
+            if (n < 0 || x <= (this->pending_[n].len & ~x)) {
+                break;
+            }
+            base::mergeAt(n, compare);
+        }
+    }
+
+public:
+
+    AdaptiveShiversSort() : base() {
+    }
+
+    static void merge(RandomAccessIterator lo, RandomAccessIterator mid, RandomAccessIterator hi,
+                      Compare compare) {
+        base::merge(lo, mid, hi, std::move(compare));
+    }
+
+    static void sort(RandomAccessIterator lo, RandomAccessIterator hi, Compare compare) {
+        base::sort(lo, hi, std::move(compare));
+    }
+
+    friend class TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
+};
+
 } // namespace detail
 
 
 // ---------------------------------------
-// Public interface implementation
+// Public interface: TimSort
 // ---------------------------------------
 
 /**
@@ -759,6 +818,59 @@ template <
 >
 void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={}) {
     gfx::timsort(std::begin(range), std::end(range), compare, projection);
+}
+
+// ---------------------------------------
+// Public interface: AdaptiveShiversSort
+// ---------------------------------------
+
+/**
+ * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
+ * sorted range [first, last) with a comparison function and a projection function.
+ */
+template <
+    typename RandomAccessIterator,
+    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
+    typename Projection = detail::identity
+>
+void adaptive_shivers_merge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
+                            Compare compare={}, Projection projection={}) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(std::move(compare), std::move(projection));
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp) && "Precondition");
+    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp) && "Precondition");
+    detail::AdaptiveShiversSort<RandomAccessIterator, compare_t>::merge(first, middle, last, comp);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
+}
+
+/**
+ * Stably sorts a range with a comparison function and a projection function.
+ */
+template <
+    typename RandomAccessIterator,
+    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
+    typename Projection = detail::identity
+>
+void adaptive_shivers_sort(RandomAccessIterator const first, RandomAccessIterator const last,
+                           Compare compare={}, Projection projection={}) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(std::move(compare), std::move(projection));
+    detail::AdaptiveShiversSort<RandomAccessIterator, compare_t>::sort(first, last, comp);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
+}
+
+/**
+ * Stably sorts a range with a comparison function and a projection function.
+ */
+template <
+    typename RandomAccessRange,
+    typename Compare = std::less<typename std::iterator_traits<
+        decltype(std::begin(std::declval<RandomAccessRange>()))
+    >::value_type>,
+    typename Projection = detail::identity
+>
+void adaptive_shivers_sort(RandomAccessRange &range, Compare compare={}, Projection projection={}) {
+    gfx::adaptive_shivers_sort(std::begin(range), std::end(range), compare, projection);
 }
 
 } // namespace gfx
