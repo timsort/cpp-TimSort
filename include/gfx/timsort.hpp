@@ -6,7 +6,7 @@
  * - http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
  *
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2022 Morwenn.
  * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -121,16 +121,29 @@ template <typename Iterator> struct run {
     }
 };
 
+template <typename Iterator> struct power_run {
+    typedef typename std::iterator_traits<Iterator>::difference_type diff_t;
+
+    Iterator base;
+    diff_t len;
+    int power;
+
+    power_run(Iterator b, diff_t l) : base(b), len(l), power(0) {
+    }
+};
+
 template <
     typename ChildClass,
     typename RandomAccessIterator,
-    typename Compare
+    typename Compare,
+    typename RunType = run<RandomAccessIterator>
 >
 struct TimSortBase {
-    typedef RandomAccessIterator iter_t;
-    typedef typename std::iterator_traits<iter_t>::value_type value_t;
-    typedef typename std::iterator_traits<iter_t>::reference ref_t;
-    typedef typename std::iterator_traits<iter_t>::difference_type diff_t;
+    using iter_t = RandomAccessIterator;
+    using value_t = typename std::iterator_traits<iter_t>::value_type;
+    using ref_t = typename std::iterator_traits<iter_t>::reference;
+    using diff_t = typename std::iterator_traits<iter_t>::difference_type;
+    using run_t = RunType;
 
     static const int MIN_MERGE = 32;
     static const int MIN_GALLOP = 7;
@@ -140,7 +153,7 @@ struct TimSortBase {
     std::vector<value_t> tmp_; // temp storage for merges
     typedef typename std::vector<value_t>::iterator tmp_iter_t;
 
-    std::vector<run<RandomAccessIterator> > pending_;
+    std::vector<run_t> pending_;
 
     static void binarySort(iter_t const lo, iter_t const hi, iter_t start, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= start);
@@ -200,7 +213,7 @@ struct TimSortBase {
     ~TimSortBase() {}
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
-        pending_.push_back(run<iter_t>(runBase, runLen));
+        pending_.emplace_back(runBase, runLen);
     }
 
     void mergeCollapse(Compare compare) {
@@ -667,7 +680,7 @@ struct TimSortBase {
     static void sort(iter_t const lo, iter_t const hi, Compare compare) {
         GFX_TIMSORT_ASSERT(lo <= hi);
 
-        diff_t nRemaining = (hi - lo);
+        diff_t nRemaining = hi - lo;
         if (nRemaining < 2) {
             return; // nothing to do
         }
@@ -708,15 +721,12 @@ struct TimSortBase {
 };
 
 template <typename RandomAccessIterator, typename Compare>
-class TimSort:
-    protected TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare> {
+struct TimSort:
+    public TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare> {
 
     using base = TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
 
-public:
-
-    TimSort() : base() {
-    }
+    TimSort() = default;
 
     static void merge(RandomAccessIterator lo, RandomAccessIterator mid, RandomAccessIterator hi,
                       Compare compare) {
@@ -726,19 +736,18 @@ public:
     static void sort(RandomAccessIterator lo, RandomAccessIterator hi, Compare compare) {
         base::sort(lo, hi, std::move(compare));
     }
-
-    friend class TimSortBase<TimSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
 };
 
 template <typename RandomAccessIterator, typename Compare>
-class AdaptiveShiversSort:
-    protected TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare> {
+struct AdaptiveShiversSort:
+    public TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare> {
 
     using base = TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
+    using diff_t = typename base::diff_t;
 
     void mergeCollapse(Compare compare) {
         while (this->pending_.size() > 1) {
-            typename base::diff_t n = this->pending_.size() - 3;
+            diff_t n = this->pending_.size() - 3;
             auto x = this->pending_[n + 1].len | this->pending_[n + 2].len;
             if (n < 0 || x <= (this->pending_[n].len & ~x)) {
                 break;
@@ -747,10 +756,7 @@ class AdaptiveShiversSort:
         }
     }
 
-public:
-
-    AdaptiveShiversSort() : base() {
-    }
+    AdaptiveShiversSort() = default;
 
     static void merge(RandomAccessIterator lo, RandomAccessIterator mid, RandomAccessIterator hi,
                       Compare compare) {
@@ -760,8 +766,139 @@ public:
     static void sort(RandomAccessIterator lo, RandomAccessIterator hi, Compare compare) {
         base::sort(lo, hi, std::move(compare));
     }
+};
 
-    friend class TimSortBase<AdaptiveShiversSort<RandomAccessIterator, Compare>, RandomAccessIterator, Compare>;
+template <typename RandomAccessIterator, typename Compare>
+struct PowerSort:
+    public TimSortBase<
+        PowerSort<RandomAccessIterator, Compare>,
+        RandomAccessIterator,
+        Compare,
+        power_run<RandomAccessIterator>
+    > {
+
+    using base = TimSortBase<
+        PowerSort<RandomAccessIterator, Compare>,
+        RandomAccessIterator,
+        Compare,
+        power_run<RandomAccessIterator>
+    >;
+    using diff_t = typename base::diff_t;
+    using iter_t = typename base::iter_t;
+
+    /* Two adjacent runs begin at index s1. The first run has length n1, and
+     * the second run (starting at index s1+n1) has length n2. The list has total
+     * length n.
+     * Compute the "power" of the first run.
+     */
+    static int powerloop(diff_t s1, diff_t n1, diff_t n2, diff_t n) {
+        int result = 0;
+        GFX_TIMSORT_ASSERT(s1 >= 0);
+        GFX_TIMSORT_ASSERT(n1 > 0 && n2 > 0);
+        GFX_TIMSORT_ASSERT(s1 + n1 + n2 <= n);
+
+        // midpoints a and b:
+        // a = s1 + n1/2
+        // b = s1 + n1 + n2/2 = a + (n1 + n2)/2
+        //
+        // Those may not be integers, though, because of the "/2". So we work with
+        // 2*a and 2*b instead, which are necessarily integers. It makes no
+        // difference to the outcome, since the bits in the expansion of (2*i)/n
+        // are merely shifted one position from those of i/n.
+        diff_t a = 2 * s1 + n1;  /* 2*a */
+        diff_t b = a + n1 + n2;  /* 2*b */
+
+        // Emulate a/n and b/n one bit a time, until bits differ.
+        for (;;) {
+            ++result;
+            if (a >= n) {  // both quotient bits are 1
+                GFX_TIMSORT_ASSERT(b >= a);
+                a -= n;
+                b -= n;
+            } else if (b >= n) {  // a/n bit is 0, b/n bit is 1
+                break;
+            } // else both quotient bits are 0
+            GFX_TIMSORT_ASSERT(a < b && b < n);
+            a <<= 1;
+            b <<= 1;
+        }
+        return result;
+    }
+
+    /* The next run has been identified, of length n2.
+     * If there's already a run on the stack, apply the "powersort" merge strategy:
+     * compute the topmost run's "power" (depth in a conceptual binary merge tree)
+     * and merge adjacent runs on the stack with greater power.
+     *
+     * It's the caller's responsibility to push the new run on the stack when this
+     * returns.
+     */
+    void foundNewRun(iter_t const lo, diff_t size, diff_t n2, Compare compare) {
+        if (!this->pending_.empty()) {
+            diff_t n = this->pending_.size();
+            diff_t s1 = this->pending_.back().base - lo; // start index of first run
+            diff_t n1 = this->pending_.back().len;
+            int power = powerloop(s1, n1, n2, size);
+            while (n > 1 && this->pending_[n - 2].power > power) {
+                base::mergeAt(n - 2, compare);
+                --n;
+            }
+            GFX_TIMSORT_ASSERT(n < 2 || this->pending_[n - 2].power < power);
+            this->pending_.back().power = power;
+        }
+    }
+
+    PowerSort() = default;
+
+    static void merge(RandomAccessIterator lo, RandomAccessIterator mid, RandomAccessIterator hi,
+                      Compare compare) {
+        base::merge(lo, mid, hi, std::move(compare));
+    }
+
+    static void sort(iter_t const lo, iter_t const hi, Compare compare) {
+        GFX_TIMSORT_ASSERT(lo <= hi);
+
+        diff_t size = hi - lo;
+        if (size < 2) {
+            return; // nothing to do
+        }
+
+        diff_t nRemaining = size;
+        if (nRemaining < base::MIN_MERGE) {
+            diff_t const initRunLen = base::countRunAndMakeAscending(lo, hi, compare);
+            GFX_TIMSORT_LOG("initRunLen: " << initRunLen);
+            base::binarySort(lo, hi, lo + initRunLen, compare);
+            return;
+        }
+
+        PowerSort ts;
+        diff_t const minRun = base::minRunLength(nRemaining);
+        iter_t cur = lo;
+        do {
+            diff_t runLen = base::countRunAndMakeAscending(cur, hi, compare);
+
+            if (runLen < minRun) {
+                diff_t const force = (std::min)(nRemaining, minRun);
+                base::binarySort(cur, cur + force, cur + runLen, compare);
+                runLen = force;
+            }
+
+            // Maybe merge pending runs
+            ts.foundNewRun(lo, size, runLen, compare);
+            // Push new run on stack
+            ts.pushRun(cur, runLen);
+
+            cur += runLen;
+            nRemaining -= runLen;
+        } while (nRemaining != 0);
+
+        GFX_TIMSORT_ASSERT(cur == hi);
+        ts.mergeForceCollapse(compare);
+        GFX_TIMSORT_ASSERT(ts.pending_.size() == 1);
+
+        GFX_TIMSORT_LOG("size: " << (hi - lo) << " tmp_.size(): " << ts.tmp_.size()
+                                 << " pending_.size(): " << ts.pending_.size());
+    }
 };
 
 } // namespace detail
@@ -871,6 +1008,59 @@ template <
 >
 void adaptive_shivers_sort(RandomAccessRange &range, Compare compare={}, Projection projection={}) {
     gfx::adaptive_shivers_sort(std::begin(range), std::end(range), compare, projection);
+}
+
+// ---------------------------------------
+// Public interface: PowerSort
+// ---------------------------------------
+
+/**
+ * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
+ * sorted range [first, last) with a comparison function and a projection function.
+ */
+template <
+    typename RandomAccessIterator,
+    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
+    typename Projection = detail::identity
+>
+void powermerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
+                Compare compare={}, Projection projection={}) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(std::move(compare), std::move(projection));
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp) && "Precondition");
+    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp) && "Precondition");
+    detail::PowerSort<RandomAccessIterator, compare_t>::merge(first, middle, last, comp);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
+}
+
+/**
+ * Stably sorts a range with a comparison function and a projection function.
+ */
+template <
+    typename RandomAccessIterator,
+    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
+    typename Projection = detail::identity
+>
+void powersort(RandomAccessIterator const first, RandomAccessIterator const last,
+               Compare compare={}, Projection projection={}) {
+    typedef detail::projection_compare<Compare, Projection> compare_t;
+    compare_t comp(std::move(compare), std::move(projection));
+    detail::PowerSort<RandomAccessIterator, compare_t>::sort(first, last, comp);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
+}
+
+/**
+ * Stably sorts a range with a comparison function and a projection function.
+ */
+template <
+    typename RandomAccessRange,
+    typename Compare = std::less<typename std::iterator_traits<
+        decltype(std::begin(std::declval<RandomAccessRange>()))
+    >::value_type>,
+    typename Projection = detail::identity
+>
+void powersort(RandomAccessRange &range, Compare compare={}, Projection projection={}) {
+    gfx::powersort(std::begin(range), std::end(range), compare, projection);
 }
 
 } // namespace gfx

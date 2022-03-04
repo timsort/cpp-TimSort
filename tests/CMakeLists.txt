@@ -77,7 +77,7 @@ macro(configure_tests target prefix)
     endif()
 endmacro()
 
-foreach(prefix tim adaptive_shivers_)
+foreach(prefix tim adaptive_shivers_ power)
     # Tests that can run with C++98
     add_executable("${prefix}-cxx_98_tests"
         main.cpp
