@@ -27,7 +27,7 @@ namespace
         const auto last = std::end(range);
         GFX_TIMSORT_TEST_SORT(first, middle, compare);
         GFX_TIMSORT_TEST_SORT(middle, last, compare);
-        GFX_TIMSORT_TEST_MERGE(first, middle, last, compare);
+        gfx::timmerge(first, middle, last, compare);
     }
 
     template <typename RandomAccessRange>
@@ -46,7 +46,7 @@ namespace
 TEST_CASE( "merge_simple0" ) {
     std::vector<int> a;
 
-    GFX_TIMSORT_TEST_MERGE(a.begin(), a.end(), a.end());
+    gfx::timmerge(a.begin(), a.end(), a.end());
 
     CHECK(a.size() == std::size_t(0));
 }
@@ -56,7 +56,7 @@ TEST_CASE( "merge_simple1" ) {
 
     a.push_back(-54);
 
-    GFX_TIMSORT_TEST_MERGE(a.begin(), a.end(), a.end(), std::greater<int>());
+    gfx::timmerge(a.begin(), a.end(), a.end(), std::greater<int>());
 
     CHECK(a.size() == std::size_t(1));
     CHECK(a[0] == -54);
@@ -65,7 +65,7 @@ TEST_CASE( "merge_simple1" ) {
 TEST_CASE( "merge_simple2" ) {
     std::vector<int> a = { 10, 20 };
 
-    GFX_TIMSORT_TEST_MERGE(a.begin(), a.begin() + 1, a.end());
+    gfx::timmerge(a.begin(), a.begin() + 1, a.end());
 
     CHECK(a.size() == std::size_t(2));
     CHECK(a[0] == 10);
@@ -73,7 +73,7 @@ TEST_CASE( "merge_simple2" ) {
 
     a = { 20, 10 };
 
-    GFX_TIMSORT_TEST_MERGE(a.begin(), a.begin() + 1, a.end(), std::less<int>());
+    gfx::timmerge(a.begin(), a.begin() + 1, a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(2));
     CHECK(a[0] == 10);
@@ -81,7 +81,7 @@ TEST_CASE( "merge_simple2" ) {
 
     a = { 10, 10 };
 
-    GFX_TIMSORT_TEST_MERGE(a.begin(), a.begin() + 1, a.end(), std::less<int>());
+    gfx::timmerge(a.begin(), a.begin() + 1, a.end(), std::less<int>());
 
     CHECK(a.size() == std::size_t(2));
     CHECK(a[0] == 10);
@@ -297,7 +297,7 @@ TEST_CASE( "merge_default_compare_function" ) {
     const auto middle = a.begin() + a.size() / 3;
     GFX_TIMSORT_TEST_SORT(a.begin(), middle);
     GFX_TIMSORT_TEST_SORT(middle, a.end());
-    GFX_TIMSORT_TEST_MERGE(a.begin(), middle, a.end());
+    gfx::timmerge(a.begin(), middle, a.end());
 
     CHECK(a.size() == std::size_t(size));
     for (int i = 0; i < size; ++i) {
@@ -375,7 +375,7 @@ TEST_CASE( "merge_projection" ) {
     const auto middle = a.begin() + 43;
     GFX_TIMSORT_TEST_SORT(a.begin(), middle, std::greater<int>(), std::negate<int>());
     GFX_TIMSORT_TEST_SORT(middle, a.end(), std::greater<int>(), std::negate<int>());
-    GFX_TIMSORT_TEST_MERGE(a.begin(), middle, a.end(), std::greater<int>(), std::negate<int>());
+    gfx::timmerge(a.begin(), middle, a.end(), std::greater<int>(), std::negate<int>());
 
     for (int i = 0; i < size; ++i) {
         CHECK(a[i] == i - 40);
@@ -385,7 +385,7 @@ TEST_CASE( "merge_projection" ) {
 TEST_CASE( "merge_iterator without post-increment or post-decrement" ) {
     std::vector<int> a;
 
-    GFX_TIMSORT_TEST_MERGE(make_no_post_iterator(a.begin()), make_no_post_iterator(a.begin()),
+    gfx::timmerge(make_no_post_iterator(a.begin()), make_no_post_iterator(a.begin()),
                   make_no_post_iterator(a.end()));
 
     CHECK(a.size() == std::size_t(0));

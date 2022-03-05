@@ -148,7 +148,7 @@ TEST_CASE( "merge_shuffle10k_for_move_only_types" ) {
         const auto middle = a.begin() + rand() % size;
         GFX_TIMSORT_TEST_SORT(a.begin(), middle, compare);
         GFX_TIMSORT_TEST_SORT(middle, a.end(), compare);
-        GFX_TIMSORT_TEST_MERGE(a.begin(), middle, a.end(), compare);
+        gfx::timmerge(a.begin(), middle, a.end(), compare);
 
         for (int i = 0; i < size; ++i) {
             CHECK(a[i].value == (i + 1) * 10);
@@ -172,7 +172,7 @@ TEST_CASE( "issue14" ) {
 
             GFX_TIMSORT_TEST_SORT(c.begin(), middle);
             GFX_TIMSORT_TEST_SORT(middle, c.end());
-            GFX_TIMSORT_TEST_MERGE(c.begin(), middle, c.end());
+            gfx::timmerge(c.begin(), middle, c.end());
             CHECK(std::is_sorted(c.cbegin(), c.cend()));
 
             if (middle == c.end()) {

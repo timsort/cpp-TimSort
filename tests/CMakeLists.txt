@@ -37,7 +37,6 @@ macro(configure_tests target prefix)
         GFX_TIMSORT_ENABLE_ASSERT
         # Decide which sorts to test
         GFX_TIMSORT_TEST_SORT=gfx::${prefix}sort
-        GFX_TIMSORT_TEST_MERGE=gfx::${prefix}merge
     )
 
     # Add warnings
@@ -77,8 +76,12 @@ macro(configure_tests target prefix)
     endif()
 endmacro()
 
+include(CTest)
+include(Catch)
+
+# Main test sorts
 foreach(prefix tim adaptive_shivers_ power)
-    # Tests that can run with C++98
+    # Tests that can run with C++11
     add_executable("${prefix}-cxx_98_tests"
         main.cpp
         cxx_98_tests.cpp
@@ -103,24 +106,21 @@ foreach(prefix tim adaptive_shivers_ power)
     configure_tests("${prefix}-cxx_17_tests" ${prefix})
     target_compile_features("${prefix}-cxx_17_tests" PRIVATE cxx_std_17)
 
-    # Windows-specific tests
-    if (WIN32)
-        add_executable("${prefix}-windows_tests"
-            main.cpp
-            windows.cpp
-        )
-        configure_tests("${prefix}-windows_tests" ${prefix})
-        target_compile_features("${prefix}-windows_tests" PRIVATE cxx_std_98)
-    endif()
-
-    include(CTest)
-    include(Catch)
-
     string(RANDOM LENGTH 5 ALPHABET 0123456789 RNG_SEED)
     catch_discover_tests("${prefix}-cxx_98_tests" EXTRA_ARGS --rng-seed ${RNG_SEED})
     catch_discover_tests("${prefix}-cxx_11_tests" EXTRA_ARGS --rng-seed ${RNG_SEED})
     catch_discover_tests("${prefix}-cxx_17_tests" EXTRA_ARGS --rng-seed ${RNG_SEED})
-    if (WIN32)
-        catch_discover_tests("${prefix}-windows_tests" EXTRA_ARGS --rng-seed ${RNG_SEED})
-    endif()
 endforeach()
+
+# Windows-specific tests
+if (WIN32)
+    add_executable(windows_tests
+        main.cpp
+        windows.cpp
+    )
+    configure_tests(windows_tests tim)
+    target_compile_features(windows_tests PRIVATE cxx_std_98)
+    
+    catch_discover_tests(windows_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
+endif()
+

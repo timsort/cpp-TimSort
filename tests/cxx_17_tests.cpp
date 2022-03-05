@@ -69,7 +69,7 @@ TEST_CASE( "generalized callables" ) {
         const auto middle = vec.begin() + random_middle(gen);
         GFX_TIMSORT_TEST_SORT(vec.begin(), middle, &wrapper::compare_to);
         GFX_TIMSORT_TEST_SORT(middle, vec.end(), &wrapper::compare_to);
-        GFX_TIMSORT_TEST_MERGE(vec.begin(), middle, vec.end(), &wrapper::compare_to);
+        gfx::timmerge(vec.begin(), middle, vec.end(), &wrapper::compare_to);
         CHECK(is_vec_sorted());
     }
 
@@ -77,7 +77,7 @@ TEST_CASE( "generalized callables" ) {
         const auto middle = vec.begin() + random_middle(gen);
         GFX_TIMSORT_TEST_SORT(vec.begin(), middle, std::less<>{}, &wrapper::value);
         GFX_TIMSORT_TEST_SORT(middle, vec.end(), std::less<>{}, &wrapper::value);
-        GFX_TIMSORT_TEST_MERGE(vec.begin(), middle, vec.end(), std::less<>{}, &wrapper::value);
+        gfx::timmerge(vec.begin(), middle, vec.end(), std::less<>{}, &wrapper::value);
         CHECK(is_vec_sorted());
     }
 }

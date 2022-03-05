@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2022 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -23,7 +23,7 @@ TEST_CASE( "check inclusion of windows.h" ) {
     }
 
     test_helpers::shuffle(vec);
-    GFX_TIMSORT_TEST_SORT(vec.begin(), vec.end());
+    gfx::timsort(vec.begin(), vec.end());
 
     for (int i = 0; i < size; ++i) {
         CHECK(vec[i] == i);

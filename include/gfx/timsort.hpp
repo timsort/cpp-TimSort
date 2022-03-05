@@ -962,25 +962,6 @@ void timsort(RandomAccessRange &range, Compare compare={}, Projection projection
 // ---------------------------------------
 
 /**
- * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
- * sorted range [first, last) with a comparison function and a projection function.
- */
-template <
-    typename RandomAccessIterator,
-    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
-    typename Projection = detail::identity
->
-void adaptive_shivers_merge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
-                            Compare compare={}, Projection projection={}) {
-    typedef detail::projection_compare<Compare, Projection> compare_t;
-    compare_t comp(std::move(compare), std::move(projection));
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp) && "Precondition");
-    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp) && "Precondition");
-    detail::AdaptiveShiversSort<RandomAccessIterator, compare_t>::merge(first, middle, last, comp);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
-}
-
-/**
  * Stably sorts a range with a comparison function and a projection function.
  */
 template <
@@ -1013,25 +994,6 @@ void adaptive_shivers_sort(RandomAccessRange &range, Compare compare={}, Project
 // ---------------------------------------
 // Public interface: PowerSort
 // ---------------------------------------
-
-/**
- * Stably merges two consecutive sorted ranges [first, middle) and [middle, last) into one
- * sorted range [first, last) with a comparison function and a projection function.
- */
-template <
-    typename RandomAccessIterator,
-    typename Compare = std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>,
-    typename Projection = detail::identity
->
-void powermerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
-                Compare compare={}, Projection projection={}) {
-    typedef detail::projection_compare<Compare, Projection> compare_t;
-    compare_t comp(std::move(compare), std::move(projection));
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp) && "Precondition");
-    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp) && "Precondition");
-    detail::PowerSort<RandomAccessIterator, compare_t>::merge(first, middle, last, comp);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp) && "Postcondition");
-}
 
 /**
  * Stably sorts a range with a comparison function and a projection function.
