@@ -46,14 +46,14 @@ template <
     typename Projection = /* see below (2) */
 >
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
-             Compare compare, Projection projection);
+             Compare compare={}, Projection projection={});
 
 template <
     typename RandomAccessRange,
     typename Compare = /* see below (1) */,
     typename Projection = /* see below (2) */
 >
-void timsort(RandomAccessRange &range, Compare compare, Projection projection);
+void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={});
 
 // timmerge
 
@@ -63,7 +63,7 @@ template <
     typename Projection = /* see below (2) */
 >
 void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last, Compare compare, Projection projection);
+              RandomAccessIterator last, Compare compare={}, Projection projection={});
 ```
 
 In the signatures above:
