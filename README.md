@@ -41,16 +41,16 @@ The list of available signatures is as follows (in namespace `gfx`):
 
 template <
     typename RandomAccessIterator,
-    typename Compare = /* see below (1) */,
-    typename Projection = /* see below (2) */
+    typename Compare = std::less<>,
+    typename Projection = std::identity
 >
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
              Compare compare={}, Projection projection={});
 
 template <
     typename RandomAccessRange,
-    typename Compare = /* see below (1) */,
-    typename Projection = /* see below (2) */
+    typename Compare = std::less<>,
+    typename Projection = std::identity
 >
 void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={});
 
@@ -58,16 +58,12 @@ void timsort(RandomAccessRange &range, Compare compare={}, Projection projection
 
 template <
     typename RandomAccessIterator,
-    typename Compare = /* see below (1) */,
-    typename Projection = /* see below (2) */
+    typename Compare = std::less<>,
+    typename Projection = std::identity
 >
 void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
               RandomAccessIterator last, Compare compare={}, Projection projection={});
 ```
-
-In the signatures above:
-- (1) [`std::less`][std-less] specialization for the `value_type` of the passed range or iterator.
-- (2) Custom class equivalent to [`std::identity`][std-identity].
 
 ## EXAMPLE
 
