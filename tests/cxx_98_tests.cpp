@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2022 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -507,12 +507,4 @@ TEST_CASE( "projection" ) {
     for (int i = 0; i < size; ++i) {
         CHECK(vec[i] == i - 40);
     }
-}
-
-TEST_CASE( "iterator without post-increment or post-decrement" ) {
-    std::vector<int> a;
-
-    gfx::timsort(make_no_post_iterator(a.begin()), make_no_post_iterator(a.end()));
-
-    CHECK(a.size() == std::size_t(0));
 }

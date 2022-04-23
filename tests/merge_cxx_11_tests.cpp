@@ -381,12 +381,3 @@ TEST_CASE( "merge_projection" ) {
         CHECK(a[i] == i - 40);
     }
 }
-
-TEST_CASE( "merge_iterator without post-increment or post-decrement" ) {
-    std::vector<int> a;
-
-    gfx::timmerge(make_no_post_iterator(a.begin()), make_no_post_iterator(a.begin()),
-                  make_no_post_iterator(a.end()));
-
-    CHECK(a.size() == std::size_t(0));
-}
