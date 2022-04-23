@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Morwenn
+# Copyright (c) 2021-2022 Morwenn
 # SPDX-License-Identifier: MIT
 
 name: MacOS Builds
@@ -21,14 +21,14 @@ on:
 
 jobs:
   build:
-    runs-on: macos-10.15
+    runs-on: macos-11
 
     strategy:
       fail-fast: false
       matrix:
         cxx:
           - g++-10
-          - $(brew --prefix llvm)/bin/clang++  # Clang 12
+          - $(brew --prefix llvm)/bin/clang++  # Clang 13
         config:
           # Release build
           - build_type: Release
