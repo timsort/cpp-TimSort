@@ -149,7 +149,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
 
             iter_t const pos = std::upper_bound(lo, start, pivot, compare);
             for (iter_t p = start; p > pos; --p) {
-                *p = std::move(*(p - 1));
+                *p = std::move(*std::prev(p));
             }
             *pos = std::move(pivot);
         }
@@ -158,7 +158,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     static diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi, Compare compare) {
         GFX_TIMSORT_ASSERT(lo < hi);
 
-        iter_t runHi = lo + 1;
+        auto runHi = std::next(lo);
         if (runHi == hi) {
             return 1;
         }
@@ -166,12 +166,12 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
         if (compare(*runHi, *lo)) { // decreasing
             do {
                 ++runHi;
-            } while (runHi < hi && compare(*runHi, *(runHi - 1)));
+            } while (runHi < hi && compare(*runHi, *std::prev(runHi)));
             std::reverse(lo, runHi);
         } else { // non-decreasing
             do {
                 ++runHi;
-            } while (runHi < hi && !compare(*runHi, *(runHi - 1)));
+            } while (runHi < hi && !compare(*runHi, *std::prev(runHi)));
         }
 
         return runHi - lo;
@@ -382,13 +382,13 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     static void rotateLeft(iter_t first, iter_t last)
     {
         value_t tmp = std::move(*first);
-        iter_t last_1 = std::move(first + 1, last, first);
+        auto last_1 = std::move(std::next(first), last, first);
         *last_1 = std::move(tmp);
     }
 
     static void rotateRight(iter_t first, iter_t last)
     {
-        iter_t last_1 = last - 1;
+        auto last_1 = std::prev(last);
         value_t tmp = std::move(*last_1);
         std::move_backward(first, last_1, last);
         *first = std::move(tmp);
@@ -598,12 +598,12 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
                     goto epilogue;
                 }
 
-                count2 = len2 - gallopLeft(*(cursor1 - 1), tmp_.begin(), len2, len2 - 1, compare);
+                count2 = len2 - gallopLeft(*std::prev(cursor1), tmp_.begin(), len2, len2 - 1, compare);
                 if (count2 != 0) {
                     dest -= count2;
                     cursor2 -= count2;
                     len2 -= count2;
-                    std::move(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
+                    std::move(std::next(cursor2), cursor2 + (1 + count2), std::next(dest));
                     if (len2 <= 1) {
                         goto epilogue;
                     }
