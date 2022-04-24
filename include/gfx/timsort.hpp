@@ -195,7 +195,7 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     ~TimSort() {}
 
     void pushRun(iter_t const runBase, diff_t const runLen) {
-        pending_.push_back(run<iter_t>(runBase, runLen));
+        pending_.emplace_back(runBase, runLen);
     }
 
     void mergeCollapse(Compare compare) {
