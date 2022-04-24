@@ -6,7 +6,7 @@
  * - http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
  *
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2022 Morwenn.
  * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -127,8 +127,8 @@ template <typename RandomAccessIterator, typename Compare> class TimSort {
     typedef typename std::iterator_traits<iter_t>::reference ref_t;
     typedef typename std::iterator_traits<iter_t>::difference_type diff_t;
 
-    static const int MIN_MERGE = 32;
-    static const int MIN_GALLOP = 7;
+    static constexpr int MIN_MERGE = 32;
+    static constexpr int MIN_GALLOP = 7;
 
     int minGallop_; // default to MIN_GALLOP
 
