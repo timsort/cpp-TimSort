@@ -17,22 +17,11 @@ faster on partially-sorted ones. It can be used as a drop-in replacement for [`s
 with the difference that it can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory
 available.
 
-`gfx::timsort` also has a few additional features and guarantees compared to `std::stable_sort`:
-* It can take a [projection function](https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html)
-  after the comparison function.
-* It can also be passed a range instead of a pair of iterators, in which case it will sort the whole range.
-* This implementation of timsort notably avoids using the postfix `++` or `--` operators: only their prefix equivalents
-  are used, which means that timsort will work even if the postfix operators are not present or return an incompatible
-  type such as `void`.
-
 Merging sorted ranges efficiently is an important part of the TimSort algorithm. This library exposes `gfx::timmerge`
 in the public API, a drop-in replacement for [`std::inplace_merge`][std-inplace-merge] with the difference that it
 can't fallback to a O(n log n) algorithm when there isn't enough extra heap memory available. According to the
 benchmarks, `gfx::timmerge` is slower than `std::inplace_merge` on heavily/randomly overlapping subranges of simple
 elements, but it is faster for complex elements such as `std::string` and on sparsely overlapping subranges.
-
-Just like `gfx::timsort`, `gfx::timmerge` can take a projection function and avoids using the postfix `++` and `--`
-operators.
 
 The list of available signatures is as follows (in namespace `gfx`):
 
