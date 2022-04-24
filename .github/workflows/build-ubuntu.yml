@@ -78,7 +78,7 @@ jobs:
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: ${{runner.workspace}}/build
-        run: ctest -C ${{matrix.config.build_type}}
+        run: ctest -C ${{matrix.config.build_type}} --no-tests=error
 
       - name: Run the test suite with Memcheck
         if: ${{matrix.config.valgrind == 'ON'}}
@@ -86,5 +86,5 @@ jobs:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: ${{runner.workspace}}/build
         run: |
-          ctest -T memcheck -C ${{matrix.config.build_type}} -j 2
+          ctest -T memcheck -C ${{matrix.config.build_type}} --no-tests=error -j 2
           find ./Testing/Temporary -name "MemoryChecker.*.log" -size +1300c | xargs cat;
