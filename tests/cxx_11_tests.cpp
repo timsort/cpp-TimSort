@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2024 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <gfx/timsort.hpp>
 #include "test_helpers.hpp"
 

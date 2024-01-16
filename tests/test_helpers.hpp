@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2021 Morwenn.
+ * Copyright (c) 2019-2024 Morwenn.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -12,6 +12,14 @@
 #include <iterator>
 #include <random>
 #include <utility>
+
+namespace Catch
+{
+    // This functions is only available in an internal header that
+    // drags a lot of dependencies, it's cheaper to just declare
+    // it ourselves in this wrapper
+    unsigned int rngSeed();
+}
 
 namespace test_helpers {
     // Helper types for the tests

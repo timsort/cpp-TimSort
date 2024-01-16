@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2022 Morwenn
+# Copyright (c) 2019-2024 Morwenn
 # SPDX-License-Identifier: MIT
 
 include(DownloadProject)
@@ -6,11 +6,11 @@ include(DownloadProject)
 # Download and configure Catch2 for the tests
 download_project(PROJ Catch2
                  GIT_REPOSITORY https://github.com/catchorg/Catch2
-                 GIT_TAG v2.x
+                 GIT_TAG v3.5.2
                  UPDATE_DISCONNECTED 1
 )
 add_subdirectory(${Catch2_SOURCE_DIR} ${Catch2_BINARY_DIR})
-list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/contrib)
+list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
 
 # Test suite options
 option(GFX_TIMSORT_USE_VALGRIND "Whether to run the tests with Valgrind" OFF)
@@ -25,14 +25,13 @@ endif()
 macro(configure_tests target)
     # Add required dependencies to tests
     target_link_libraries(${target} PRIVATE
-        Catch2::Catch2
+        Catch2::Catch2WithMain
         gfx::timsort
     )
 
     target_compile_definitions(${target} PRIVATE
         # Somewhat speed up Catch2 compile times
         CATCH_CONFIG_FAST_COMPILE
-        CATCH_CONFIG_DISABLE_MATCHERS
         # Enable assertions for more thorough tests
         GFX_TIMSORT_ENABLE_ASSERT
     )
@@ -76,7 +75,6 @@ endmacro()
 
 # Tests that can run with C++98
 add_executable(cxx_98_tests
-    main.cpp
     cxx_98_tests.cpp
 )
 configure_tests(cxx_98_tests)
@@ -84,7 +82,6 @@ target_compile_features(cxx_98_tests PRIVATE cxx_std_98)
 
 # Tests requiring C++11 support
 add_executable(cxx_11_tests
-    main.cpp
     merge_cxx_11_tests.cpp
     cxx_11_tests.cpp
 )
@@ -93,7 +90,6 @@ target_compile_features(cxx_11_tests PRIVATE cxx_std_11)
 
 # Tests requiring C++17 support
 add_executable(cxx_17_tests
-    main.cpp
     cxx_17_tests.cpp
 )
 configure_tests(cxx_17_tests)
@@ -102,7 +98,6 @@ target_compile_features(cxx_17_tests PRIVATE cxx_std_17)
 # Windows-specific tests
 if (WIN32)
     add_executable(windows_tests
-        main.cpp
         windows.cpp
     )
     configure_tests(windows_tests)
