@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     strategy:
       fail-fast: false
@@ -36,11 +36,8 @@ jobs:
         working-directory: ${{runner.workspace}}
         run: |
           cmake -H${{github.event.repository.name}} -Bbuild `
-                -DCMAKE_CONFIGURATION_TYPES=${{matrix.build_type}} `
                 -DCMAKE_BUILD_TYPE=${{matrix.build_type}} `
                 -G"MinGW Makefiles" `
-                -DCMAKE_C_COMPILER=C:/msys64/mingw64/bin/gcc.exe `
-                -DCMAKE_CXX_COMPILER=C:/msys64/mingw64/bin/g++.exe `
                 -DBUILD_BENCHMARKS=ON
 
       - name: Build the test suite
