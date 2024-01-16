@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Morwenn
+# Copyright (c) 2021-2024 Morwenn
 # SPDX-License-Identifier: MIT
 
 name: MSVC Builds
@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     strategy:
       fail-fast: false
@@ -38,7 +38,7 @@ jobs:
           cmake -H${{github.event.repository.name}} -Bbuild `
                 -DCMAKE_CONFIGURATION_TYPES=${{matrix.build_type}} `
                 -DCMAKE_BUILD_TYPE=${{matrix.build_type}} `
-                -G"Visual Studio 16 2019" -A x64 `
+                -G"Visual Studio 17 2022" -A x64 `
                 -DBUILD_BENCHMARKS=ON
 
       - name: Build the test suite
