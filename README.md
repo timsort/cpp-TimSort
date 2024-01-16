@@ -30,7 +30,7 @@ The list of available signatures is as follows (in namespace `gfx`):
 
 template <
     typename RandomAccessIterator,
-    typename Compare = std::less<>,
+    typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
@@ -38,7 +38,7 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
 
 template <
     typename RandomAccessRange,
-    typename Compare = std::less<>,
+    typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
 void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={});
@@ -47,7 +47,7 @@ void timsort(RandomAccessRange &range, Compare compare={}, Projection projection
 
 template <
     typename RandomAccessIterator,
-    typename Compare = std::less<>,
+    typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
 void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
@@ -69,7 +69,7 @@ size_t len(const std::string& str) {
 
 // Sort a vector of strings by length
 std::vector<std::string> collection = { /* ... */ };
-gfx::timsort(collection, std::less<std::string>{}, &len);
+gfx::timsort(collection, {}, &len);
 ```
 
 ## INSTALLATION & COMPATIBILITY
@@ -204,10 +204,6 @@ Detailed bench_merge results for different middle iterator positions can be foun
 https://github.com/timsort/cpp-TimSort/wiki/Benchmark-results
 
 
-  [projection]: https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html
-  [std-identity]: https://en.cppreference.com/w/cpp/utility/functional/identity
   [std-inplace-merge]: https://en.cppreference.com/w/cpp/algorithm/inplace_merge
-  [std-invoke]: https://en.cppreference.com/w/cpp/utility/functional/invoke
-  [std-less]: https://en.cppreference.com/w/cpp/utility/functional/less
   [std-sort]: https://en.cppreference.com/w/cpp/algorithm/sort
   [std-stable-sort]: https://en.cppreference.com/w/cpp/algorithm/stable_sort

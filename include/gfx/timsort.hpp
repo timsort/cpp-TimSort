@@ -6,7 +6,7 @@
  * - http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java
  *
  * Copyright (c) 2011 Fuji, Goro (gfx) <gfuji@cpan.org>.
- * Copyright (c) 2019-2022 Morwenn.
+ * Copyright (c) 2019-2024 Morwenn.
  * Copyright (c) 2021 Igor Kushnir <igorkuo@gmail.com>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -710,7 +710,7 @@ void timmerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAcc
  */
 template <
     typename RandomAccessIterator,
-    typename Compare = std::less<>,
+    typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
 void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
@@ -724,7 +724,7 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
  */
 template <
     typename RandomAccessRange,
-    typename Compare = std::less<>,
+    typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
 void timsort(RandomAccessRange &range, Compare comp={}, Projection proj={}) {
