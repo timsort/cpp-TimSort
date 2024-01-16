@@ -29,29 +29,32 @@ The list of available signatures is as follows (in namespace `gfx`):
 // timsort
 
 template <
-    typename RandomAccessIterator,
+    std::random_access_iterator Iterator,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
+    requires std::sortable<Iterator, Compare, Projection>
+void timsort(Iterator first, Iterator last,
              Compare compare={}, Projection projection={});
 
 template <
-    typename RandomAccessRange,
+    std::ranges::random_access_range Range,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
-void timsort(RandomAccessRange &range, Compare compare={}, Projection projection={});
+    requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
+void timsort(Range &range, Compare compare={}, Projection projection={});
 
 // timmerge
 
 template <
-    typename RandomAccessIterator,
+    std::random_access_iterator Iterator,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle,
-              RandomAccessIterator last, Compare compare={}, Projection projection={});
+    requires std::sortable<Iterator, Compare, Projection>
+void timmerge(Iterator first, Iterator middle, Iterator last,
+              Compare compare={}, Projection projection={});
 ```
 
 ## EXAMPLE

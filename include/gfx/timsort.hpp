@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -693,15 +694,16 @@ public:
  * sorted range [first, last) with a comparison function and a projection function.
  */
 template <
-    typename RandomAccessIterator,
+    std::random_access_iterator Iterator,
     typename Compare = std::less<>,
     typename Projection = std::identity
 >
-void timmerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last,
+    requires std::sortable<Iterator, Compare, Projection>
+void timmerge(Iterator first, Iterator middle, Iterator last,
               Compare comp={}, Projection proj={}) {
     GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp, proj) && "Precondition");
     GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp, proj) && "Precondition");
-    detail::TimSort<RandomAccessIterator, Compare, Projection>::merge(first, middle, last, comp, proj);
+    detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last, comp, proj);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp, proj) && "Postcondition");
 }
 
@@ -709,13 +711,14 @@ void timmerge(RandomAccessIterator first, RandomAccessIterator middle, RandomAcc
  * Stably sorts a range with a comparison function and a projection function.
  */
 template <
-    typename RandomAccessIterator,
+    std::random_access_iterator Iterator,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
-void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
+    requires std::sortable<Iterator, Compare, Projection>
+void timsort(Iterator first, Iterator last,
              Compare comp={}, Projection proj={}) {
-    detail::TimSort<RandomAccessIterator, Compare, Projection>::sort(first, last, comp, proj);
+    detail::TimSort<Iterator, Compare, Projection>::sort(first, last, comp, proj);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp, proj) && "Postcondition");
 }
 
@@ -723,11 +726,12 @@ void timsort(RandomAccessIterator const first, RandomAccessIterator const last,
  * Stably sorts a range with a comparison function and a projection function.
  */
 template <
-    typename RandomAccessRange,
+    std::ranges::random_access_range Range,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
-void timsort(RandomAccessRange &range, Compare comp={}, Projection proj={}) {
+    requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
+void timsort(Range &range, Compare comp={}, Projection proj={}) {
     gfx::timsort(std::begin(range), std::end(range), comp, proj);
 }
 
