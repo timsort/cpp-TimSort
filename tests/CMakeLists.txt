@@ -112,7 +112,7 @@ endif()
 include(CTest)
 include(Catch)
 
-string(RANDOM LENGTH 5 ALPHABET 0123456789 RNG_SEED)
+string(RANDOM LENGTH 5 ALPHABET 123456789 RNG_SEED)
 catch_discover_tests(cxx_98_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 catch_discover_tests(cxx_11_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 catch_discover_tests(cxx_17_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
