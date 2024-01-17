@@ -731,7 +731,7 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
-void timsort(Range &range, Compare comp={}, Projection proj={}) {
+void timsort(Range &&range, Compare comp={}, Projection proj={}) {
     gfx::timsort(std::begin(range), std::end(range), comp, proj);
 }
 

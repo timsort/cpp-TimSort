@@ -100,6 +100,13 @@ add_executable(cxx_17_tests
 configure_tests(cxx_17_tests)
 target_compile_features(cxx_17_tests PRIVATE cxx_std_17)
 
+# Tests requiring C++20 support
+add_executable(cxx_20_tests
+    cxx_20_tests.cpp
+)
+configure_tests(cxx_20_tests)
+target_compile_features(cxx_20_tests PRIVATE cxx_std_20)
+
 # Windows-specific tests
 if (WIN32)
     add_executable(windows_tests
@@ -116,6 +123,7 @@ string(RANDOM LENGTH 5 ALPHABET 123456789 RNG_SEED)
 catch_discover_tests(cxx_98_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 catch_discover_tests(cxx_11_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 catch_discover_tests(cxx_17_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
+catch_discover_tests(cxx_20_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 if (WIN32)
     catch_discover_tests(windows_tests EXTRA_ARGS --rng-seed ${RNG_SEED})
 endif()
