@@ -695,7 +695,7 @@ public:
  */
 template <
     std::random_access_iterator Iterator,
-    typename Compare = std::less<>,
+    typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
@@ -705,6 +705,22 @@ void timmerge(Iterator first, Iterator middle, Iterator last,
     GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp, proj) && "Precondition");
     detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last, comp, proj);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp, proj) && "Postcondition");
+}
+
+/**
+ * Stably merges two sorted halves [first, middle) and [middle, last) of a range into one
+ * sorted range [first, last) with a comparison function and a projection function.
+ */
+template <
+    std::ranges::random_access_range Range,
+    typename Compare = std::ranges::less,
+    typename Projection = std::identity
+>
+    requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
+void timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
+              Compare comp={}, Projection proj={})
+{
+    gfx::timmerge(std::begin(range), middle, std::end(range), comp, proj);
 }
 
 /**

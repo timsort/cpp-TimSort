@@ -55,6 +55,15 @@ template <
     requires std::sortable<Iterator, Compare, Projection>
 void timmerge(Iterator first, Iterator middle, Iterator last,
               Compare compare={}, Projection projection={});
+
+template <
+    std::ranges::random_access_range Range,
+    typename Compare = std::ranges::less,
+    typename Projection = std::identity
+>
+    requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
+void timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
+              Compare compare={}, Projection projection={})
 ```
 
 ## EXAMPLE
