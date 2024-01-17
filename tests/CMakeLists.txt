@@ -1,20 +1,25 @@
 # Copyright (c) 2019-2024 Morwenn
 # SPDX-License-Identifier: MIT
 
-include(DownloadProject)
+cmake_minimum_required(VERSION 3.24.0)
 
-# Download and configure Catch2 for the tests
-download_project(PROJ Catch2
-                 GIT_REPOSITORY https://github.com/catchorg/Catch2
-                 GIT_TAG v3.5.2
-                 UPDATE_DISCONNECTED 1
-)
-add_subdirectory(${Catch2_SOURCE_DIR} ${Catch2_BINARY_DIR})
-list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+include(FetchContent)
 
 # Test suite options
 option(GFX_TIMSORT_USE_VALGRIND "Whether to run the tests with Valgrind" OFF)
 set(GFX_TIMSORT_SANITIZE "" CACHE STRING "Comma-separated list of options to pass to -fsanitize")
+
+# Find/download Catch2
+FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2
+    GIT_TAG v3.5.0
+    SYSTEM
+    FIND_PACKAGE_ARGS 3.1.0
+)
+FetchContent_MakeAvailable(Catch2)
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(Catch)
 
 # Configure Valgrind
 if (${GFX_TIMSORT_USE_VALGRIND})
