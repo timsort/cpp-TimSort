@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12.4)
+cmake_minimum_required(VERSION 3.14.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -48,16 +48,11 @@ configure_package_config_file(
         ${CMAKE_INSTALL_LIBDIR}/cmake/gfx
 )
 
-# Bypass automatic architeture check introduced by CMake,
-# use the ARCH_INDEPENDENT option for this in the future
-set(GFX_TIMSORT_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
-unset(CMAKE_SIZEOF_VOID_P)
 write_basic_package_version_file(
     ${CMAKE_BINARY_DIR}/cmake/gfx-timsort-config-version.cmake
-    COMPATIBILITY
-        SameMajorVersion
+    COMPATIBILITY SameMajorVersion
+    ARCH_INDEPENDENT
 )
-set(CMAKE_SIZEOF_VOID_P ${GFX_TIMSORT_SIZEOF_VOID_P})
 
 install(
     FILES
