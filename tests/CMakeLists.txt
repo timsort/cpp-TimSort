@@ -42,7 +42,7 @@ macro(configure_tests target)
     )
 
     # Add warnings
-    if (NOT MSVC)
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU")
         target_compile_options(${target} PRIVATE
             -Wall -Wextra -Wcast-align -Wmissing-declarations -Wmissing-include-dirs
             -Wnon-virtual-dtor -Wodr -Wpedantic -Wredundant-decls -Wundef -Wunreachable-code
@@ -51,10 +51,12 @@ macro(configure_tests target)
     endif()
 
     # Configure optimization options
-    target_compile_options(${target} PRIVATE
-        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-O0>
-        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-Og>
-    )
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU")
+        target_compile_options(${target} PRIVATE
+            $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-O0>
+            $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-Og>
+        )
+    endif()
 
     # Use lld or the gold linker if possible
     if (UNIX AND NOT APPLE)
