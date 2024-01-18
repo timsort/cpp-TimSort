@@ -695,16 +695,18 @@ public:
  */
 template <
     std::random_access_iterator Iterator,
+    std::sentinel_for<Iterator> Sentinel,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timmerge(Iterator first, Iterator middle, Iterator last,
+void timmerge(Iterator first, Iterator middle, Sentinel last,
               Compare comp={}, Projection proj={}) {
+    auto last_it = std::ranges::next(first, last);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp, proj) && "Precondition");
-    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last, comp, proj) && "Precondition");
-    detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last, comp, proj);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp, proj) && "Postcondition");
+    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last_it, comp, proj) && "Precondition");
+    detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last_it, comp, proj);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last_it, comp, proj) && "Postcondition");
 }
 
 /**
@@ -728,14 +730,16 @@ void timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
  */
 template <
     std::random_access_iterator Iterator,
+    std::sentinel_for<Iterator> Sentinel,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timsort(Iterator first, Iterator last,
+void timsort(Iterator first, Sentinel last,
              Compare comp={}, Projection proj={}) {
-    detail::TimSort<Iterator, Compare, Projection>::sort(first, last, comp, proj);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, last, comp, proj) && "Postcondition");
+    auto last_it = std::ranges::next(first, last);
+    detail::TimSort<Iterator, Compare, Projection>::sort(first, last_it, comp, proj);
+    GFX_TIMSORT_AUDIT(std::is_sorted(first, last_it, comp, proj) && "Postcondition");
 }
 
 /**

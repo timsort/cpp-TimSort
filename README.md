@@ -30,11 +30,12 @@ The list of available signatures is as follows (in namespace `gfx`):
 
 template <
     std::random_access_iterator Iterator,
+    std::sentinel_for<Iterator> Sentinel,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timsort(Iterator first, Iterator last,
+void timsort(Iterator first, Sentinel last,
              Compare compare={}, Projection projection={});
 
 template <
@@ -49,11 +50,12 @@ void timsort(Range &range, Compare compare={}, Projection projection={});
 
 template <
     std::random_access_iterator Iterator,
+    std::sentinel_for<Iterator> Sentinel,
     typename Compare = std::ranges::less,
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timmerge(Iterator first, Iterator middle, Iterator last,
+void timmerge(Iterator first, Iterator middle, Sentinel last,
               Compare compare={}, Projection projection={});
 
 template <
