@@ -35,8 +35,9 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timsort(Iterator first, Sentinel last,
-             Compare compare={}, Projection projection={});
+auto timsort(Iterator first, Sentinel last,
+             Compare compare={}, Projection projection={})
+    -> Iterator;
 
 template <
     std::ranges::random_access_range Range,
@@ -44,7 +45,8 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
-void timsort(Range &range, Compare compare={}, Projection projection={});
+auto timsort(Range &range, Compare compare={}, Projection projection={})
+    -> std::ranges::borrowed_iterator_t<Range>;
 
 // timmerge
 
@@ -55,8 +57,9 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timmerge(Iterator first, Iterator middle, Sentinel last,
-              Compare compare={}, Projection projection={});
+auto timmerge(Iterator first, Iterator middle, Sentinel last,
+              Compare compare={}, Projection projection={})
+    -> Iterator;
 
 template <
     std::ranges::random_access_range Range,
@@ -64,8 +67,9 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
-void timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
+auto timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
               Compare compare={}, Projection projection={})
+    -> std::ranges::borrowed_iterator_t<Range>;
 ```
 
 ## EXAMPLE

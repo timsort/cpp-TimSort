@@ -700,13 +700,16 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timmerge(Iterator first, Iterator middle, Sentinel last,
-              Compare comp={}, Projection proj={}) {
+auto timmerge(Iterator first, Iterator middle, Sentinel last,
+              Compare comp={}, Projection proj={})
+    -> Iterator
+{
     auto last_it = std::ranges::next(first, last);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp, proj) && "Precondition");
     GFX_TIMSORT_AUDIT(std::is_sorted(middle, last_it, comp, proj) && "Precondition");
     detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last_it, comp, proj);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, last_it, comp, proj) && "Postcondition");
+    return last_it;
 }
 
 /**
@@ -719,10 +722,11 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
-void timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
+auto timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
               Compare comp={}, Projection proj={})
+    -> std::ranges::borrowed_iterator_t<Range>
 {
-    gfx::timmerge(std::begin(range), middle, std::end(range), comp, proj);
+    return gfx::timmerge(std::begin(range), middle, std::end(range), comp, proj);
 }
 
 /**
@@ -735,11 +739,14 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<Iterator, Compare, Projection>
-void timsort(Iterator first, Sentinel last,
-             Compare comp={}, Projection proj={}) {
+auto timsort(Iterator first, Sentinel last,
+             Compare comp={}, Projection proj={})
+    -> Iterator
+{
     auto last_it = std::ranges::next(first, last);
     detail::TimSort<Iterator, Compare, Projection>::sort(first, last_it, comp, proj);
     GFX_TIMSORT_AUDIT(std::is_sorted(first, last_it, comp, proj) && "Postcondition");
+    return last_it;
 }
 
 /**
@@ -751,8 +758,10 @@ template <
     typename Projection = std::identity
 >
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
-void timsort(Range &&range, Compare comp={}, Projection proj={}) {
-    gfx::timsort(std::begin(range), std::end(range), comp, proj);
+auto timsort(Range &&range, Compare comp={}, Projection proj={})
+    -> std::ranges::borrowed_iterator_t<Range>
+{
+    return gfx::timsort(std::begin(range), std::end(range), comp, proj);
 }
 
 } // namespace gfx
