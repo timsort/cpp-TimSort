@@ -380,7 +380,7 @@ class TimSort {
             return rotateRight(base1, base2 + len2);
         }
 
-        copy_to_tmp(base1, len1);
+        move_to_tmp(base1, len1);
 
         tmp_iter_t cursor1 = tmp_.begin();
         iter_t cursor2 = base2;
@@ -500,7 +500,7 @@ class TimSort {
             return rotateRight(base1, base2 + len2);
         }
 
-        copy_to_tmp(base2, len2);
+        move_to_tmp(base2, len2);
 
         iter_t cursor1 = base1 + len1;
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
@@ -616,7 +616,7 @@ class TimSort {
         }
     }
 
-    void copy_to_tmp(iter_t const begin, diff_t len) {
+    void move_to_tmp(iter_t const begin, diff_t len) {
         tmp_.assign(std::make_move_iterator(begin),
                     std::make_move_iterator(begin + len));
     }
