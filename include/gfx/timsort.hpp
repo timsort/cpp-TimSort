@@ -705,10 +705,10 @@ auto timmerge(Iterator first, Iterator middle, Sentinel last,
     -> Iterator
 {
     auto last_it = std::ranges::next(first, last);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, middle, comp, proj) && "Precondition");
-    GFX_TIMSORT_AUDIT(std::is_sorted(middle, last_it, comp, proj) && "Precondition");
+    GFX_TIMSORT_AUDIT(std::ranges::is_sorted(first, middle, comp, proj) && "Precondition");
+    GFX_TIMSORT_AUDIT(std::ranges::is_sorted(middle, last_it, comp, proj) && "Precondition");
     detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last_it, comp, proj);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, last_it, comp, proj) && "Postcondition");
+    GFX_TIMSORT_AUDIT(std::ranges::is_sorted(first, last_it, comp, proj) && "Postcondition");
     return last_it;
 }
 
@@ -745,7 +745,7 @@ auto timsort(Iterator first, Sentinel last,
 {
     auto last_it = std::ranges::next(first, last);
     detail::TimSort<Iterator, Compare, Projection>::sort(first, last_it, comp, proj);
-    GFX_TIMSORT_AUDIT(std::is_sorted(first, last_it, comp, proj) && "Postcondition");
+    GFX_TIMSORT_AUDIT(std::ranges::is_sorted(first, last_it, comp, proj) && "Postcondition");
     return last_it;
 }
 
