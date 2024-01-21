@@ -114,11 +114,11 @@ class TimSort {
         }
         for (; start < hi; ++start) {
             GFX_TIMSORT_ASSERT(lo <= start);
-            value_t pivot = std::move(*start);
+            auto pivot = std::ranges::iter_move(start);
 
             auto pos = std::ranges::upper_bound(lo, start, std::invoke(proj, pivot), comp, proj);
             for (iter_t p = start; p > pos; --p) {
-                *p = std::move(*(p - 1));
+                *p = std::ranges::iter_move(p - 1);
             }
             *pos = std::move(pivot);
         }
@@ -139,7 +139,7 @@ class TimSort {
             } while (runHi < hi && std::invoke(comp,
                                                std::invoke(proj, *runHi),
                                                std::invoke(proj, *(runHi - 1))));
-            std::reverse(lo, runHi);
+            std::ranges::reverse(lo, runHi);
         } else { // non-decreasing
             do {
                 ++runHi;
@@ -355,15 +355,15 @@ class TimSort {
     }
 
     static void rotateLeft(iter_t first, iter_t last) {
-        value_t tmp = std::move(*first);
-        iter_t last_1 = std::move(first + 1, last, first);
+        auto tmp = std::ranges::iter_move(first);
+        auto [_, last_1] = std::ranges::move(first + 1, last, first);
         *last_1 = std::move(tmp);
     }
 
     static void rotateRight(iter_t first, iter_t last) {
-        iter_t last_1 = last - 1;
-        value_t tmp = std::move(*last_1);
-        std::move_backward(first, last_1, last);
+        auto last_1 = last - 1;
+        auto tmp = std::ranges::iter_move(last_1);
+        std::ranges::move_backward(first, last_1, last);
         *first = std::move(tmp);
     }
 
@@ -386,7 +386,7 @@ class TimSort {
         iter_t cursor2 = base2;
         iter_t dest = base1;
 
-        *dest = std::move(*cursor2);
+        *dest = std::ranges::iter_move(cursor2);
         ++cursor2;
         ++dest;
         --len2;
@@ -403,7 +403,7 @@ class TimSort {
                 GFX_TIMSORT_ASSERT(len2 > 0);
 
                 if (std::invoke(comp, std::invoke(proj, *cursor2), std::invoke(proj, *cursor1))) {
-                    *dest = std::move(*cursor2);
+                    *dest = std::ranges::iter_move(cursor2);
                     ++cursor2;
                     ++dest;
                     ++count2;
@@ -412,7 +412,7 @@ class TimSort {
                         goto epilogue;
                     }
                 } else {
-                    *dest = std::move(*cursor1);
+                    *dest = std::ranges::iter_move(cursor1);
                     ++cursor1;
                     ++dest;
                     ++count1;
@@ -429,7 +429,7 @@ class TimSort {
 
                 count1 = gallopRight(std::invoke(proj, *cursor2), cursor1, len1, 0, comp, proj);
                 if (count1 != 0) {
-                    std::move_backward(cursor1, cursor1 + count1, dest + count1);
+                    std::ranges::move_backward(cursor1, cursor1 + count1, dest + count1);
                     dest += count1;
                     cursor1 += count1;
                     len1 -= count1;
@@ -438,7 +438,7 @@ class TimSort {
                         goto epilogue;
                     }
                 }
-                *dest = std::move(*cursor2);
+                *dest = std::ranges::iter_move(cursor2);
                 ++cursor2;
                 ++dest;
                 if (--len2 == 0) {
@@ -447,7 +447,7 @@ class TimSort {
 
                 count2 = gallopLeft(std::invoke(proj, *cursor1), cursor2, len2, 0, comp, proj);
                 if (count2 != 0) {
-                    std::move(cursor2, cursor2 + count2, dest);
+                    std::ranges::move(cursor2, cursor2 + count2, dest);
                     dest += count2;
                     cursor2 += count2;
                     len2 -= count2;
@@ -455,7 +455,7 @@ class TimSort {
                         goto epilogue;
                     }
                 }
-                *dest = std::move(*cursor1);
+                *dest = std::ranges::iter_move(cursor1);
                 ++cursor1;
                 ++dest;
                 if (--len1 == 1) {
@@ -477,13 +477,13 @@ class TimSort {
 
         if (len1 == 1) {
             GFX_TIMSORT_ASSERT(len2 > 0);
-            std::move(cursor2, cursor2 + len2, dest);
-            *(dest + len2) = std::move(*cursor1);
+            std::ranges::move(cursor2, cursor2 + len2, dest);
+            *(dest + len2) = std::ranges::iter_move(cursor1);
         } else {
             GFX_TIMSORT_ASSERT(len1 != 0 && "Comparison function violates its general contract");
             GFX_TIMSORT_ASSERT(len2 == 0);
             GFX_TIMSORT_ASSERT(len1 > 1);
-            std::move(cursor1, cursor1 + len1, dest);
+            std::ranges::move(cursor1, cursor1 + len1, dest);
         }
     }
 
@@ -506,7 +506,7 @@ class TimSort {
         tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
         iter_t dest = base2 + (len2 - 1);
 
-        *dest = std::move(*(--cursor1));
+        *dest = std::ranges::iter_move(--cursor1);
         --dest;
         --len1;
 
@@ -528,7 +528,7 @@ class TimSort {
                 GFX_TIMSORT_ASSERT(len2 > 1);
 
                 if (std::invoke(comp, std::invoke(proj, *cursor2), std::invoke(proj, *cursor1))) {
-                    *dest = std::move(*cursor1);
+                    *dest = std::ranges::iter_move(cursor1);
                     --dest;
                     ++count1;
                     count2 = 0;
@@ -537,7 +537,7 @@ class TimSort {
                     }
                     --cursor1;
                 } else {
-                    *dest = std::move(*cursor2);
+                    *dest = std::ranges::iter_move(cursor2);
                     --cursor2;
                     --dest;
                     ++count2;
@@ -560,13 +560,13 @@ class TimSort {
                     dest -= count1;
                     cursor1 -= count1;
                     len1 -= count1;
-                    std::move_backward(cursor1, cursor1 + count1, dest + (1 + count1));
+                    std::ranges::move_backward(cursor1, cursor1 + count1, dest + (1 + count1));
 
                     if (len1 == 0) {
                         goto epilogue;
                     }
                 }
-                *dest = std::move(*cursor2);
+                *dest = std::ranges::iter_move(cursor2);
                 --cursor2;
                 --dest;
                 if (--len2 == 1) {
@@ -579,12 +579,12 @@ class TimSort {
                     dest -= count2;
                     cursor2 -= count2;
                     len2 -= count2;
-                    std::move(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
+                    std::ranges::move(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
                     if (len2 <= 1) {
                         goto epilogue;
                     }
                 }
-                *dest = std::move(*(--cursor1));
+                *dest = std::ranges::iter_move(--cursor1);
                 --dest;
                 if (--len1 == 0) {
                     goto epilogue;
@@ -606,13 +606,13 @@ class TimSort {
         if (len2 == 1) {
             GFX_TIMSORT_ASSERT(len1 > 0);
             dest -= len1;
-            std::move_backward(cursor1 - len1, cursor1, dest + (1 + len1));
-            *dest = std::move(*cursor2);
+            std::ranges::move_backward(cursor1 - len1, cursor1, dest + (1 + len1));
+            *dest = std::ranges::iter_move(cursor2);
         } else {
             GFX_TIMSORT_ASSERT(len2 != 0 && "Comparison function violates its general contract");
             GFX_TIMSORT_ASSERT(len1 == 0);
             GFX_TIMSORT_ASSERT(len2 > 1);
-            std::move(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
+            std::ranges::move(tmp_.begin(), tmp_.begin() + len2, dest - (len2 - 1));
         }
     }
 
