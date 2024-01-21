@@ -1,6 +1,11 @@
 # http://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: LLVM
-ColumnLimit: 120
+ColumnLimit: 100
 IndentWidth: 4
+IndentPPDirectives: AfterHash
+IndentRequiresClause: true
+PointerAlignment: Left
+QualifierAlignment: Right
+ReferenceAlignment: Left
 AllowShortFunctionsOnASingleLine: false
-Standard: Cpp03
+Standard: Cpp20

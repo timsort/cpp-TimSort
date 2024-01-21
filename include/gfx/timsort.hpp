@@ -78,8 +78,9 @@ namespace gfx {
 
 namespace detail {
 
-template <typename Iterator> struct run {
-    typedef typename std::iterator_traits<Iterator>::difference_type diff_t;
+template <typename Iterator>
+struct run {
+    using diff_t = typename std::iterator_traits<Iterator>::difference_type;
 
     Iterator base;
     diff_t len;
@@ -88,22 +89,24 @@ template <typename Iterator> struct run {
     }
 };
 
-template <typename RandomAccessIterator, typename Compare, typename Projection> class TimSort {
-    typedef RandomAccessIterator iter_t;
-    typedef typename std::iterator_traits<iter_t>::value_type value_t;
-    typedef typename std::iterator_traits<iter_t>::difference_type diff_t;
+template <typename RandomAccessIterator, typename Compare, typename Projection>
+class TimSort {
+    using iter_t = RandomAccessIterator;
+    using value_t = typename std::iterator_traits<iter_t>::value_type;
+    using diff_t = typename std::iterator_traits<iter_t>::difference_type;
 
-    static const int MIN_MERGE = 32;
-    static const int MIN_GALLOP = 7;
+    static constexpr int MIN_MERGE = 32;
+    static constexpr int MIN_GALLOP = 7;
 
     int minGallop_; // default to MIN_GALLOP
 
     std::vector<value_t> tmp_; // temp storage for merges
-    typedef typename std::vector<value_t>::iterator tmp_iter_t;
+    using tmp_iter_t = typename std::vector<value_t>::iterator;
 
     std::vector<run<RandomAccessIterator> > pending_;
 
-    static void binarySort(iter_t const lo, iter_t const hi, iter_t start, Compare comp, Projection proj) {
+    static void binarySort(iter_t const lo, iter_t const hi, iter_t start,
+                           Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo <= start);
         GFX_TIMSORT_ASSERT(start <= hi);
         if (start == lo) {
@@ -113,7 +116,7 @@ template <typename RandomAccessIterator, typename Compare, typename Projection> 
             GFX_TIMSORT_ASSERT(lo <= start);
             value_t pivot = std::move(*start);
 
-            iter_t const pos = std::ranges::upper_bound(lo, start, std::invoke(proj, pivot), comp, proj);
+            auto pos = std::ranges::upper_bound(lo, start, std::invoke(proj, pivot), comp, proj);
             for (iter_t p = start; p > pos; --p) {
                 *p = std::move(*(p - 1));
             }
@@ -351,21 +354,18 @@ template <typename RandomAccessIterator, typename Compare, typename Projection> 
         return std::ranges::upper_bound(base + (lastOfs + 1), base + ofs, key, comp, proj) - base;
     }
 
-    static void rotateLeft(iter_t first, iter_t last)
-    {
+    static void rotateLeft(iter_t first, iter_t last) {
         value_t tmp = std::move(*first);
         iter_t last_1 = std::move(first + 1, last, first);
         *last_1 = std::move(tmp);
     }
 
-    static void rotateRight(iter_t first, iter_t last)
-    {
+    static void rotateRight(iter_t first, iter_t last) {
         iter_t last_1 = last - 1;
         value_t tmp = std::move(*last_1);
         std::move_backward(first, last_1, last);
         *first = std::move(tmp);
     }
-
 
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2,
                  Compare comp, Projection proj) {
