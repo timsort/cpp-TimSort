@@ -1,5 +1,5 @@
-[![Latest Release](https://img.shields.io/badge/release-2.1.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v2.1.0)
-[![Conan Package](https://img.shields.io/badge/conan-cpp--TimSort%2F2.1.0-blue.svg)](https://conan.io/center/timsort?version=2.1.0)
+[![Latest Release](https://img.shields.io/badge/release-3.0.0-blue.svg)](https://github.com/timsort/cpp-TimSort/releases/tag/v3.0.0)
+[![Conan Package](https://img.shields.io/badge/conan-cpp--TimSort%2F3.0.0-blue.svg)](https://conan.io/center/timsort?version=3.0.0)
 [![Pitchfork Layout](https://img.shields.io/badge/standard-PFL-orange.svg)](https://github.com/vector-of-bool/pitchfork)
 
 ## TimSort
@@ -10,20 +10,26 @@ See also the following links for a detailed description of TimSort:
 * http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 * http://en.wikipedia.org/wiki/Timsort
 
-This library requires at least C++11. If you need a C++98 version, you can check the 1.x.y branch of this repository.
+This version of the library requires at least C++20. Older versions of the library, available in different branches,
+offer support for older standards though implement fewer features:
+* Branch `2.x.y` is compatible with C++11, and is slightly more permissive in some reagard due to the lack of
+  concepts to constrain its interface (it notaby supports iterators without postfix operator++/--).
+* Branch `1.x.y` is compatible with C++03.
+Older versions are not actively maintained anymore. If you need extended support for those, please open specific
+issues for the problems you want solved.
 
-According to the benchmarks, `gfx::timsort` is slower than [`std::sort()`][std-sort] on randomized sequences, but
-faster on partially-sorted ones. It can be used as a drop-in replacement for [`std::stable_sort`][std-stable-sort],
-with the difference that it can't fallback to a O(n log² n) algorithm when there isn't enough extra heap memory
+According to the benchmarks, `gfx::timsort` is slower than [`std::ranges::sort`][std-sort] on randomized sequences,
+but faster on partially-sorted ones. It can be used as a drop-in replacement for [`std::ranges::stable_sort`][std-stable-sort],
+with the difference that it can't fall back to a O(n log² n) algorithm when there isn't enough extra heap memory
 available.
 
 Merging sorted ranges efficiently is an important part of the TimSort algorithm. This library exposes `gfx::timmerge`
-in the public API, a drop-in replacement for [`std::inplace_merge`][std-inplace-merge] with the difference that it
-can't fallback to a O(n log n) algorithm when there isn't enough extra heap memory available. According to the
-benchmarks, `gfx::timmerge` is slower than `std::inplace_merge` on heavily/randomly overlapping subranges of simple
-elements, but it is faster for complex elements such as `std::string` and on sparsely overlapping subranges.
+in the public API, a drop-in replacement for [`std::ranges::inplace_merge`][std-inplace-merge] with the difference
+that it can't fall back to a O(n log n) algorithm when there isn't enough extra heap memory available. According to
+the benchmarks, `gfx::timmerge` is slower than `std::ranges::inplace_merge` on heavily/randomly overlapping subranges
+of simple elements, but it is faster for complex elements such as `std::string`, and on sparsely overlapping subranges.
 
-The list of available signatures is as follows (in namespace `gfx`):
+The ibrary exposes the following functions in namespace `gfx`:
 
 ```cpp
 // timsort
@@ -74,7 +80,8 @@ auto timmerge(Range &&range, std::ranges::iterator_t<Range> middle,
 
 ## EXAMPLE
 
-Example of using timsort with a comparison function and a projection function to sort a vector of strings by length:
+Example of using timsort with a defaulted comparison function and a projection function to sort a vector of strings
+by length:
 
 ```cpp
 #include <string>
@@ -92,31 +99,28 @@ gfx::timsort(collection, {}, &len);
 
 ## INSTALLATION & COMPATIBILITY
 
-![Ubuntu builds status](https://github.com/timsort/cpp-TimSort/workflows/Ubuntu%20Builds/badge.svg?branch=master)
-![Windows builds status](https://github.com/timsort/cpp-TimSort/workflows/Windows%20Builds/badge.svg?branch=master)
-![MacOS builds status](https://github.com/timsort/cpp-TimSort/workflows/MacOS%20Builds/badge.svg?branch=master)
+[![Ubuntu Builds](https://github.com/timsort/cpp-TimSort/actions/workflows/build-ubuntu.yml/badge.svg?branch=3.x.y)](https://github.com/timsort/cpp-TimSort/actions/workflows/build-ubuntu.yml)
+[![MSVC Builds](https://github.com/timsort/cpp-TimSort/actions/workflows/build-msvc.yml/badge.svg?branch=3.x.y)](https://github.com/timsort/cpp-TimSort/actions/workflows/build-msvc.yml)
+[![MinGW-w64 Builds](https://github.com/timsort/cpp-TimSort/actions/workflows/build-mingw.yml/badge.svg?branch=3.x.y)](https://github.com/timsort/cpp-TimSort/actions/workflows/build-mingw.yml)
+[![MacOS Builds](https://github.com/timsort/cpp-TimSort/actions/workflows/build-macos.yml/badge.svg?branch=3.x.y)](https://github.com/timsort/cpp-TimSort/actions/workflows/build-macos.yml)
 
-The library has been tested with the following compilers:
-* GCC 5.5
-* Clang 6
-* MSVC 2017
+The library is tested with the following compilers:
+* Ubuntu: GCC 10, Clang 11
+* Windows: MSVC 19.37.32826.1, MinGW-w64 GCC 12
+* MacOS: GCC 10, Clang 17
 
-It should also work with more recent compilers, and most likely with some older compilers too. We used to guarantee
-support as far back as Clang 3.8, but the new continuous integration environment doesn't go that far back.
-
-The library can be installed on the system via CMake with the following commands:
+The library can be installed on the system via [CMake][cmake] (at least 3.14) with the following commands:
 
 ```sh
-cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
-cd build
-make install
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --install build
 ```
 
-Alternatively the library is also available on conan-center-index and can be installed in your local Conan cache via
-the following command:
+Alternatively the library is also available [Conan Center][conan-center] and can be directly installed in your local
+[Conan][conan] cache with the following command:
 
 ```sh
-conan install timsort/2.1.0
+conan install --requires=timsort/3.0.0
 ```
 
 ## DIAGNOSTICS & INFORMATION
@@ -142,16 +146,16 @@ GFX_TIMSORT_VERSION_PATCH
 
 The tests are written with Catch2 and can be compiled with CMake and run through CTest.
 
-When using the project's main `CMakeLists.txt`, the CMake variable `BUILD_TESTING` is `ON` by default unless the
-project is included as a subdirectory. The following CMake variables are available to change the way the tests are
+When using the project's main `CMakeLists.txt`, the CMake option `BUILD_TESTING` is `ON` by default unless the
+project is included as a subdirectory. The following CMake options are available to change the way the tests are
 built with CMake:
 * `GFX_TIMSORT_USE_VALGRIND`: if `ON`, the tests will be run through Valgrind (`OFF` by default)
 * `GFX_TIMSORT_SANITIZE`: this variable takes a comma-separated list of sanitizers options to run the tests (empty by default)
 
 ## BENCHMARKS
 
-Benchmarks are available in the `benchmarks` subdirectory, and can be constructed directly by passing `BUILD_BENCHMARKS=ON`
-variable to CMake during the configuration step.
+Benchmarks are available in the `benchmarks` subdirectory, and can be constructed directly by passing the option
+`-DBUILD_BENCHMARKS=ON` to CMake during the configuration step.
 
 Example bench_sort output (timing scale: sec.):
 
@@ -222,6 +226,9 @@ Detailed bench_merge results for different middle iterator positions can be foun
 https://github.com/timsort/cpp-TimSort/wiki/Benchmark-results
 
 
-  [std-inplace-merge]: https://en.cppreference.com/w/cpp/algorithm/inplace_merge
-  [std-sort]: https://en.cppreference.com/w/cpp/algorithm/sort
-  [std-stable-sort]: https://en.cppreference.com/w/cpp/algorithm/stable_sort
+  [cmake]: https://cmake.org/
+  [conan]: https://conan.io/
+  [conan-center]: https://conan.io/center
+  [std-inplace-merge]: https://en.cppreference.com/w/cpp/algorithm/ranges/inplace_merge
+  [std-sort]: https://en.cppreference.com/w/cpp/algorithm/ranges/sort
+  [std-stable-sort]: https://en.cppreference.com/w/cpp/algorithm/ranges/stable_sort
