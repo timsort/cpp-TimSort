@@ -118,7 +118,7 @@ class TimSort {
 
             auto pos = std::ranges::upper_bound(lo, start, std::invoke(proj, pivot), comp, proj);
             for (iter_t p = start; p > pos; --p) {
-                *p = std::ranges::iter_move(p - 1);
+                *p = std::ranges::iter_move(std::ranges::prev(p));
             }
             *pos = std::move(pivot);
         }
@@ -128,7 +128,7 @@ class TimSort {
                                            Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo < hi);
 
-        iter_t runHi = lo + 1;
+        iter_t runHi = std::ranges::next(lo);
         if (runHi == hi) {
             return 1;
         }
@@ -138,14 +138,14 @@ class TimSort {
                 ++runHi;
             } while (runHi < hi && std::invoke(comp,
                                                std::invoke(proj, *runHi),
-                                               std::invoke(proj, *(runHi - 1))));
+                                               std::invoke(proj, *std::ranges::prev(runHi))));
             std::ranges::reverse(lo, runHi);
         } else { // non-decreasing
             do {
                 ++runHi;
             } while (runHi < hi && !std::invoke(comp,
                                                 std::invoke(proj, *runHi),
-                                                std::invoke(proj, *(runHi - 1))));
+                                                std::invoke(proj, *std::ranges::prev(runHi))));
         }
 
         return runHi - lo;
@@ -356,12 +356,12 @@ class TimSort {
 
     static void rotateLeft(iter_t first, iter_t last) {
         auto tmp = std::ranges::iter_move(first);
-        auto [_, last_1] = std::ranges::move(first + 1, last, first);
+        auto [_, last_1] = std::ranges::move(std::ranges::next(first), last, first);
         *last_1 = std::move(tmp);
     }
 
     static void rotateRight(iter_t first, iter_t last) {
-        auto last_1 = last - 1;
+        auto last_1 = std::ranges::prev(last);
         auto tmp = std::ranges::iter_move(last_1);
         std::ranges::move_backward(first, last_1, last);
         *first = std::move(tmp);
@@ -573,13 +573,15 @@ class TimSort {
                     goto epilogue;
                 }
 
-                count2 = len2 - gallopLeft(std::invoke(proj, *(cursor1 - 1)),
+                count2 = len2 - gallopLeft(std::invoke(proj, *std::ranges::prev(cursor1)),
                                            tmp_.begin(), len2, len2 - 1, comp, proj);
                 if (count2 != 0) {
                     dest -= count2;
                     cursor2 -= count2;
                     len2 -= count2;
-                    std::ranges::move(cursor2 + 1, cursor2 + (1 + count2), dest + 1);
+                    std::ranges::move(std::ranges::next(cursor2),
+                                      cursor2 + (1 + count2),
+                                      std::ranges::next(dest));
                     if (len2 <= 1) {
                         goto epilogue;
                     }
