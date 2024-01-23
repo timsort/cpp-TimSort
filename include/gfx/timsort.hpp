@@ -89,7 +89,7 @@ struct run {
     }
 };
 
-template <typename RandomAccessIterator, typename Compare, typename Projection>
+template <typename RandomAccessIterator>
 class TimSort {
     using iter_t = RandomAccessIterator;
     using value_t = typename std::iterator_traits<iter_t>::value_type;
@@ -105,6 +105,7 @@ class TimSort {
 
     std::vector<run<RandomAccessIterator> > pending_;
 
+    template <typename Compare, typename Projection>
     static void binarySort(iter_t const lo, iter_t const hi, iter_t start,
                            Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo <= start);
@@ -124,6 +125,7 @@ class TimSort {
         }
     }
 
+    template <typename Compare, typename Projection>
     static diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi,
                                            Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo < hi);
@@ -172,6 +174,7 @@ class TimSort {
         pending_.push_back(run<iter_t>(runBase, runLen));
     }
 
+    template <typename Compare, typename Projection>
     void mergeCollapse(Compare comp, Projection proj) {
         while (pending_.size() > 1) {
             diff_t n = pending_.size() - 2;
@@ -190,6 +193,7 @@ class TimSort {
         }
     }
 
+    template <typename Compare, typename Projection>
     void mergeForceCollapse(Compare comp, Projection proj) {
         while (pending_.size() > 1) {
             diff_t n = pending_.size() - 2;
@@ -201,6 +205,7 @@ class TimSort {
         }
     }
 
+    template <typename Compare, typename Projection>
     void mergeAt(diff_t const i, Compare comp, Projection proj) {
         diff_t const stackSize = pending_.size();
         GFX_TIMSORT_ASSERT(stackSize >= 2);
@@ -223,6 +228,7 @@ class TimSort {
         mergeConsecutiveRuns(base1, len1, base2, len2, std::move(comp), std::move(proj));
     }
 
+    template <typename Compare, typename Projection>
     void mergeConsecutiveRuns(iter_t base1, diff_t len1, iter_t base2, diff_t len2,
                               Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(len1 > 0);
@@ -252,7 +258,7 @@ class TimSort {
         }
     }
 
-    template <typename T, typename Iter>
+    template <typename T, typename Iter, typename Compare, typename Projection>
     static diff_t gallopLeft(T const& key, Iter const base, diff_t const len, diff_t const hint,
                              Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(len > 0);
@@ -303,7 +309,7 @@ class TimSort {
         return std::ranges::lower_bound(base + (lastOfs + 1), base + ofs, key, comp, proj) - base;
     }
 
-    template <typename T, typename Iter>
+    template <typename T, typename Iter, typename Compare, typename Projection>
     static diff_t gallopRight(T const& key, Iter const base, diff_t const len, diff_t const hint,
                               Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(len > 0);
@@ -367,6 +373,7 @@ class TimSort {
         *first = std::move(tmp);
     }
 
+    template <typename Compare, typename Projection>
     void mergeLo(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2,
                  Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(len1 > 0);
@@ -487,6 +494,7 @@ class TimSort {
         }
     }
 
+    template <typename Compare, typename Projection>
     void mergeHi(iter_t const base1, diff_t len1, iter_t const base2, diff_t len2,
                  Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(len1 > 0);
@@ -625,6 +633,7 @@ class TimSort {
 
 public:
 
+    template <typename Compare, typename Projection>
     static void merge(iter_t const lo, iter_t const mid, iter_t const hi,
                       Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo <= mid);
@@ -641,6 +650,7 @@ public:
                                      << "; tmp_.size(): " << ts.tmp_.size());
     }
 
+    template <typename Compare, typename Projection>
     static void sort(iter_t const lo, iter_t const hi, Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo <= hi);
 
@@ -709,7 +719,7 @@ auto timmerge(Iterator first, Iterator middle, Sentinel last,
     auto last_it = std::ranges::next(first, last);
     GFX_TIMSORT_AUDIT(std::ranges::is_sorted(first, middle, comp, proj) && "Precondition");
     GFX_TIMSORT_AUDIT(std::ranges::is_sorted(middle, last_it, comp, proj) && "Precondition");
-    detail::TimSort<Iterator, Compare, Projection>::merge(first, middle, last_it, comp, proj);
+    detail::TimSort<Iterator>::merge(first, middle, last_it, comp, proj);
     GFX_TIMSORT_AUDIT(std::ranges::is_sorted(first, last_it, comp, proj) && "Postcondition");
     return last_it;
 }
@@ -746,7 +756,7 @@ auto timsort(Iterator first, Sentinel last,
     -> Iterator
 {
     auto last_it = std::ranges::next(first, last);
-    detail::TimSort<Iterator, Compare, Projection>::sort(first, last_it, comp, proj);
+    detail::TimSort<Iterator>::sort(first, last_it, comp, proj);
     GFX_TIMSORT_AUDIT(std::ranges::is_sorted(first, last_it, comp, proj) && "Postcondition");
     return last_it;
 }
