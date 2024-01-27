@@ -95,12 +95,9 @@ class TimSort {
     static constexpr int MIN_MERGE = 32;
     static constexpr int MIN_GALLOP = 7;
 
-    int minGallop_; // default to MIN_GALLOP
-
+    int minGallop_ = MIN_GALLOP;
     std::vector<value_t> tmp_; // temp storage for merges
-    using tmp_iter_t = typename std::vector<value_t>::iterator;
-
-    std::vector<run<RandomAccessIterator> > pending_;
+    std::vector<run<RandomAccessIterator>> pending_;
 
     template <typename Compare, typename Projection>
     static void binarySort(iter_t const lo, iter_t const hi, iter_t start,
@@ -122,7 +119,7 @@ class TimSort {
                                            Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo < hi);
 
-        iter_t runHi = std::ranges::next(lo);
+        auto runHi = std::ranges::next(lo);
         if (runHi == hi) {
             return 1;
         }
@@ -156,14 +153,8 @@ class TimSort {
         return n + r;
     }
 
-    TimSort() : minGallop_(MIN_GALLOP) {
-    }
-
-    // Silence GCC -Winline warning
-    ~TimSort() {}
-
     void pushRun(iter_t const runBase, diff_t const runLen) {
-        pending_.push_back(run<iter_t>(runBase, runLen));
+        pending_.emplace_back(runBase, runLen);
     }
 
     template <typename Compare, typename Projection>
@@ -204,10 +195,10 @@ class TimSort {
         GFX_TIMSORT_ASSERT(i >= 0);
         GFX_TIMSORT_ASSERT(i == stackSize - 2 || i == stackSize - 3);
 
-        iter_t base1 = pending_[i].base;
-        diff_t len1 = pending_[i].len;
-        iter_t base2 = pending_[i + 1].base;
-        diff_t len2 = pending_[i + 1].len;
+        auto base1 = pending_[i].base;
+        auto len1 = pending_[i].len;
+        auto base2 = pending_[i + 1].base;
+        auto len2 = pending_[i + 1].len;
 
         pending_[i].len = len1 + len2;
 
@@ -227,7 +218,7 @@ class TimSort {
         GFX_TIMSORT_ASSERT(len2 > 0);
         GFX_TIMSORT_ASSERT(base1 + len1 == base2);
 
-        diff_t const k = gallopRight(std::invoke(proj, *base2), base1, len1, 0, comp, proj);
+        auto k = gallopRight(std::invoke(proj, *base2), base1, len1, 0, comp, proj);
         GFX_TIMSORT_ASSERT(k >= 0);
 
         base1 += k;
@@ -261,7 +252,7 @@ class TimSort {
         diff_t ofs = 1;
 
         if (std::invoke(comp, std::invoke(proj, base[hint]), key)) {
-            diff_t const maxOfs = len - hint;
+            auto maxOfs = len - hint;
             while (ofs < maxOfs && std::invoke(comp, std::invoke(proj, base[hint + ofs]), key)) {
                 lastOfs = ofs;
                 ofs = (ofs << 1) + 1;
@@ -381,9 +372,9 @@ class TimSort {
 
         move_to_tmp(base1, len1);
 
-        tmp_iter_t cursor1 = tmp_.begin();
-        iter_t cursor2 = base2;
-        iter_t dest = base1;
+        auto cursor1 = tmp_.begin();
+        auto cursor2 = base2;
+        auto dest = base1;
 
         *dest = std::ranges::iter_move(cursor2);
         ++cursor2;
@@ -502,9 +493,9 @@ class TimSort {
 
         move_to_tmp(base2, len2);
 
-        iter_t cursor1 = base1 + len1;
-        tmp_iter_t cursor2 = tmp_.begin() + (len2 - 1);
-        iter_t dest = base2 + (len2 - 1);
+        auto cursor1 = base1 + len1;
+        auto cursor2 = tmp_.begin() + (len2 - 1);
+        auto dest = base2 + (len2 - 1);
 
         *dest = std::ranges::iter_move(--cursor1);
         --dest;
@@ -646,26 +637,26 @@ public:
     static void sort(iter_t const lo, iter_t const hi, Compare comp, Projection proj) {
         GFX_TIMSORT_ASSERT(lo <= hi);
 
-        diff_t nRemaining = (hi - lo);
+        auto nRemaining = hi - lo;
         if (nRemaining < 2) {
             return; // nothing to do
         }
 
         if (nRemaining < MIN_MERGE) {
-            diff_t const initRunLen = countRunAndMakeAscending(lo, hi, comp, proj);
+            auto initRunLen = countRunAndMakeAscending(lo, hi, comp, proj);
             GFX_TIMSORT_LOG("initRunLen: " << initRunLen);
             binarySort(lo, hi, lo + initRunLen, comp, proj);
             return;
         }
 
         TimSort ts;
-        diff_t const minRun = minRunLength(nRemaining);
-        iter_t cur = lo;
+        auto minRun = minRunLength(nRemaining);
+        auto cur = lo;
         do {
-            diff_t runLen = countRunAndMakeAscending(cur, hi, comp, proj);
+            auto runLen = countRunAndMakeAscending(cur, hi, comp, proj);
 
             if (runLen < minRun) {
-                diff_t const force = (std::min)(nRemaining, minRun);
+                auto force = (std::min)(nRemaining, minRun);
                 binarySort(cur, cur + force, cur + runLen, comp, proj);
                 runLen = force;
             }
