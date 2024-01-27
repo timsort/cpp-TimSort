@@ -127,9 +127,10 @@ conan install --requires=timsort/3.0.0
 
 The following configuration macros allow `gfx::timsort` and `gfx::timmerge` to emit diagnostics, which can be helpful
 to diagnose issues:
-* Defining `GFX_TIMSORT_ENABLE_ASSERT` inserts assertions in key locations in the algorithm to avoid logic errors.
+* Defining `GFX_TIMSORT_ENABLE_ASSERT` light inserts assertions in key locations in the algorithm to avoid logic errors.
 * Defining `GFX_TIMSORT_ENABLE_AUDIT` inserts assertions that verify pre- and postconditions. These verifications can
-  slow the algorithm down significantly. Enable the audits only while testing or debugging.
+  slow the algorithm down significantly. Enable the audits only while testing or debugging. Enabling audits automatically
+  enables lighter assertions too.
 * Defining `GFX_TIMSORT_ENABLE_LOG` inserts logs in key locations, which allow to follow more closely the flow of the
   algorithm.
 

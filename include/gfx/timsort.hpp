@@ -48,9 +48,6 @@
 
 #if defined(GFX_TIMSORT_ENABLE_ASSERT) || defined(GFX_TIMSORT_ENABLE_AUDIT)
 #   include <cassert>
-#endif
-
-#ifdef GFX_TIMSORT_ENABLE_ASSERT
 #   define GFX_TIMSORT_ASSERT(expr) assert(expr)
 #else
 #   define GFX_TIMSORT_ASSERT(expr) ((void)0)
