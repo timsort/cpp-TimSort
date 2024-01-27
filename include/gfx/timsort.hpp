@@ -115,13 +115,8 @@ class TimSort {
         }
         for (; start < hi; ++start) {
             GFX_TIMSORT_ASSERT(lo <= start);
-            auto pivot = std::ranges::iter_move(start);
-
-            auto pos = std::ranges::upper_bound(lo, start, std::invoke(proj, pivot), comp, proj);
-            for (iter_t p = start; p > pos; --p) {
-                *p = std::ranges::iter_move(std::ranges::prev(p));
-            }
-            *pos = std::move(pivot);
+            auto pos = std::ranges::upper_bound(lo, start, std::invoke(proj, *start), comp, proj);
+            rotateRight(pos, std::ranges::next(start));
         }
     }
 
