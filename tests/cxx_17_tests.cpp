@@ -60,7 +60,7 @@ TEST_CASE( "generalized callables" ) {
         CHECK(is_vec_sorted());
     }
 
-    std::uniform_int_distribution<int> random_middle(0, vec.size());
+    std::uniform_int_distribution<int> random_middle(0, static_cast<int>(vec.size()));
 
     SECTION( "timmerge for comparisons" ) {
         const auto middle = vec.begin() + random_middle(gen);

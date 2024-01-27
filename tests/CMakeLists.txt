@@ -42,16 +42,18 @@ macro(configure_tests target)
     )
 
     # Add warnings
-    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU")
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
         target_compile_options(${target} PRIVATE
             -Wall -Wextra -Wcast-align -Wmissing-declarations -Wmissing-include-dirs
             -Wnon-virtual-dtor -Wodr -Wpedantic -Wredundant-decls -Wundef -Wunreachable-code
             $<$<CXX_COMPILER_ID:GNU>:-Wlogical-op -Wuseless-cast>
         )
+    elseif (MSVC)
+        target_compile_options(${target} PRIVATE /W4)
     endif()
 
     # Configure optimization options
-    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU")
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
         target_compile_options(${target} PRIVATE
             $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-O0>
             $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-Og>
