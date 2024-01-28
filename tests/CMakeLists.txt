@@ -37,7 +37,10 @@ macro(configure_tests target)
     target_compile_definitions(${target} PRIVATE
         # Somewhat speed up Catch2 compile times
         CATCH_CONFIG_FAST_COMPILE
-        # Enable assertions for more thorough tests
+        # Fortify test suite for more thorough checks
+        _FORTIFY_SOURCE=3
+        _GLIBCXX_ASSERTIONS
+        _LIBCPP_ENABLE_ASSERTIONS=1
         GFX_TIMSORT_ENABLE_ASSERT
     )
 
@@ -85,6 +88,7 @@ endmacro()
 # Tests that can run with C++98
 add_executable(cxx_98_tests
     cxx_98_tests.cpp
+    verbose_abort.cpp
 )
 configure_tests(cxx_98_tests)
 target_compile_features(cxx_98_tests PRIVATE cxx_std_98)
@@ -93,6 +97,7 @@ target_compile_features(cxx_98_tests PRIVATE cxx_std_98)
 add_executable(cxx_11_tests
     merge_cxx_11_tests.cpp
     cxx_11_tests.cpp
+    verbose_abort.cpp
 )
 configure_tests(cxx_11_tests)
 target_compile_features(cxx_11_tests PRIVATE cxx_std_11)
@@ -100,6 +105,7 @@ target_compile_features(cxx_11_tests PRIVATE cxx_std_11)
 # Tests requiring C++17 support
 add_executable(cxx_17_tests
     cxx_17_tests.cpp
+    verbose_abort.cpp
 )
 configure_tests(cxx_17_tests)
 target_compile_features(cxx_17_tests PRIVATE cxx_std_17)
@@ -107,6 +113,7 @@ target_compile_features(cxx_17_tests PRIVATE cxx_std_17)
 # Tests requiring C++20 support
 add_executable(cxx_20_tests
     cxx_20_tests.cpp
+    verbose_abort.cpp
 )
 configure_tests(cxx_20_tests)
 target_compile_features(cxx_20_tests PRIVATE cxx_std_20)
